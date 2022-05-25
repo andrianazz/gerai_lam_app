@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -147,7 +149,7 @@ class _StaffPageState extends State<StaffPage> {
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
-                                                Container(
+                                                SizedBox(
                                                   height: 50,
                                                   child: TextField(
                                                     controller: nameController,
@@ -181,7 +183,7 @@ class _StaffPageState extends State<StaffPage> {
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
-                                                Container(
+                                                SizedBox(
                                                   height: 50,
                                                   child: TextField(
                                                     controller: emailController,
@@ -221,7 +223,7 @@ class _StaffPageState extends State<StaffPage> {
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
-                                                Container(
+                                                SizedBox(
                                                   height: 60,
                                                   child:
                                                       DropdownButtonFormField(
@@ -272,7 +274,7 @@ class _StaffPageState extends State<StaffPage> {
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
-                                                Container(
+                                                SizedBox(
                                                   height: 50,
                                                   child: TextField(
                                                     controller: phoneController,
@@ -308,7 +310,7 @@ class _StaffPageState extends State<StaffPage> {
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
-                                                Container(
+                                                SizedBox(
                                                   height: 50,
                                                   child: TextField(
                                                     obscureText: true,
@@ -351,7 +353,7 @@ class _StaffPageState extends State<StaffPage> {
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
-                                                Container(
+                                                SizedBox(
                                                   height: 50,
                                                   child: TextField(
                                                     obscureText: true,
@@ -625,7 +627,7 @@ class _StaffPageState extends State<StaffPage> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Container(
+                                              SizedBox(
                                                 width: 250,
                                                 child: Text(
                                                   employee['name'],
@@ -637,7 +639,7 @@ class _StaffPageState extends State<StaffPage> {
                                                   maxLines: 1,
                                                 ),
                                               ),
-                                              Container(
+                                              SizedBox(
                                                 width: 250,
                                                 child: Text(
                                                   employee['phone'],
@@ -678,7 +680,7 @@ class _StaffPageState extends State<StaffPage> {
                       } else {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
+                          children: const [
                             Text("No Data"),
                           ],
                         );
@@ -922,10 +924,10 @@ class _StaffPageState extends State<StaffPage> {
 }
 
 Widget columnAppbarLeft(context) {
-  return Container(
+  return SizedBox(
     width: MediaQuery.of(context).size.width * 2 / 3 - 60,
     child: Row(
-      children: [],
+      children: const [],
     ),
   );
 }

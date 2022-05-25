@@ -6,11 +6,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
-import 'package:gerai_lam_app/providers/product_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import '../models/supplier_model.dart';
 import '../theme.dart';
@@ -163,7 +161,7 @@ class _ProductPageState extends State<ProductPage> {
                                         context: context,
                                         builder: (_) => CupertinoAlertDialog(
                                               title: Text(
-                                                  'Konfirmasi menghapus Karyawan'),
+                                                  'Konfirmasi menghapus Produk'),
                                               content: Text(
                                                   'Apa kamu yakin inging menghapus ${product['nama']}'),
                                               actions: [

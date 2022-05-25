@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:gerai_lam_app/models/order_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/pages/detail_order_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:intl/intl.dart';
 
 import '../theme.dart';
 
@@ -14,10 +17,13 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   bool isOrder = false;
   TextEditingController searchController = TextEditingController();
 
-  final sortedProduct = mockProduct..sort((a, b) => a.nama!.compareTo(b.nama!));
+  List<OrderModel> order = [];
+  int total = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -194,160 +200,43 @@ class _OrderPageState extends State<OrderPage> {
                                 )
                               ],
                             ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 41,
-                                  child: Text(
-                                    "1",
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    "Sop Buntut",
-                                    style: primaryText.copyWith(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  "Rp. 59.000",
-                                  style: primaryText.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 41,
-                                  child: Text(
-                                    "1",
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    "Sop Iga",
-                                    style: primaryText.copyWith(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  "Rp. 50.000",
-                                  style: primaryText.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 41,
-                                  child: Text(
-                                    "1",
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    "Ayam Bakar",
-                                    style: primaryText.copyWith(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  "Rp. 25.100",
-                                  style: primaryText.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 41,
-                                  child: Text(
-                                    "1",
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    "Lemon Tea",
-                                    style: primaryText.copyWith(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  "Rp. 8.000",
-                                  style: primaryText.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 41,
-                                  child: Text(
-                                    "1",
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    "Es Teh Manis",
-                                    style: primaryText.copyWith(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  "Rp. 4.000",
-                                  style: primaryText.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )
-                              ],
+                            Column(
+                              children: order
+                                  .map((order) => Row(
+                                        children: [
+                                          Container(
+                                            width: 41,
+                                            child: Text(
+                                              order.qty.toString(),
+                                              style: primaryText.copyWith(
+                                                fontSize: 18,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 20),
+                                          Expanded(
+                                            child: Text(
+                                              order.product!.nama.toString(),
+                                              style: primaryText.copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            NumberFormat.simpleCurrency(
+                                              decimalDigits: 0,
+                                              name: 'Rp. ',
+                                            ).format(order.product!.harga_jual),
+                                            style: primaryText.copyWith(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          )
+                                        ],
+                                      ))
+                                  .toList(),
                             ),
                           ],
                         ),
@@ -362,7 +251,34 @@ class _OrderPageState extends State<OrderPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       TextButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (_) => CupertinoAlertDialog(
+                                    title: Text('Konfirmasi menghapus Orderan'),
+                                    content: Text(
+                                        'Apa kamu yakin inging menghapus semua orderan'),
+                                    actions: [
+                                      CupertinoDialogAction(
+                                        child: Text('Batal'),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      CupertinoDialogAction(
+                                        child: Text('Hapus'),
+                                        onPressed: () {
+                                          setState(() {
+                                            order.clear();
+                                            total = 0;
+                                          });
+
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  ));
+                        },
                         icon: const Icon(
                           Icons.delete,
                           color: primaryColor,
@@ -377,7 +293,9 @@ class _OrderPageState extends State<OrderPage> {
                         ),
                       ),
                       TextButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          print(order);
+                        },
                         icon: const Icon(
                           Icons.save,
                           color: primaryColor,
@@ -420,7 +338,10 @@ class _OrderPageState extends State<OrderPage> {
                         const SizedBox(width: 30),
                         Expanded(
                           child: Text(
-                            "Rp. 812.800",
+                            NumberFormat.simpleCurrency(
+                              decimalDigits: 0,
+                              name: 'Rp. ',
+                            ).format(total),
                             textAlign: TextAlign.right,
                             style: primaryText.copyWith(
                               color: Colors.white,
@@ -442,6 +363,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget listProduct() {
+    CollectionReference products = firestore.collection('product');
     return Column(
       children: [
         TextField(
@@ -461,39 +383,85 @@ class _OrderPageState extends State<OrderPage> {
         ),
         const SizedBox(height: 30),
         Expanded(
-          child: ListView(
-            scrollDirection: Axis.vertical,
-            children: sortedProduct
-                .map((product) => Card(
-                      child: ListTile(
-                        leading: Container(
-                          height: 54,
-                          width: 54,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                                image: NetworkImage(product.imageUrl!),
-                                fit: BoxFit.cover),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: products.orderBy('nama').snapshots(),
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                return ListView(
+                  scrollDirection: Axis.vertical,
+                  children: snapshot.data!.docs.map((e) {
+                    Map<String, dynamic> product =
+                        e.data() as Map<String, dynamic>;
+                    return Card(
+                      color:
+                          order.any((item) => item.idProduct == product['id'])
+                              ? secondaryColor
+                              : Colors.white,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (order.any(
+                                (item) => item.idProduct == product['id'])) {
+                              order.removeWhere(
+                                  (item) => item.idProduct == product['id']);
+
+                              total = total -
+                                  int.parse(product['harga_jual'].toString());
+                            } else {
+                              order.add(OrderModel(
+                                id: order.length + 1,
+                                qty: 1,
+                                idProduct: product['id'],
+                                product: ProductModel.fromJson(product),
+                              ));
+
+                              total = total +
+                                  int.parse(product['harga_jual'].toString());
+                            }
+                          });
+                        },
+                        child: ListTile(
+                          leading: Container(
+                            height: 54,
+                            width: 54,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                  image: NetworkImage(product['imageUrl']),
+                                  fit: BoxFit.cover),
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          product.nama!,
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                          title: Text(
+                            product['nama'],
+                            style: primaryText.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        subtitle: Text(
-                          'Rp. ${product.harga_jual!.toString()}',
-                          style: primaryText.copyWith(
-                            color: primaryColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                          subtitle: Text(
+                            NumberFormat.simpleCurrency(
+                              decimalDigits: 0,
+                              name: 'Rp. ',
+                            ).format(product['harga_jual']),
+                            style: primaryText.copyWith(
+                              color: primaryColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
-                    ))
-                .toList(),
+                    );
+                  }).toList(),
+                );
+              } else {
+                return Column(
+                  children: [
+                    CircularProgressIndicator(),
+                  ],
+                );
+              }
+            },
           ),
         )
       ],
