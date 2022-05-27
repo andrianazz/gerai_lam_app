@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
             return Center(child: Text("Something went Wrong"));
           } else if (snapshot.hasData) {
             print(snapshot.data);
-            return OrderPage();
+            return const OrderPage();
           } else {
             return Scaffold(
               body: Row(
@@ -332,7 +332,7 @@ Widget phoneSignIn(context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OrderPage(),
+                builder: (context) => const OrderPage(),
               ),
             );
           },

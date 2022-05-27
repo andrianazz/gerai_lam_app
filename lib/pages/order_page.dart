@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/models/order_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/pages/detail_order_page.dart';
+import 'package:gerai_lam_app/providers/cart_provider.dart';
+import 'package:gerai_lam_app/widgets/dialog_quantity.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../models/item_model.dart';
 import '../theme.dart';
 
 class OrderPage extends StatefulWidget {
@@ -21,9 +24,6 @@ class _OrderPageState extends State<OrderPage> {
 
   bool isOrder = false;
   TextEditingController searchController = TextEditingController();
-
-  List<OrderModel> order = [];
-  int total = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +148,13 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget landscape(context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
     return Row(
       children: [
         Container(
           width: MediaQuery.of(context).size.width * 2 / 3 - 60,
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-          child: isOrder ? listOrder() : listProduct(),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          child: isOrder ? listOrder() : listProduct(context),
         ),
         Expanded(
           child: Container(
@@ -200,41 +201,89 @@ class _OrderPageState extends State<OrderPage> {
                                 )
                               ],
                             ),
+                            SizedBox(height: 10),
                             Column(
-                              children: order
-                                  .map((order) => Row(
-                                        children: [
-                                          Container(
-                                            width: 41,
+                              children: cartProvider.carts
+                                  .map((order) => Dismissible(
+                                        key: Key(order.name.toString()),
+                                        background: Container(
+                                          color: redColor,
+                                          child: const Center(
                                             child: Text(
-                                              order.qty.toString(),
-                                              style: primaryText.copyWith(
-                                                fontSize: 18,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          Expanded(
-                                            child: Text(
-                                              order.product!.nama.toString(),
-                                              style: primaryText.copyWith(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w500,
+                                              'Hapus',
+                                              style: TextStyle(
+                                                color: Colors.white,
                                               ),
                                             ),
                                           ),
-                                          Text(
-                                            NumberFormat.simpleCurrency(
-                                              decimalDigits: 0,
-                                              name: 'Rp. ',
-                                            ).format(order.product!.harga_jual),
-                                            style: primaryText.copyWith(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          )
-                                        ],
+                                        ),
+                                        onDismissed: (direction) {
+                                          setState(() {
+                                            cartProvider.carts.removeWhere(
+                                                (item) =>
+                                                    item.name == order.name);
+                                          });
+                                        },
+                                        child: InkWell(
+                                          onLongPress: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => DialogQuantity(
+                                                item: order,
+                                              ),
+                                            );
+                                          },
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 41,
+                                                    child: Text(
+                                                      order.quantity.toString(),
+                                                      style:
+                                                          primaryText.copyWith(
+                                                        fontSize: 18,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 20),
+                                                  Expanded(
+                                                    child: Text(
+                                                      order.name.toString(),
+                                                      style:
+                                                          primaryText.copyWith(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    NumberFormat.simpleCurrency(
+                                                      decimalDigits: 0,
+                                                      name: 'Rp. ',
+                                                    ).format(order.price),
+                                                    style: primaryText.copyWith(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              Container(
+                                                margin: EdgeInsets.symmetric(
+                                                  vertical: 5,
+                                                ),
+                                                height: 1,
+                                                color: greyColor,
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ))
                                   .toList(),
                             ),
@@ -269,8 +318,7 @@ class _OrderPageState extends State<OrderPage> {
                                         child: Text('Hapus'),
                                         onPressed: () {
                                           setState(() {
-                                            order.clear();
-                                            total = 0;
+                                            cartProvider.carts.clear();
                                           });
 
                                           Navigator.pop(context);
@@ -294,7 +342,7 @@ class _OrderPageState extends State<OrderPage> {
                       ),
                       TextButton.icon(
                         onPressed: () {
-                          print(order);
+                          print(cartProvider.carts);
                         },
                         icon: const Icon(
                           Icons.save,
@@ -341,7 +389,7 @@ class _OrderPageState extends State<OrderPage> {
                             NumberFormat.simpleCurrency(
                               decimalDigits: 0,
                               name: 'Rp. ',
-                            ).format(total),
+                            ).format(cartProvider.getTotal() ?? 0),
                             textAlign: TextAlign.right,
                             style: primaryText.copyWith(
                               color: Colors.white,
@@ -362,8 +410,10 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget listProduct() {
+  Widget listProduct(context) {
     CollectionReference products = firestore.collection('product');
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+
     return Column(
       children: [
         TextField(
@@ -393,30 +443,19 @@ class _OrderPageState extends State<OrderPage> {
                     Map<String, dynamic> product =
                         e.data() as Map<String, dynamic>;
                     return Card(
-                      color:
-                          order.any((item) => item.idProduct == product['id'])
-                              ? secondaryColor
-                              : Colors.white,
+                      color: cartProvider.carts
+                              .any((item) => item.name == product['nama'])
+                          ? secondaryColor
+                          : Colors.white,
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
-                            if (order.any(
-                                (item) => item.idProduct == product['id'])) {
-                              order.removeWhere(
-                                  (item) => item.idProduct == product['id']);
-
-                              total = total -
-                                  int.parse(product['harga_jual'].toString());
+                            if (cartProvider.carts
+                                .any((item) => item.name == product['nama'])) {
+                              cartProvider.removeCart(product);
                             } else {
-                              order.add(OrderModel(
-                                id: order.length + 1,
-                                qty: 1,
-                                idProduct: product['id'],
-                                product: ProductModel.fromJson(product),
-                              ));
-
-                              total = total +
-                                  int.parse(product['harga_jual'].toString());
+                              cartProvider
+                                  .addCart(ProductModel.fromJson(product));
                             }
                           });
                         },

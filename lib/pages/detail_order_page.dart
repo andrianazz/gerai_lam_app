@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/providers/cart_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../theme.dart';
 
-class DetailOrderPage extends StatelessWidget {
+class DetailOrderPage extends StatefulWidget {
   const DetailOrderPage({Key? key}) : super(key: key);
+
+  @override
+  State<DetailOrderPage> createState() => _DetailOrderPageState();
+}
+
+class _DetailOrderPageState extends State<DetailOrderPage> {
+  bool isOngkir = false;
+  TextEditingController ongkir = TextEditingController(text: '0');
+  TextEditingController bayar = TextEditingController(text: '0');
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +39,15 @@ class DetailOrderPage extends StatelessWidget {
   Widget landscape(context) {
     return Row(
       children: [
-        columnLeft(),
-        columnCenter(),
+        columnLeft(context),
+        columnCenter(context),
         columnRight(),
       ],
     );
   }
 
-  Widget columnLeft() {
+  Widget columnLeft(context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
     return Flexible(
       child: ListView(
         children: [
@@ -74,161 +87,56 @@ class DetailOrderPage extends StatelessWidget {
                     )
                   ],
                 ),
-                Row(
-                  children: [
-                    Container(
-                      width: 41,
-                      child: Text(
-                        "1",
-                        style: primaryText.copyWith(
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Text(
-                        "Sop Buntut",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Rp. 59.000",
-                      style: primaryText.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 41,
-                      child: Text(
-                        "1",
-                        style: primaryText.copyWith(
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Text(
-                        "Sop Iga",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Rp. 50.000",
-                      style: primaryText.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 41,
-                      child: Text(
-                        "1",
-                        style: primaryText.copyWith(
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Text(
-                        "Ayam Bakar",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Rp. 25.100",
-                      style: primaryText.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 41,
-                      child: Text(
-                        "1",
-                        style: primaryText.copyWith(
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Text(
-                        "Lemon Tea",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Rp. 8.000",
-                      style: primaryText.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 41,
-                      child: Text(
-                        "1",
-                        style: primaryText.copyWith(
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Text(
-                        "Es Teh Manis",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Rp. 4.000",
-                      style: primaryText.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )
-                  ],
-                ),
+                SizedBox(height: 20),
+                Column(
+                  children: cartProvider.carts
+                      .map((order) => Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 41,
+                                    child: Text(
+                                      order.quantity.toString(),
+                                      style: primaryText.copyWith(
+                                        fontSize: 18,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Text(
+                                      order.name.toString(),
+                                      style: primaryText.copyWith(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.simpleCurrency(
+                                      decimalDigits: 0,
+                                      name: 'Rp. ',
+                                    ).format(order.price),
+                                    style: primaryText.copyWith(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Container(
+                                margin: EdgeInsets.symmetric(
+                                  vertical: 5,
+                                ),
+                                height: 1,
+                                color: greyColor,
+                              )
+                            ],
+                          ))
+                      .toList(),
+                )
               ],
             ),
           ),
@@ -237,7 +145,7 @@ class DetailOrderPage extends StatelessWidget {
     );
   }
 
-  Widget columnCenter() {
+  Widget columnCenter(context) {
     return Flexible(
       child: Column(
         children: [
@@ -247,7 +155,7 @@ class DetailOrderPage extends StatelessWidget {
               color: secondaryColor,
             ),
           ),
-          detailPayment(),
+          detailPayment(context),
           total(),
         ],
       ),
@@ -316,116 +224,95 @@ class DetailOrderPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "7",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "7";
+                            } else {
+                              bayar.text = bayar.text + "7";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "7",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "8",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "8";
+                            } else {
+                              bayar.text = bayar.text + "8";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "8",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "9",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "9";
+                            } else {
+                              bayar.text = bayar.text + "9";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "4",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "5",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "6",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                          child: Center(
+                            child: Text(
+                              "9",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -436,56 +323,95 @@ class DetailOrderPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "1",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "4";
+                            } else {
+                              bayar.text = bayar.text + "4";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "4",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "2",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "5";
+                            } else {
+                              bayar.text = bayar.text + "5";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "5",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "3",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "6";
+                            } else {
+                              bayar.text = bayar.text + "6";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "6",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -496,40 +422,163 @@ class DetailOrderPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: greyColor, width: 5),
-                          borderRadius: BorderRadius.circular(12),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "1";
+                            } else {
+                              bayar.text = bayar.text + "1";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "1",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
-                        child: Center(
-                          child: Text(
-                            "0",
-                            style: primaryText.copyWith(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "2";
+                            } else {
+                              bayar.text = bayar.text + "2";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "2",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "3";
+                            } else {
+                              bayar.text = bayar.text + "3";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "3",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isOngkir) {
+                              ongkir.text = ongkir.text + "0";
+                            } else {
+                              bayar.text = bayar.text + "0";
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: isOngkir ? blueColor : Colors.blue,
+                                width: 5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "0",
+                              style: primaryText.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 20),
                       Expanded(
-                        child: Container(
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: redColor, width: 5),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "RESET",
-                              style: primaryText.copyWith(
-                                fontSize: 32,
-                                color: redColor,
-                                fontWeight: FontWeight.bold,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isOngkir) {
+                                ongkir.text = '0';
+                              } else {
+                                bayar.text = '0';
+                              }
+                            });
+                          },
+                          child: Container(
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: redColor, width: 5),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "RESET",
+                                style: primaryText.copyWith(
+                                  fontSize: 32,
+                                  color: redColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -541,25 +590,30 @@ class DetailOrderPage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Container(
-                color: primaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "PEMBAYARAN",
-                      style: primaryText.copyWith(
-                        fontSize: 32,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+              child: GestureDetector(
+                onTap: () {
+                  print(int.parse(ongkir.text));
+                },
+                child: Container(
+                  color: primaryColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "PEMBAYARAN",
+                        style: primaryText.copyWith(
+                          fontSize: 32,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white,
-                    )
-                  ],
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.white,
+                      )
+                    ],
+                  ),
                 ),
               ),
             )
@@ -718,7 +772,9 @@ class DetailOrderPage extends StatelessWidget {
     );
   }
 
-  Widget detailPayment() {
+  Widget detailPayment(context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+
     return Container(
       height: 200,
       padding: const EdgeInsets.all(20),
@@ -738,7 +794,10 @@ class DetailOrderPage extends StatelessWidget {
                 ),
               ),
               Text(
-                "Rp. 204.000",
+                NumberFormat.simpleCurrency(
+                  decimalDigits: 0,
+                  name: 'Rp. ',
+                ).format(cartProvider.getTotal() ?? 0),
                 style: primaryText.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -747,26 +806,39 @@ class DetailOrderPage extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "PAJAK",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isOngkir = true;
+              });
+            },
+            child: Container(
+              color: blueColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "ONGKOS KIRIM",
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.simpleCurrency(
+                      decimalDigits: 0,
+                      name: 'Rp. ',
+                    ).format(int.parse(ongkir.text)),
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                "Rp. 20.400",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -789,26 +861,39 @@ class DetailOrderPage extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "BAYAR",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isOngkir = false;
+              });
+            },
+            child: Container(
+              color: Colors.blue,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "BAYAR",
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.simpleCurrency(
+                      decimalDigits: 0,
+                      name: 'Rp. ',
+                    ).format(int.parse(bayar.text)),
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                "Rp. 300.000",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+            ),
           )
         ],
       ),
