@@ -10,6 +10,10 @@ class TransactionModel {
   int? totalProducts;
   int? totalTransaction;
   int? idCashier;
+  String? payment;
+  int? ongkir;
+  String? status;
+  String? keterangan;
 
   TransactionModel({
     this.id,
@@ -20,6 +24,10 @@ class TransactionModel {
     this.totalProducts,
     this.totalTransaction,
     this.idCashier,
+    this.payment,
+    this.ongkir,
+    this.status,
+    this.keterangan,
   });
 }
 

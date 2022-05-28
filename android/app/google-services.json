@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:339261421060:android:63e782989be168f6966751",
         "android_client_info": {
-          "package_name": "com.example.gerai_lam_app"
+          "package_name": "com.gerailam.aplikasikasir"
         }
       },
       "oauth_client": [
@@ -39,7 +39,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:339261421060:android:d323dac8f244c1ff966751",
         "android_client_info": {
-          "package_name": "com.example.toko_app"
+          "package_name": "com.gerailam.aplikasikasir"
         }
       },
       "oauth_client": [

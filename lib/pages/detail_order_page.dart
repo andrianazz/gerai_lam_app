@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/pages/order_done_page.dart';
 import 'package:gerai_lam_app/providers/cart_provider.dart';
+import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +22,15 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   TextEditingController ongkir = TextEditingController(text: '0');
   TextEditingController bayar = TextEditingController(text: '0');
 
+  String mtdPayment = "TUNAI";
+
   @override
   Widget build(BuildContext context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+    int subTotal = cartProvider.getTotal();
+    int total = getTotal(subTotal);
+    int kembali = getKembali(total);
+
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
@@ -32,16 +43,16 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
           icon: const Icon(Icons.arrow_back_ios),
         ),
       ),
-      body: landscape(context),
+      body: landscape(context, subTotal, total, kembali),
     );
   }
 
-  Widget landscape(context) {
+  Widget landscape(context, int subTotal, int total, int kembali) {
     return Row(
       children: [
         columnLeft(context),
-        columnCenter(context),
-        columnRight(),
+        columnCenter(subTotal, total, kembali),
+        columnRight(context, subTotal, total, kembali),
       ],
     );
   }
@@ -136,7 +147,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                             ],
                           ))
                       .toList(),
-                )
+                ),
               ],
             ),
           ),
@@ -145,7 +156,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
     );
   }
 
-  Widget columnCenter(context) {
+  Widget columnCenter(int subTotal, int total, int kembali) {
     return Flexible(
       child: Column(
         children: [
@@ -155,14 +166,17 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
               color: secondaryColor,
             ),
           ),
-          detailPayment(context),
-          total(),
+          detailPayment(subTotal, total),
+          totalPayment(kembali),
         ],
       ),
     );
   }
 
-  Widget columnRight() {
+  Widget columnRight(context, int subTotal, int total, int kembali) {
+    TransactionProvider transact = Provider.of<TransactionProvider>(context);
+    CartProvider cartsProvider = Provider.of<CartProvider>(context);
+
     return Flexible(
       child: Container(
         color: cartColor,
@@ -173,43 +187,58 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Container(
-                    width: 163,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: greyColor,
-                        width: 5,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isOngkir = true;
+                      });
+                    },
+                    child: Container(
+                      width: 163,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: (isOngkir) ? primaryColor : greyColor,
+                          width: 5,
+                        ),
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "UANG PAS",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      child: Center(
+                        child: Text(
+                          "ONGKIR",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            color: (isOngkir) ? primaryColor : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  Container(
-                    width: 163,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: primaryColor,
-                        width: 5,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isOngkir = false;
+                      });
+                    },
+                    child: Container(
+                      width: 163,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: (!isOngkir) ? primaryColor : greyColor,
+                          width: 5,
+                        ),
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Rp. 300.000",
-                        style: primaryText.copyWith(
-                          fontSize: 20,
-                          color: primaryColor,
-                          fontWeight: FontWeight.bold,
+                      child: Center(
+                        child: Text(
+                          "BAYAR",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            color: (!isOngkir) ? primaryColor : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -592,7 +621,21 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  print(int.parse(ongkir.text));
+                  setState(() {
+                    transact.addTransactions(cartsProvider.carts, mtdPayment,
+                        int.parse(ongkir.text), total);
+
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => OrderDonePage(
+                                  subTotal: subTotal,
+                                  total: total,
+                                  kembali: kembali,
+                                  ongkir: int.parse(ongkir.text),
+                                  bayar: int.parse(bayar.text),
+                                )));
+                  });
                 },
                 child: Container(
                   color: primaryColor,
@@ -632,89 +675,61 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Container(
-                width: 163,
-                height: 76,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: primaryColor,
-                    width: 5,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "TUNAI";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (mtdPayment == "TUNAI") ? primaryColor : greyColor,
+                      width: 5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Center(
-                  child: Text(
-                    "TUNAI",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Text(
+                      "TUNAI",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color: (mtdPayment == "TUNAI")
+                            ? primaryColor
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ),
-              Container(
-                width: 163,
-                height: 76,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: greyColor,
-                    width: 5,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Center(
-                  child: Text(
-                    "EDC",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "EDC";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (mtdPayment == "EDC") ? primaryColor : greyColor,
+                      width: 5,
                     ),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                width: 163,
-                height: 76,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: greyColor,
-                    width: 5,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Center(
-                  child: Text(
-                    "OVO",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: 163,
-                height: 76,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: greyColor,
-                    width: 5,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Center(
-                  child: Text(
-                    "GRAB",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Text(
+                      "EDC",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color:
+                            (mtdPayment == "EDC") ? primaryColor : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -725,42 +740,128 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Container(
-                width: 163,
-                height: 76,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: greyColor,
-                    width: 5,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "OVO";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (mtdPayment == "OVO") ? primaryColor : greyColor,
+                      width: 5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Center(
-                  child: Text(
-                    "TRANSFER",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Text(
+                      "OVO",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color:
+                            (mtdPayment == "OVO") ? primaryColor : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ),
-              Container(
-                width: 163,
-                height: 76,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: greyColor,
-                    width: 5,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "GRAB";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (mtdPayment == "GRAB") ? primaryColor : greyColor,
+                      width: 5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  borderRadius: BorderRadius.circular(5),
+                  child: Center(
+                    child: Text(
+                      "GRAB",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color: (mtdPayment == "GRAB")
+                            ? primaryColor
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-                child: Center(
-                  child: Text(
-                    "DANA",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "TRANSFER";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          (mtdPayment == "TRANSFER") ? primaryColor : greyColor,
+                      width: 5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "TRANSFER",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color: (mtdPayment == "TRANSFER")
+                            ? primaryColor
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "DANA";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (mtdPayment == "DANA") ? primaryColor : greyColor,
+                      width: 5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "DANA",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color: (mtdPayment == "DANA")
+                            ? primaryColor
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -772,9 +873,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
     );
   }
 
-  Widget detailPayment(context) {
-    CartProvider cartProvider = Provider.of<CartProvider>(context);
-
+  Widget detailPayment(int subTotal, int total) {
     return Container(
       height: 200,
       padding: const EdgeInsets.all(20),
@@ -797,7 +896,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                 NumberFormat.simpleCurrency(
                   decimalDigits: 0,
                   name: 'Rp. ',
-                ).format(cartProvider.getTotal() ?? 0),
+                ).format(subTotal),
                 style: primaryText.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -813,7 +912,6 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
               });
             },
             child: Container(
-              color: blueColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -844,7 +942,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "TOTAL",
+                "TOTAL (ppn)",
                 style: primaryText.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -852,7 +950,10 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                 ),
               ),
               Text(
-                "Rp. 224.400",
+                NumberFormat.simpleCurrency(
+                  decimalDigits: 0,
+                  name: 'Rp. ',
+                ).format(total),
                 style: primaryText.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -868,7 +969,6 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
               });
             },
             child: Container(
-              color: Colors.blue,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -900,7 +1000,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
     );
   }
 
-  Widget total() {
+  Widget totalPayment(int kembali) {
     return Container(
       height: 89,
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -920,7 +1020,10 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
           ),
           Expanded(
             child: Text(
-              "Rp. 75.600",
+              NumberFormat.simpleCurrency(
+                decimalDigits: 0,
+                name: 'Rp. ',
+              ).format(kembali),
               style: primaryText.copyWith(
                 color: primaryColor,
                 fontSize: 28,
@@ -932,5 +1035,15 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
         ],
       ),
     );
+  }
+
+  int getTotal(int subtotal) {
+    int total = subtotal + int.parse(ongkir.text) + Random().nextInt(499);
+    return total;
+  }
+
+  int getKembali(int total) {
+    int kembali = int.parse(bayar.text) - total;
+    return kembali;
   }
 }
