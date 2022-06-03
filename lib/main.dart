@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gerai_lam_app/pages/order_done_page.dart';
 import 'package:gerai_lam_app/pages/splash_page.dart';
 import 'package:gerai_lam_app/providers/cart_provider.dart';
 import 'package:gerai_lam_app/providers/product_provider.dart';

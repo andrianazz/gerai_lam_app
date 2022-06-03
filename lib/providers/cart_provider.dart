@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 
 import '../models/item_model.dart';
+import '../theme.dart';
 
 class CartProvider with ChangeNotifier {
   List<ItemModel> _carts = [];
@@ -24,8 +25,55 @@ class CartProvider with ChangeNotifier {
       nett: int.parse(product.harga_jual.toString()) -
           int.parse(product.harga_modal.toString()),
       quantity: 1,
-      total: product.harga_jual!,
+      total: product.harga_jual,
     ));
+  }
+
+  addCartWithQty(ProductModel product, int qty, context) {
+    var exist = _carts.where((element) => element.name == product.nama);
+    if (exist.isEmpty) {
+      _carts.add(ItemModel(
+        id: _carts.length,
+        idSupplier: product.supplier!['id'],
+        zone: product.supplier!['daerah'],
+        name: product.nama,
+        capital: product.harga_modal,
+        price: product.harga_jual,
+        nett: int.parse(product.harga_jual.toString()) -
+            int.parse(product.harga_modal.toString()),
+        quantity: qty,
+        total: product.harga_jual! * qty,
+      ));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: Duration(milliseconds: 1000),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text(
+                "Menambahkan ke keranjang .....",
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          backgroundColor: primaryColor,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Produk sudah dikeranjang",
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: redColor,
+        ),
+      );
+    }
+    print(_carts);
   }
 
   removeCart(Map<String, dynamic> product) {

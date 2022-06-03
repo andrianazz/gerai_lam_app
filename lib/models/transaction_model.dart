@@ -1,5 +1,4 @@
-import 'package:gerai_lam_app/models/address_model.dart';
-import 'package:gerai_lam_app/models/item_model.dart';
+import 'item_model.dart';
 
 class TransactionModel {
   int? id;

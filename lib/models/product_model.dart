@@ -1,5 +1,3 @@
-import 'category_model.dart';
-
 class ProductModel {
   int? id;
   String? nama;

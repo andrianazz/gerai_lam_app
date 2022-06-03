@@ -1,5 +1,3 @@
-import 'package:gerai_lam_app/models/supplier_model.dart';
-
 class ItemModel {
   int? id;
   String? name;
@@ -26,6 +24,7 @@ class ItemModel {
   ItemModel.formJson(Map<String, dynamic> json) {
     id = json['id_produk'];
     name = json['nama_produk'];
+
     capital = json['harga_modal'];
     nett = json['nett'];
     price = json['harga_jual'];
