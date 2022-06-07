@@ -9,6 +9,7 @@ import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/supplier_model.dart';
 import '../theme.dart';
@@ -42,6 +43,8 @@ class _ProductPageState extends State<ProductPage> {
 
   bool _addProduct = false;
 
+  TextEditingController searchController = TextEditingController();
+
   TextEditingController nameController = TextEditingController();
   TextEditingController codeController = TextEditingController();
   TextEditingController descController = TextEditingController();
@@ -52,6 +55,8 @@ class _ProductPageState extends State<ProductPage> {
   List<SupplierModel> supplier = [];
   SupplierModel? _dropdownSupplier;
   ProductModel? selectedProduct;
+
+  String? searchProduct;
 
   String oldImage =
       'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
@@ -93,6 +98,7 @@ class _ProductPageState extends State<ProductPage> {
                     children: [
                       TextButton(
                         onPressed: () {
+                          print(searchProduct);
                           setState(() {
                             _addProduct = !_addProduct;
                           });
@@ -128,7 +134,19 @@ class _ProductPageState extends State<ProductPage> {
             child: Column(
               children: [
                 TextField(
-                  keyboardType: TextInputType.none,
+                  controller: searchController,
+                  onChanged: (value) async {
+                    await Future.delayed(Duration(seconds: 2), () {
+                      setState(() {
+                        searchProduct = value;
+                      });
+                    });
+                  },
+                  onTap: () {
+                    setState(() {
+                      searchController.clear();
+                    });
+                  },
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
                       focusColor: primaryColor,
@@ -144,7 +162,13 @@ class _ProductPageState extends State<ProductPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                      stream: products.orderBy('nama').snapshots(),
+                      stream: (searchProduct != null && searchProduct != '')
+                          ? products
+                              .where('nama',
+                                  isLessThanOrEqualTo:
+                                      searchProduct!.toUpperCase())
+                              .snapshots()
+                          : products.orderBy('nama').snapshots(),
                       builder: (_, snapshot) {
                         if (snapshot.hasData) {
                           return ListView(
@@ -334,44 +358,6 @@ class _ProductPageState extends State<ProductPage> {
                                 ),
                                 child: Column(
                                   children: [
-                                    Visibility(
-                                      visible: false,
-                                      child: StreamBuilder<QuerySnapshot>(
-                                          stream: products.snapshots(),
-                                          builder: (_, snapshot) {
-                                            idProduct =
-                                                snapshot.data!.docs.length + 1;
-                                            if (snapshot.hasData) {
-                                              return Row(
-                                                children: [
-                                                  Container(
-                                                    width: 100,
-                                                    child: TextField(
-                                                      controller:
-                                                          TextEditingController(
-                                                              text: idProduct
-                                                                  .toString()),
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      decoration:
-                                                          InputDecoration(
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(12),
-                                                        ),
-                                                        labelText: 'ID',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            } else {
-                                              return SizedBox();
-                                            }
-                                          }),
-                                    ),
                                     const SizedBox(height: 20),
                                     Row(
                                       children: [
@@ -420,7 +406,8 @@ class _ProductPageState extends State<ProductPage> {
                                     codeController.text.isNotEmpty
                                         ? ElevatedButton(
                                             onPressed: () {
-                                              imageUpload(codeController.text);
+                                              imageUpload(codeController.text
+                                                  .toString());
                                             },
                                             child: const Text('Change Image'),
                                           )
@@ -599,7 +586,10 @@ class _ProductPageState extends State<ProductPage> {
                                       );
                                       products.doc(codeController.text).set({
                                         'imageUrl': newImage ?? oldImage,
-                                        'id': idProduct,
+                                        'id': Uuid().v5(
+                                          Uuid.NAMESPACE_URL,
+                                          codeController.text.toString(),
+                                        ),
                                         'kode': codeController.text,
                                         'nama': nameController.text,
                                         'deskripsi': descController.text,

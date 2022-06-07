@@ -483,7 +483,7 @@ class _OrderPageState extends State<OrderPage> {
                               name: 'Rp. ',
                             ).format(product['harga_jual']),
                             style: primaryText.copyWith(
-                              color: primaryColor,
+                              color: greenColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const Color primaryColor = Color(0xff29B269);
+const Color primaryColor = Color(0xffF58989);
+const Color greenColor = Color(0xff29B269);
 const Color secondaryColor = Color(0xffE8F9F2);
 const Color redColor = Color(0xffAD4C4C);
 const Color secondaryRedColor = Color(0xffF9E8E8);
@@ -16,6 +17,7 @@ const Color blueColor = Color(0xff2E5AAC);
 const Color secondaryBlueColor = Color(0xff00818F);
 const Color orangeColor = Color(0xffFFE082);
 const Color appbarColor = Color(0xff39D783);
+const Color appbar2Color = Color(0xffD96868);
 const Color textGreyColor = Color(0xff6d6d6d);
 
 TextStyle primaryText = GoogleFonts.poppins();

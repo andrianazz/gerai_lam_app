@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/models/item_model.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:intl/intl.dart';
@@ -399,7 +397,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
             child: GestureDetector(
               onTap: () {
                 transactions
-                    .doc('PR-${tProvider.transactions[0].id.toString()}')
+                    .doc('${tProvider.transactions[0].id.toString()}')
                     .set({
                   'id': tProvider.transactions[0].id,
                   'tanggal': tProvider.transactions[0].date,

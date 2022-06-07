@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/costumer_model.dart';
 
@@ -12,10 +13,13 @@ class CostumerPage extends StatefulWidget {
 }
 
 class _CostumerPageState extends State<CostumerPage> {
-  CostumerModel? selectedCostumer = mockCostumer[0];
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  CostumerModel? selectedCostumer;
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference customers = firestore.collection('customer');
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
@@ -65,12 +69,19 @@ class _CostumerPageState extends State<CostumerPage> {
                 ),
                 const SizedBox(height: 30),
                 Expanded(
-                  child: ListView(
-                    children: mockCostumer
-                        .map((costumer) => GestureDetector(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: customers.orderBy('name').snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView(
+                          children: snapshot.data!.docs.map((e) {
+                            Map<String, dynamic> costumer =
+                                e.data() as Map<String, dynamic>;
+                            return GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  selectedCostumer = costumer;
+                                  selectedCostumer =
+                                      CostumerModel.fromJson(costumer);
                                 });
                               },
                               child: Card(
@@ -78,9 +89,11 @@ class _CostumerPageState extends State<CostumerPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: selectedCostumer!.id == costumer.id
-                                        ? secondaryColor
-                                        : Colors.transparent,
+                                    color: selectedCostumer == null
+                                        ? Colors.transparent
+                                        : selectedCostumer!.id == costumer['id']
+                                            ? secondaryColor
+                                            : Colors.transparent,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
@@ -97,7 +110,8 @@ class _CostumerPageState extends State<CostumerPage> {
                                                   BorderRadius.circular(12),
                                               image: DecorationImage(
                                                 image: NetworkImage(
-                                                    costumer.imageUrl!),
+                                                    costumer['imageUrl']
+                                                        .toString()),
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
@@ -110,7 +124,7 @@ class _CostumerPageState extends State<CostumerPage> {
                                               Container(
                                                 width: 250,
                                                 child: Text(
-                                                  costumer.name!,
+                                                  costumer['name'],
                                                   style: primaryText.copyWith(
                                                     fontSize: 20,
                                                     fontWeight: FontWeight.w700,
@@ -122,7 +136,7 @@ class _CostumerPageState extends State<CostumerPage> {
                                               Container(
                                                 width: 250,
                                                 child: Text(
-                                                  costumer.phone!,
+                                                  costumer['phone'],
                                                   style: primaryText.copyWith(
                                                     fontSize: 16,
                                                     color: textGreyColor,
@@ -136,220 +150,235 @@ class _CostumerPageState extends State<CostumerPage> {
                                           )
                                         ],
                                       ),
-                                      Text(
-                                        costumer.email!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 20,
-                                          color: textGreyColor,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        overflow: TextOverflow.clip,
-                                        maxLines: 1,
-                                      ),
                                     ],
                                   ),
                                 ),
                               ),
-                            ))
-                        .toList(),
+                            );
+                          }).toList(),
+                        );
+                      } else {
+                        return Center(
+                          child: Text("No Data"),
+                        );
+                      }
+                    },
                   ),
                 ),
               ],
             ),
           ),
           Expanded(
-            child: Container(
-              color: const Color(0xffF6F6F6),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
+            child: selectedCostumer == null
+                ? Container(
+                    color: primaryColor,
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: Image.asset("assets/toko_logo.png"),
+                      ),
+                    ),
+                  )
+                : Container(
+                    color: const Color(0xffF6F6F6),
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 30),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Expanded(
+                          child: ListView(
                             children: [
-                              Center(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 30),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      width: 121,
-                                      height: 121,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                              selectedCostumer!.imageUrl!),
-                                          fit: BoxFit.cover,
+                                    Center(
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: 121,
+                                            height: 121,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                image: NetworkImage(
+                                                    selectedCostumer!
+                                                        .imageUrl!),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 25),
+                                          Text(
+                                            selectedCostumer!.name!,
+                                            style: primaryText.copyWith(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            selectedCostumer!.id!.toString(),
+                                            style: primaryText.copyWith(
+                                              fontSize: 20,
+                                              color: textGreyColor,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 50),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'About',
+                                          style: primaryText.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
-                                      ),
+                                        Text(
+                                          'Pelanggan atau langganan merujuk pada individu '
+                                          'atau rumah tangga, perusahaan yang membeli '
+                                          'barang atau jasa yang dihasilkan dalam ekonomi.',
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(height: 25),
-                                    Text(
-                                      selectedCostumer!.name!,
-                                      style: primaryText.copyWith(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                    SizedBox(height: 30),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Email',
+                                          style: primaryText.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        Text(
+                                          selectedCostumer!.email!,
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      selectedCostumer!.id!.toString(),
-                                      style: primaryText.copyWith(
-                                        fontSize: 20,
-                                        color: textGreyColor,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                    SizedBox(height: 30),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'No. Telepon',
+                                                  style: primaryText.copyWith(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  selectedCostumer!.phone!,
+                                                  style: primaryText.copyWith(
+                                                    fontSize: 16,
+                                                    color: textGreyColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 50),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Status',
+                                                  style: primaryText.copyWith(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  selectedCostumer!.status!,
+                                                  style: primaryText.copyWith(
+                                                    fontSize: 16,
+                                                    color: textGreyColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Alamat Lengkap',
+                                              style: primaryText.copyWith(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedCostumer!.asal!.alamat!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedCostumer!
+                                                  .asal!.kecamatan!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedCostumer!
+                                                  .asal!.kelurahan!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedCostumer!.asal!.kota!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedCostumer!.asal!.provinsi!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ),
-                              SizedBox(height: 50),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'About',
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Pelanggan atau langganan merujuk pada individu '
-                                    'atau rumah tangga, perusahaan yang membeli '
-                                    'barang atau jasa yang dihasilkan dalam ekonomi.',
-                                    style: primaryText.copyWith(
-                                      fontSize: 16,
-                                      color: textGreyColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 30),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Email',
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(
-                                    selectedCostumer!.email!,
-                                    style: primaryText.copyWith(
-                                      fontSize: 16,
-                                      color: textGreyColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 30),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'No. Telepon',
-                                            style: primaryText.copyWith(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                          Text(
-                                            selectedCostumer!.phone!,
-                                            style: primaryText.copyWith(
-                                              fontSize: 16,
-                                              color: textGreyColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 50),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Status',
-                                            style: primaryText.copyWith(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                          Text(
-                                            selectedCostumer!.status!.name,
-                                            style: primaryText.copyWith(
-                                              fontSize: 16,
-                                              color: textGreyColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Alamat Lengkap',
-                                        style: primaryText.copyWith(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedCostumer!.address!.alamat!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedCostumer!.address!.kecamatan!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedCostumer!.address!.kelurahan!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedCostumer!
-                                            .address!.kabupatenKota!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedCostumer!.address!.provinsi!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
                               ),
                             ],
                           ),
@@ -357,62 +386,6 @@ class _CostumerPageState extends State<CostumerPage> {
                       ],
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 20, top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            primary: redColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: () {},
-                          icon: Icon(Icons.highlight_remove),
-                          label: Text(
-                            'HAPUS',
-                            style: primaryText.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(color: primaryColor, width: 2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            primary: secondaryColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.edit,
-                            color: primaryColor,
-                          ),
-                          label: Text(
-                            'EDIT',
-                            style: primaryText.copyWith(
-                              color: primaryColor,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),

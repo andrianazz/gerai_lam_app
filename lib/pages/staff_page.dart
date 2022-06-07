@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/employee_model.dart';
+import 'package:gerai_lam_app/pages/sign_up_page.dart';
 import 'package:gerai_lam_app/services/auth_service.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 
@@ -18,7 +19,7 @@ class StaffPage extends StatefulWidget {
 
 class _StaffPageState extends State<StaffPage> {
   int? idKasir = 0;
-  EmployeeModel? selectedStaff = mockEmployee[0];
+  EmployeeModel? selectedStaff;
 
   TextEditingController idController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -28,7 +29,7 @@ class _StaffPageState extends State<StaffPage> {
   TextEditingController password2Controller = TextEditingController();
 
   List<String> role = ['Kasir', 'Owner'];
-  String? _dropdownRole = 'Kasir';
+  String? _dropdownRole;
 
   @override
   Widget build(BuildContext context) {
@@ -52,469 +53,13 @@ class _StaffPageState extends State<StaffPage> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          showModalBottomSheet(
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (context) {
-                              return Scaffold(
-                                backgroundColor: Colors.transparent,
-                                body: Container(
-                                  padding: EdgeInsets.all(20),
-                                  margin: EdgeInsets.only(
-                                    left: 20,
-                                    right: 20,
-                                    top: 80,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(30),
-                                      topRight: Radius.circular(30),
-                                    ),
-                                  ),
-                                  child: ListView(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            icon: Icon(
-                                              Icons.arrow_back,
-                                              size: 32,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Tambah Karyawan",
-                                            style: primaryText.copyWith(
-                                              fontSize: 32,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 20),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Flexible(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "ID Kasir",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                Container(
-                                                  height: 50,
-                                                  width: double.infinity,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                    border: Border.all(
-                                                      color: greyColor,
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      idKasir.toString(),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(width: 20),
-                                          Flexible(
-                                            flex: 3,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Nama Kasir",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 50,
-                                                  child: TextField(
-                                                    controller: nameController,
-                                                    autofocus: true,
-                                                    decoration: InputDecoration(
-                                                      hintText: 'Masukkan Nama',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(width: 20),
-                                          Flexible(
-                                            flex: 5,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Email",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 50,
-                                                  child: TextField(
-                                                    controller: emailController,
-                                                    decoration: InputDecoration(
-                                                      hintText:
-                                                          'Masukkan Email',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Flexible(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Role",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 60,
-                                                  child:
-                                                      DropdownButtonFormField(
-                                                          decoration:
-                                                              InputDecoration(
-                                                            border:
-                                                                OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          12),
-                                                            ),
-                                                          ),
-                                                          value: _dropdownRole,
-                                                          items: role
-                                                              .map((item) =>
-                                                                  DropdownMenuItem<
-                                                                      String>(
-                                                                    child: Text(
-                                                                        item),
-                                                                    value: item,
-                                                                  ))
-                                                              .toList(),
-                                                          onChanged:
-                                                              (selected) {
-                                                            setState(() {
-                                                              _dropdownRole =
-                                                                  selected
-                                                                      as String?;
-                                                            });
-                                                          }),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(width: 20),
-                                          Flexible(
-                                            flex: 3,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "No Telepon",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 50,
-                                                  child: TextField(
-                                                    controller: phoneController,
-                                                    decoration: InputDecoration(
-                                                      hintText:
-                                                          'Masukkan Nomor Telepon',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                          8,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(width: 20),
-                                          Flexible(
-                                            flex: 5,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Password",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 50,
-                                                  child: TextField(
-                                                    obscureText: true,
-                                                    controller:
-                                                        passwordController,
-                                                    decoration: InputDecoration(
-                                                      hintText:
-                                                          'Masukkan Password',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Flexible(flex: 4, child: Container()),
-                                          SizedBox(width: 40),
-                                          Flexible(
-                                            flex: 5,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Konfirmasi Password",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    color: textGreyColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 50,
-                                                  child: TextField(
-                                                    obscureText: true,
-                                                    controller:
-                                                        password2Controller,
-                                                    decoration: InputDecoration(
-                                                      hintText:
-                                                          'Masukkan Konfirmasi Password',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              primary: secondaryColor,
-                                              fixedSize: Size(145, 50),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.cancel,
-                                                  color: primaryColor,
-                                                ),
-                                                SizedBox(width: 10),
-                                                Text(
-                                                  "BATAL",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: primaryColor,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(width: 20),
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                primary: primaryColor,
-                                                fixedSize: Size(145, 50),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                employees
-                                                    .doc(emailController.text)
-                                                    .get()
-                                                    .then((snapshot) {
-                                                  if (snapshot.exists) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          "Email sudah terdaftar",
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                        backgroundColor:
-                                                            redColor,
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    if (passwordController
-                                                            .text ==
-                                                        password2Controller
-                                                            .text) {
-                                                      employees
-                                                          .doc(emailController
-                                                              .text)
-                                                          .set({
-                                                        'id': idKasir,
-                                                        'name':
-                                                            nameController.text,
-                                                        'email': emailController
-                                                            .text,
-                                                        'phone': phoneController
-                                                            .text,
-                                                        'role': _dropdownRole,
-                                                        'status': 'aktif',
-                                                      });
-
-                                                      AuthService().createAuth(
-                                                          context,
-                                                          emailController.text,
-                                                          passwordController
-                                                              .text,
-                                                          nameController.text);
-
-                                                      clear();
-
-                                                      Navigator.pop(context);
-                                                    } else {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        const SnackBar(
-                                                          content: Text(
-                                                            "Password tidak sama",
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                          ),
-                                                          backgroundColor:
-                                                              redColor,
-                                                        ),
-                                                      );
-                                                    }
-                                                  }
-                                                });
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.save,
-                                                    color: Colors.white,
-                                                  ),
-                                                  SizedBox(width: 10),
-                                                  Text(
-                                                    "SIMPAN",
-                                                    style: primaryText.copyWith(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Colors.white,
-                                                    ),
-                                                  )
-                                                ],
-                                              )),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUpPage(
+                                isEmployee: true,
+                              ),
+                            ),
                           );
                         },
                         child: Row(
@@ -573,9 +118,8 @@ class _StaffPageState extends State<StaffPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: employees.orderBy('id').snapshots(),
+                    stream: employees.orderBy('name').snapshots(),
                     builder: (_, snapshot) {
-                      idKasir = snapshot.data!.docs.length + 1;
                       if (snapshot.hasData) {
                         return ListView(
                           children: snapshot.data!.docs.map<Widget>((e) {
@@ -594,9 +138,12 @@ class _StaffPageState extends State<StaffPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: selectedStaff!.id == employee['id']
-                                        ? secondaryColor
-                                        : Colors.transparent,
+                                    color: selectedStaff == null
+                                        ? Colors.transparent
+                                        : selectedStaff!.name.toString() ==
+                                                employee['name']
+                                            ? secondaryColor
+                                            : Colors.transparent,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
@@ -605,24 +152,6 @@ class _StaffPageState extends State<StaffPage> {
                                     children: [
                                       Row(
                                         children: [
-                                          Container(
-                                            height: 54,
-                                            width: 54,
-                                            decoration: BoxDecoration(
-                                              color: greyColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                employee['id'].toString(),
-                                                style: primaryText.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 14),
                                           Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -692,132 +221,286 @@ class _StaffPageState extends State<StaffPage> {
             ),
           ),
           Expanded(
-            child: Container(
-              color: const Color(0xffF6F6F6),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
+            child: selectedStaff == null
+                ? Container(
+                    color: primaryColor,
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: Image.asset("assets/toko_logo.png"),
+                      ),
+                    ),
+                  )
+                : Container(
+                    color: const Color(0xffF6F6F6),
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 30),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Expanded(
+                          child: ListView(
                             children: [
-                              Center(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 30),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Center(
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: 50),
+                                          Container(
+                                            height: 100,
+                                            width: double.infinity,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 10),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
+                                                    color: textGreyColor,
+                                                    width: 3)),
+                                            child: Center(
+                                              child: Text(
+                                                selectedStaff!.name!,
+                                                style: primaryText.copyWith(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     SizedBox(height: 50),
-                                    Container(
-                                      height: 100,
-                                      width: double.infinity,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 10),
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          border: Border.all(
-                                              color: textGreyColor, width: 3)),
-                                      child: Center(
-                                        child: Text(
-                                          selectedStaff!.name!,
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'About',
                                           style: primaryText.copyWith(
-                                            fontSize: 24,
+                                            fontSize: 18,
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                      ),
+                                        Text(
+                                          'Kasir adalah orang yang bertugas untuk mengurusi dan menyimpan hasil pembayaran terutama uang, dan memasukkannya ke dalam mesin kasir.',
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 30),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Email',
+                                          style: primaryText.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        Text(
+                                          selectedStaff!.email!,
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 30),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'No. Telepon',
+                                              style: primaryText.copyWith(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedStaff!.phone!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Status',
+                                              style: primaryText.copyWith(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedStaff!.status!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 50),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'About',
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 20, top: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: primaryColor, width: 2),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Text(
-                                    'Kasir adalah orang yang bertugas untuk mengurusi dan menyimpan hasil pembayaran terutama uang, dan memasukkannya ke dalam mesin kasir.',
-                                    style: primaryText.copyWith(
-                                      fontSize: 16,
-                                      color: textGreyColor,
-                                    ),
+                                  primary: secondaryColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 10,
                                   ),
-                                ],
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) => CupertinoAlertDialog(
+                                            title: Text(
+                                                'Konfirmasi Lupa Password Kasir'),
+                                            content: Text(
+                                                'Apa kamu yakin ingin mengirim email kepada ${selectedStaff!.email}?'),
+                                            actions: [
+                                              CupertinoDialogAction(
+                                                child: Text('Batal'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              CupertinoDialogAction(
+                                                child: Text('Kirim Email'),
+                                                onPressed: () {
+                                                  AuthService()
+                                                      .updatePasswordwithEmail(
+                                                          context,
+                                                          selectedStaff!
+                                                              .email!);
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          ));
+                                  setState(() {});
+                                },
+                                icon: Icon(
+                                  Icons.mark_email_read,
+                                  color: primaryColor,
+                                ),
+                                label: Text(
+                                  'Lupa Password',
+                                  style: primaryText.copyWith(
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: 30),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Email',
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Text(
-                                    selectedStaff!.email!,
-                                    style: primaryText.copyWith(
-                                      fontSize: 16,
-                                      color: textGreyColor,
-                                    ),
+                                  primary: redColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 10,
                                   ),
-                                ],
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) => CupertinoAlertDialog(
+                                            title: Text(
+                                                'Konfirmasi menghapus Karyawan'),
+                                            content: Text(
+                                                'Apa kamu yakin inging menghapus ${selectedStaff!.name}'),
+                                            actions: [
+                                              CupertinoDialogAction(
+                                                child: Text('Batal'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              CupertinoDialogAction(
+                                                child: Text('Hapus'),
+                                                onPressed: () {
+                                                  employees
+                                                      .doc(selectedStaff!.email)
+                                                      .delete();
+
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          ));
+                                },
+                                icon: Icon(Icons.highlight_remove),
+                                label: Text(
+                                  'HAPUS',
+                                  style: primaryText.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: 30),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'No. Telepon',
-                                        style: primaryText.copyWith(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedStaff!.phone!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ],
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: primaryColor, width: 2),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Status',
-                                        style: primaryText.copyWith(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedStaff!.status!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ],
+                                  primary: secondaryColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 10,
                                   ),
-                                ],
+                                ),
+                                onPressed: () {
+                                  showEditData(context);
+                                },
+                                icon: Icon(
+                                  Icons.edit,
+                                  color: primaryColor,
+                                ),
+                                label: Text(
+                                  'EDIT',
+                                  style: primaryText.copyWith(
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -825,89 +508,6 @@ class _StaffPageState extends State<StaffPage> {
                       ],
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 20, top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            primary: redColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                      title:
-                                          Text('Konfirmasi menghapus Karyawan'),
-                                      content: Text(
-                                          'Apa kamu yakin inging menghapus ${selectedStaff!.name}'),
-                                      actions: [
-                                        CupertinoDialogAction(
-                                          child: Text('Batal'),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                        CupertinoDialogAction(
-                                          child: Text('Hapus'),
-                                          onPressed: () {
-                                            employees
-                                                .doc(selectedStaff!.email)
-                                                .delete();
-
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      ],
-                                    ));
-                          },
-                          icon: Icon(Icons.highlight_remove),
-                          label: Text(
-                            'HAPUS',
-                            style: primaryText.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(color: primaryColor, width: 2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            primary: secondaryColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.edit,
-                            color: primaryColor,
-                          ),
-                          label: Text(
-                            'EDIT',
-                            style: primaryText.copyWith(
-                              color: primaryColor,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
@@ -920,6 +520,242 @@ class _StaffPageState extends State<StaffPage> {
     phoneController.clear();
     passwordController.clear();
     password2Controller.clear();
+  }
+
+  showEditData(context) {
+    CollectionReference employees =
+        FirebaseFirestore.instance.collection('employees');
+
+    nameController.text = selectedStaff!.name!;
+    _dropdownRole = selectedStaff!.role!;
+    phoneController.text = selectedStaff!.phone!;
+
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          width: 800,
+          height: 400,
+          margin: EdgeInsets.all(40),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    "Ubah Data Pegawai",
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 50),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Nama Pegawai",
+                            style: primaryText.copyWith(
+                                fontWeight: FontWeight.w600, fontSize: 18),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: nameController,
+                            style: primaryText.copyWith(
+                              fontSize: 18,
+                            ),
+                            decoration: InputDecoration(
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 20),
+                              focusColor: const Color(0xfff2f2f2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              hintText: "Masukkan Nama...",
+                              fillColor: const Color(0xfff2f2f2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Role",
+                            style: primaryText.copyWith(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          SizedBox(
+                            child: DropdownButtonFormField(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                value: _dropdownRole,
+                                hint: Text("Pilih Role"),
+                                items: role
+                                    .map((item) => DropdownMenuItem<String>(
+                                          child: Text(
+                                            item,
+                                          ),
+                                          value: item,
+                                        ))
+                                    .toList(),
+                                onChanged: (selected) {
+                                  setState(() {
+                                    _dropdownRole = selected as String?;
+                                  });
+                                }),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 30),
+                    Flexible(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "No Telepon",
+                            style: primaryText.copyWith(
+                                fontWeight: FontWeight.w600, fontSize: 18),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: phoneController,
+                            style: primaryText.copyWith(
+                              fontSize: 18,
+                            ),
+                            decoration: InputDecoration(
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 20),
+                              focusColor: const Color(0xfff2f2f2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              hintText: "Masukkan Nomor...",
+                              fillColor: const Color(0xfff2f2f2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              primary: primaryColor,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 10,
+                              ),
+                            ),
+                            onPressed: () {
+                              employees.doc(selectedStaff!.email).update({
+                                'name': nameController.text,
+                                'role': _dropdownRole,
+                                'phone': phoneController.text,
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  duration: Duration(milliseconds: 1000),
+                                  content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      CircularProgressIndicator(),
+                                      SizedBox(width: 20),
+                                      Text(
+                                        "Mengubah Data. Mohon Tunggu .....",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: primaryColor,
+                                ),
+                              );
+
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.save_alt_outlined),
+                            label: Text("UBAH DATA")),
+                        SizedBox(width: 10),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: primaryColor, width: 1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            primary: secondaryColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 10,
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(
+                            Icons.cancel_outlined,
+                            color: primaryColor,
+                          ),
+                          label: Text(
+                            "BATAL",
+                            style: primaryText.copyWith(
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

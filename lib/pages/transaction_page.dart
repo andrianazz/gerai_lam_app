@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/employee_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
@@ -15,26 +16,70 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   List<String> filterList = ['Harian', 'Mingguan', 'Bulanan', 'Tahunan'];
   String? _dropdownFilterList = 'Harian';
 
-  List<ProductModel> products = mockProduct;
-  String? _dropdownProduct = 'Wortel Segar';
+  List<ProductModel> products = [];
+  String? _dropdownProduct;
 
-  List<EmployeeModel> cashiers = mockEmployee;
-  String? _dropdownCashier = 'kasir1';
+  List<EmployeeModel> cashiers = [];
+  String? _dropdownCashier;
 
-  List<SupplierModel> suppliers = mockSupplier;
-  String? _dropdownSupplier = 'Bambang Suparman';
+  List<SupplierModel> suppliers = [];
+  String? _dropdownSupplier;
 
   final dts = DTS();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getAll();
+  }
+
+  getAll() {
+    firestore
+        .collection('supplier')
+        .orderBy('name')
+        .get()
+        .then((snapshot) => snapshot.docs.forEach((doc) {
+              setState(() {
+                suppliers.add(
+                    SupplierModel.fromJson(doc.data() as Map<String, dynamic>));
+              });
+            }));
+
+    firestore
+        .collection('product')
+        .orderBy('nama')
+        .get()
+        .then((snapshot) => snapshot.docs.forEach((doc) {
+              setState(() {
+                products.add(
+                    ProductModel.fromJson(doc.data() as Map<String, dynamic>));
+              });
+            }));
+
+    firestore
+        .collection('employees')
+        .orderBy('name')
+        .get()
+        .then((snapshot) => snapshot.docs.forEach((doc) {
+              setState(() {
+                cashiers.add(
+                    EmployeeModel.fromJson(doc.data() as Map<String, dynamic>));
+              });
+            }));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
-        title: Text('History Transaksi'),
+        title: Text('Rincian Transaksi'),
         backgroundColor: primaryColor,
         flexibleSpace: SafeArea(
           child: Container(
@@ -82,6 +127,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 Container(
                   width: 240,
                   child: DropdownButtonFormField(
+                      hint: Text("Semua Produk"),
                       decoration: InputDecoration(
                         labelText: 'Produk',
                         border: OutlineInputBorder(
@@ -108,6 +154,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 Container(
                   width: 240,
                   child: DropdownButtonFormField(
+                      hint: Text("Semua Kasir"),
                       decoration: InputDecoration(
                         labelText: 'Kasir',
                         border: OutlineInputBorder(
@@ -117,11 +164,15 @@ class _TransactionPageState extends State<TransactionPage> {
                       value: _dropdownCashier,
                       items: cashiers
                           .map((item) => DropdownMenuItem<String>(
-                                child: Text(
-                                  item.id.toString(),
-                                  overflow: TextOverflow.clip,
+                                child: Container(
+                                  width: 140,
+                                  child: Text(
+                                    item.name!,
+                                    overflow: TextOverflow.clip,
+                                    maxLines: 1,
+                                  ),
                                 ),
-                                value: item.id.toString(),
+                                value: item.name,
                               ))
                           .toList(),
                       onChanged: (selected) {
@@ -141,11 +192,16 @@ class _TransactionPageState extends State<TransactionPage> {
                         ),
                       ),
                       value: _dropdownSupplier,
+                      hint: Text("Semua Supplier"),
                       items: suppliers
                           .map((item) => DropdownMenuItem<String>(
-                                child: Text(
-                                  item.name!,
-                                  overflow: TextOverflow.clip,
+                                child: Container(
+                                  width: 140,
+                                  child: Text(
+                                    item.name!,
+                                    overflow: TextOverflow.clip,
+                                    maxLines: 1,
+                                  ),
                                 ),
                                 value: item.name,
                               ))
@@ -175,19 +231,21 @@ class _TransactionPageState extends State<TransactionPage> {
             ),
             SizedBox(height: 20),
             Expanded(
-                child: ListView(
-              children: [
-                PaginatedDataTable(
-                    header: const Text('Transaksi Harian'),
-                    columns: [
-                      DataColumn(label: Text('Tanggal')),
-                      DataColumn(label: Text('Total Kasir')),
-                      DataColumn(label: Text('Total Barang')),
-                      DataColumn(label: Text('Total Global')),
-                    ],
-                    source: dts),
-              ],
-            ))
+              child: ListView(
+                children: [
+                  PaginatedDataTable(
+                      header: const Text('Transaksi Harian'),
+                      rowsPerPage: 10,
+                      columns: [
+                        DataColumn(label: Text('Tanggal')),
+                        DataColumn(label: Text('Total Kasir')),
+                        DataColumn(label: Text('Total Barang')),
+                        DataColumn(label: Text('Total Global')),
+                      ],
+                      source: dts),
+                ],
+              ),
+            ),
           ],
         ),
       ),

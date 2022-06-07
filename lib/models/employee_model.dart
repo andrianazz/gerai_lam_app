@@ -1,8 +1,9 @@
 class EmployeeModel {
-  int? id;
+  String? id;
   String? email;
   String? name;
   String? phone;
+  DateTime? date;
   String? role;
   String? status;
 
@@ -11,6 +12,7 @@ class EmployeeModel {
     this.email,
     this.name,
     this.phone,
+    this.date,
     this.role,
     this.status,
   });
@@ -20,6 +22,7 @@ class EmployeeModel {
     email = json['email'];
     name = json['name'];
     phone = json['phone'];
+    date = json['date'].toDate();
     role = json['role'];
     status = json['status'];
   }
@@ -30,6 +33,7 @@ class EmployeeModel {
       'email': email,
       'name': name,
       'phone': phone,
+      'date': date.toString(),
       'role': role,
       'status': status,
     };
@@ -38,7 +42,7 @@ class EmployeeModel {
 
 List<EmployeeModel> mockEmployee = [
   EmployeeModel(
-    id: 1,
+    id: "1",
     email: 'Email Pengguna',
     name: 'gerai admin',
     phone: '0812xxxxxxxx',
@@ -46,7 +50,7 @@ List<EmployeeModel> mockEmployee = [
     status: 'status',
   ),
   EmployeeModel(
-    id: 2,
+    id: "2",
     email: 'Email Pengguna',
     name: 'kasir1',
     phone: '0812xxxxxxxx',
@@ -54,7 +58,7 @@ List<EmployeeModel> mockEmployee = [
     status: 'status',
   ),
   EmployeeModel(
-    id: 3,
+    id: "3",
     email: 'Email Pengguna',
     name: 'kasir2',
     phone: '0812xxxxxxxx',

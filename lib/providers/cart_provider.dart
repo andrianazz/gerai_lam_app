@@ -17,6 +17,7 @@ class CartProvider with ChangeNotifier {
   addCart(ProductModel product) {
     _carts.add(ItemModel(
       id: _carts.length,
+      idProduk: product.id,
       idSupplier: product.supplier!['id'],
       zone: product.supplier!['daerah'],
       name: product.nama,

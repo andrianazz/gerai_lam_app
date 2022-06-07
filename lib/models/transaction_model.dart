@@ -1,9 +1,9 @@
 import 'item_model.dart';
 
 class TransactionModel {
-  int? id;
+  String? id;
   DateTime? date;
-  int? idCostumer;
+  String? idCostumer;
   String? address;
   List<ItemModel>? items;
   int? totalProducts;
@@ -28,13 +28,47 @@ class TransactionModel {
     this.status,
     this.keterangan,
   });
+
+  TransactionModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    date = json['tanggal'].toDate();
+    idCostumer = json['id_costumer'];
+    address = json['address'];
+    items = json['items']
+        .map<ItemModel>((item) => ItemModel.fromJson(item))
+        .toList();
+    totalProducts = json['total_produk'];
+    totalTransaction = json['total_transaksi'];
+    idCashier = json['id_kasir'];
+    payment = json['payment'];
+    ongkir = json['ongkir'];
+    status = json['status'];
+    keterangan = json['keterangan'];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'tanggal': date.toString(),
+      'id_costumer': idCostumer,
+      'address': address,
+      'items': items!.map((item) => item.toJson()).toList(),
+      'total_produk': totalProducts,
+      'total_transaksi': totalTransaction,
+      'id_kasir': idCashier,
+      'payment': payment,
+      'ongkir': ongkir,
+      'status': status,
+      'keterangan': keterangan,
+    };
+  }
 }
 
 List<TransactionModel> mockTransaction = [
   TransactionModel(
-    id: 1,
+    id: "1",
     date: DateTime.now(),
-    idCostumer: 1,
+    idCostumer: "1",
     address: 'Jl. Nelayan',
     items: [
       ItemModel(
@@ -45,7 +79,7 @@ List<TransactionModel> mockTransaction = [
         price: 6000,
         quantity: 2,
         total: 12000,
-        idSupplier: 1,
+        idSupplier: "1",
         zone: 'Pekanbaru',
       ),
       ItemModel(
@@ -56,7 +90,7 @@ List<TransactionModel> mockTransaction = [
         price: 3500,
         quantity: 1,
         total: 3500,
-        idSupplier: 1,
+        idSupplier: "1",
         zone: 'Pekanbaru',
       ),
       ItemModel(
@@ -67,7 +101,7 @@ List<TransactionModel> mockTransaction = [
         price: 12000,
         quantity: 1,
         total: 12000,
-        idSupplier: 1,
+        idSupplier: "1",
         zone: 'Pekanbaru',
       ),
     ],
@@ -76,9 +110,9 @@ List<TransactionModel> mockTransaction = [
     idCashier: 1,
   ),
   TransactionModel(
-    id: 1,
+    id: "1",
     date: DateTime.now(),
-    idCostumer: 1,
+    idCostumer: "1",
     address: 'Jl. Rumbai',
     items: [
       ItemModel(
@@ -89,7 +123,7 @@ List<TransactionModel> mockTransaction = [
         price: 6000,
         quantity: 1,
         total: 6000,
-        idSupplier: 1,
+        idSupplier: "1",
         zone: 'Pekanbaru',
       ),
       ItemModel(
@@ -100,7 +134,7 @@ List<TransactionModel> mockTransaction = [
         price: 3500,
         quantity: 2,
         total: 7000,
-        idSupplier: 1,
+        idSupplier: "1",
         zone: 'Pekanbaru',
       ),
       ItemModel(
@@ -111,7 +145,7 @@ List<TransactionModel> mockTransaction = [
         price: 12000,
         quantity: 1,
         total: 12000,
-        idSupplier: 1,
+        idSupplier: "1",
         zone: 'Pekanbaru',
       ),
     ],

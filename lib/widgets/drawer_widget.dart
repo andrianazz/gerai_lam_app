@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/costumer_page.dart';
 import 'package:gerai_lam_app/pages/login_page.dart';
+import 'package:gerai_lam_app/pages/online_transaction_page.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
 import 'package:gerai_lam_app/pages/product_page.dart';
 import 'package:gerai_lam_app/pages/promo_page.dart';
@@ -11,6 +12,7 @@ import 'package:gerai_lam_app/pages/supplier_page.dart';
 import 'package:gerai_lam_app/pages/transaction_page.dart';
 import 'package:gerai_lam_app/services/auth_service.dart';
 
+import '../pages/change_password_page.dart';
 import '../theme.dart';
 
 class DrawerWidget extends StatelessWidget {
@@ -21,7 +23,7 @@ class DrawerWidget extends StatelessWidget {
     var user = FirebaseAuth.instance.currentUser;
 
     return Drawer(
-      backgroundColor: appbarColor,
+      backgroundColor: appbar2Color,
       child: ListView(
         children: [
           Column(
@@ -36,7 +38,7 @@ class DrawerWidget extends StatelessWidget {
                       children: [
                         Image.asset(
                           "assets/toko_icon.png",
-                          width: 53,
+                          width: 74,
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -44,10 +46,10 @@ class DrawerWidget extends StatelessWidget {
                           children: [
                             RichText(
                               text: TextSpan(
-                                text: 'Gerai ',
+                                text: 'Galeri ',
                                 style: primaryText.copyWith(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w900,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                                 children: [
@@ -72,7 +74,7 @@ class DrawerWidget extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  'TOKO',
+                                  'Toko',
                                   style: primaryText.copyWith(
                                     fontSize: 14,
                                     letterSpacing: 7,
@@ -171,29 +173,63 @@ class DrawerWidget extends StatelessWidget {
                   )
                 ],
               ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TransactionPage(),
-                    ),
-                  );
-                },
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.analytics_rounded,
+              ExpansionTile(
+                childrenPadding: EdgeInsets.only(left: 20),
+                leading: const Icon(
+                  Icons.analytics_rounded,
+                  color: Colors.white,
+                ),
+                collapsedIconColor: Colors.white,
+                title: Text(
+                  'Transaksi',
+                  style: primaryText.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
-                  title: Text(
-                    "Transaksi",
-                    style: primaryText.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                ),
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TransactionPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        "Rincian Transaksi",
+                        style: primaryText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OnlineTransactionPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        "Transaksi Online",
+                        style: primaryText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
               GestureDetector(
                 onTap: () {
@@ -321,6 +357,44 @@ class DrawerWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              ExpansionTile(
+                childrenPadding: EdgeInsets.only(left: 20),
+                leading: const Icon(
+                  Icons.account_circle_rounded,
+                  color: Colors.white,
+                ),
+                collapsedIconColor: Colors.white,
+                title: Text(
+                  'Data Diri',
+                  style: primaryText.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangePasswordPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        "Ganti Password",
+                        style: primaryText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           SizedBox(height: 50),
@@ -347,9 +421,7 @@ class DrawerWidget extends StatelessWidget {
             width: double.infinity,
             margin: EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                primary: redColor,
-              ),
+              style: ElevatedButton.styleFrom(primary: redColor, elevation: 5),
               onPressed: () {
                 AuthService().signOut();
                 Navigator.pushAndRemoveUntil(

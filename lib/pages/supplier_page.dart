@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
+import 'package:gerai_lam_app/pages/sign_up_page.dart';
+import 'package:gerai_lam_app/services/auth_service.dart';
 
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
@@ -13,12 +16,17 @@ class SuppplierPage extends StatefulWidget {
 }
 
 class _SuppplierPageState extends State<SuppplierPage> {
-  SupplierModel? selectedSupplier = mockSupplier[0];
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  SupplierModel? selectedSupplier;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController zoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference supplier = firestore.collection('supplier');
+    CollectionReference suppliers = firestore.collection('supplier');
 
     return Scaffold(
       drawer: DrawerWidget(),
@@ -70,7 +78,7 @@ class _SuppplierPageState extends State<SuppplierPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: supplier.snapshots(),
+                    stream: suppliers.orderBy('name').snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {
                         return ListView(
@@ -90,9 +98,11 @@ class _SuppplierPageState extends State<SuppplierPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: selectedSupplier!.id == sup['id']
-                                        ? secondaryColor
-                                        : Colors.transparent,
+                                    color: selectedSupplier == null
+                                        ? Colors.transparent
+                                        : selectedSupplier!.id == sup['id']
+                                            ? secondaryColor
+                                            : Colors.transparent,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
@@ -180,139 +190,298 @@ class _SuppplierPageState extends State<SuppplierPage> {
             ),
           ),
           Expanded(
-            child: Container(
-              color: const Color(0xffF6F6F6),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
+            child: selectedSupplier == null
+                ? Container(
+                    color: primaryColor,
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: Image.asset("assets/toko_logo.png"),
+                      ),
+                    ),
+                  )
+                : Container(
+                    color: const Color(0xffF6F6F6),
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 30),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Expanded(
+                          child: ListView(
                             children: [
-                              Center(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 30),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      width: 121,
-                                      height: 121,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                              selectedSupplier!.imageUrl!),
-                                          fit: BoxFit.cover,
+                                    Center(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 121,
+                                            height: 121,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                image: NetworkImage(
+                                                    selectedSupplier!
+                                                        .imageUrl!),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 25),
+                                          Text(
+                                            selectedSupplier!.name!,
+                                            style: primaryText.copyWith(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            selectedSupplier!.id!,
+                                            style: primaryText.copyWith(
+                                              fontSize: 20,
+                                              color: textGreyColor,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 50),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'About',
+                                          style: primaryText.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
-                                      ),
+                                        Text(
+                                          'Pihak perorangan atau perusahaan yang memasok atau menjual produk kepada pihak kami.',
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(height: 25),
-                                    Text(
-                                      selectedSupplier!.name!,
-                                      style: primaryText.copyWith(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                    SizedBox(height: 30),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Email',
+                                          style: primaryText.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        Text(
+                                          selectedSupplier!.email!,
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      selectedSupplier!.id!.toString(),
-                                      style: primaryText.copyWith(
-                                        fontSize: 20,
-                                        color: textGreyColor,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                    SizedBox(height: 30),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'No. Telepon',
+                                              style: primaryText.copyWith(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedSupplier!.phone!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Zone',
+                                              style: primaryText.copyWith(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              selectedSupplier!.zone!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 20, top: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: primaryColor, width: 2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  primary: secondaryColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 10,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) => CupertinoAlertDialog(
+                                            title: Text(
+                                                'Konfirmasi Lupa Password UMKM'),
+                                            content: Text(
+                                                'Apa kamu yakin ingin mengirim email kepada ${selectedSupplier!.email}?'),
+                                            actions: [
+                                              CupertinoDialogAction(
+                                                child: Text('Batal'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              CupertinoDialogAction(
+                                                child: Text('Kirim Email'),
+                                                onPressed: () {
+                                                  AuthService()
+                                                      .updatePasswordwithEmail(
+                                                          context,
+                                                          selectedSupplier!
+                                                              .email!);
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          ));
+                                  setState(() {});
+                                },
+                                icon: Icon(
+                                  Icons.mark_email_read,
+                                  color: primaryColor,
+                                ),
+                                label: Text(
+                                  'Lupa Password',
+                                  style: primaryText.copyWith(
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: 50),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'About',
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Text(
-                                    'Pihak perorangan atau perusahaan yang memasok atau menjual produk kepada pihak kami.',
-                                    style: primaryText.copyWith(
-                                      fontSize: 16,
-                                      color: textGreyColor,
-                                    ),
+                                  primary: redColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 10,
                                   ),
-                                ],
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) => CupertinoAlertDialog(
+                                            title: Text(
+                                                'Konfirmasi menghapus Supplier'),
+                                            content: Text(
+                                                'Apa kamu yakin inging menghapus ${selectedSupplier!.name}?'),
+                                            actions: [
+                                              CupertinoDialogAction(
+                                                child: Text('Batal'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              CupertinoDialogAction(
+                                                child: Text('Hapus'),
+                                                onPressed: () {
+                                                  suppliers
+                                                      .doc(selectedSupplier!
+                                                          .email)
+                                                      .delete();
+
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          ));
+                                  setState(() {});
+                                },
+                                icon: Icon(Icons.highlight_remove),
+                                label: Text(
+                                  'HAPUS',
+                                  style: primaryText.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: 30),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Email',
-                                    style: primaryText.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: primaryColor, width: 2),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Text(
-                                    selectedSupplier!.email!,
-                                    style: primaryText.copyWith(
-                                      fontSize: 16,
-                                      color: textGreyColor,
-                                    ),
+                                  primary: secondaryColor,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 10,
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 30),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'No. Telepon',
-                                        style: primaryText.copyWith(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedSupplier!.phone!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ],
+                                ),
+                                onPressed: () {
+                                  showEditData(context);
+                                },
+                                icon: Icon(
+                                  Icons.edit,
+                                  color: primaryColor,
+                                ),
+                                label: Text(
+                                  'EDIT',
+                                  style: primaryText.copyWith(
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Zone',
-                                        style: primaryText.copyWith(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        selectedSupplier!.zone!,
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
@@ -320,35 +489,231 @@ class _SuppplierPageState extends State<SuppplierPage> {
                       ],
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 20, top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+        ],
+      ),
+    );
+  }
+
+  showEditData(context) {
+    CollectionReference suppliers =
+        FirebaseFirestore.instance.collection('supplier');
+
+    String oldImage =
+        'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
+    String? newImage;
+
+    nameController.text = selectedSupplier!.name!;
+    phoneController.text = selectedSupplier!.phone!;
+    zoneController.text = selectedSupplier!.zone!;
+
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          width: 800,
+          height: 800,
+          margin: EdgeInsets.all(40),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    "Ubah Data UMKM",
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 50),
+                Center(
+                  child: Container(
+                    width: 200,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: NetworkImage(newImage ?? oldImage),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Nama UMKM",
+                            style: primaryText.copyWith(
+                                fontWeight: FontWeight.w600, fontSize: 18),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: nameController,
+                            style: primaryText.copyWith(
+                              fontSize: 18,
+                            ),
+                            decoration: InputDecoration(
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 20),
+                              focusColor: const Color(0xfff2f2f2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              hintText: "Masukkan Nama...",
+                              fillColor: const Color(0xfff2f2f2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "No Telepon",
+                            style: primaryText.copyWith(
+                                fontWeight: FontWeight.w600, fontSize: 18),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: phoneController,
+                            style: primaryText.copyWith(
+                              fontSize: 18,
+                            ),
+                            decoration: InputDecoration(
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 20),
+                              focusColor: const Color(0xfff2f2f2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              hintText: "Masukkan Nomor...",
+                              fillColor: const Color(0xfff2f2f2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Daerah Domisili",
+                            style: primaryText.copyWith(
+                                fontWeight: FontWeight.w600, fontSize: 18),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: zoneController,
+                            style: primaryText.copyWith(
+                              fontSize: 18,
+                            ),
+                            decoration: InputDecoration(
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 20),
+                              focusColor: const Color(0xfff2f2f2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              hintText: "Masukkan Daerah...",
+                              fillColor: const Color(0xfff2f2f2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
                       children: [
                         ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              primary: primaryColor,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 10,
+                              ),
                             ),
-                            primary: redColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: () {},
-                          icon: Icon(Icons.highlight_remove),
-                          label: Text(
-                            'HAPUS',
-                            style: primaryText.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
+                            onPressed: () {
+                              suppliers.doc(selectedSupplier!.email).update({
+                                'name': nameController.text,
+                                'phone': phoneController.text,
+                                'zone': zoneController.text,
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  duration: Duration(milliseconds: 1000),
+                                  content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      CircularProgressIndicator(),
+                                      SizedBox(width: 20),
+                                      Text(
+                                        "Mengubah Data. Mohon Tunggu .....",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: primaryColor,
+                                ),
+                              );
+
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.save_alt_outlined),
+                            label: Text("UBAH DATA")),
+                        SizedBox(width: 10),
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                              side: BorderSide(color: primaryColor, width: 2),
+                              side: BorderSide(color: primaryColor, width: 1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             primary: secondaryColor,
@@ -357,27 +722,28 @@ class _SuppplierPageState extends State<SuppplierPage> {
                               vertical: 10,
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                           icon: Icon(
-                            Icons.edit,
+                            Icons.cancel_outlined,
                             color: primaryColor,
                           ),
                           label: Text(
-                            'EDIT',
+                            "BATAL",
                             style: primaryText.copyWith(
                               color: primaryColor,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                ],
-              ),
+                    )
+                  ],
+                )
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -396,7 +762,33 @@ Widget columnAppbarRight(context) {
   return Expanded(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [],
+      children: [
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpPage(
+                  isEmployee: false,
+                ),
+              ),
+            );
+          },
+          child: Row(
+            children: [
+              const Icon(
+                Icons.group_add_outlined,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Text(
+                "TAMBAH SUPPLIER",
+                style: primaryText.copyWith(fontSize: 20, color: Colors.white),
+              )
+            ],
+          ),
+        ),
+      ],
     ),
   );
 }
