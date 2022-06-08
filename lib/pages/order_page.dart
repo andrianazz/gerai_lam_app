@@ -466,7 +466,7 @@ class _OrderPageState extends State<OrderPage> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               image: DecorationImage(
-                                  image: NetworkImage(product['imageUrl']),
+                                  image: NetworkImage(product['imageUrl'][0]),
                                   fit: BoxFit.cover),
                             ),
                           ),

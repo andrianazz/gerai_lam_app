@@ -39,8 +39,8 @@ class TransactionProvider with ChangeNotifier {
     }
   }
 
-  addTransactions(
-      List<ItemModel> carts, String payment, int ongkir, int total) async {
+  addTransactions(List<ItemModel> carts, String payment, int ongkir, int bayar,
+      int total) async {
     CollectionReference ref = firestore.collection('transactions');
     ref.get().then((snap) {
       _transactions.add(
@@ -53,6 +53,7 @@ class TransactionProvider with ChangeNotifier {
             idCostumer: "0",
             items: carts,
             totalProducts: carts.length,
+            pay: bayar,
             totalTransaction: total,
             status: 'Proses',
             ongkir: ongkir,

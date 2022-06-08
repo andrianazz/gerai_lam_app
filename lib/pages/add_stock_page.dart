@@ -2,11 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
+import 'package:gerai_lam_app/providers/stock_in_provider.dart';
+import 'package:gerai_lam_app/providers/stock_provider.dart';
+import 'package:gerai_lam_app/providers/stock_return_provider.dart';
+import 'package:gerai_lam_app/widgets/dialog_stock_in.dart';
+import 'package:gerai_lam_app/widgets/dialog_stock_return.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/supplier_model.dart';
 import '../theme.dart';
+import '../widgets/dialog_quantity.dart';
 
 class AddStockPage extends StatefulWidget {
   const AddStockPage({Key? key}) : super(key: key);
@@ -18,18 +26,22 @@ class AddStockPage extends StatefulWidget {
 class _AddStockPageState extends State<AddStockPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  TextEditingController descController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     getSuppliers();
   }
 
-  getSuppliers() {
+  Future<void> getSuppliers() async {
     firestore
         .collection('supplier')
         .get()
         .then((snapshot) => snapshot.docs.forEach((doc) {
-              supplier.add(SupplierModel.fromJson(doc.data()));
+              setState(() {
+                supplier.add(SupplierModel.fromJson(doc.data()));
+              });
             }));
   }
 
@@ -38,12 +50,20 @@ class _AddStockPageState extends State<AddStockPage> {
   SupplierModel? _dropdownSupplier;
 
   DateTime dateIn = DateTime.now();
-  TimeOfDay TimeIn = TimeOfDay.now();
+  TimeOfDay timeIn = TimeOfDay.now();
 
   @override
   Widget build(BuildContext context) {
     CollectionReference product = firestore.collection('product');
     String tglMasuk = DateFormat('dd MMMM yyyy').format(dateIn);
+
+    StockProvider stockProvider = Provider.of<StockProvider>(context);
+    StockInProvider stockIn = Provider.of<StockInProvider>(context);
+    StockReturnProvider stockOut = Provider.of<StockReturnProvider>(context);
+
+    noFaktur.text = Uuid().v1();
+
+    CollectionReference stocksStore = firestore.collection('stock');
 
     return Scaffold(
       drawer: DrawerWidget(),
@@ -122,8 +142,10 @@ class _AddStockPageState extends State<AddStockPage> {
                                       ),
                                     ),
                                     Container(
-                                      width: 322,
+                                      width: 350,
                                       child: TextField(
+                                        controller: noFaktur,
+                                        readOnly: true,
                                         style:
                                             primaryText.copyWith(fontSize: 16),
                                         decoration: InputDecoration(
@@ -133,7 +155,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
-                                          hintText: 'FA/SS/120120221',
+                                          hintText: 'asssd-asdwddsa-asddsa',
                                         ),
                                       ),
                                     ),
@@ -262,8 +284,8 @@ class _AddStockPageState extends State<AddStockPage> {
                                           initialTime: TimeOfDay.now(),
                                         ).then((value) {
                                           setState(() {
-                                            TimeIn = value!;
-                                            print(TimeIn);
+                                            timeIn = value!;
+                                            print(timeIn);
                                           });
                                         });
                                       },
@@ -287,7 +309,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                             Expanded(
                                               child: Center(
                                                 child: Text(
-                                                  '${TimeIn.hour.toString()}:${TimeIn.minute.toString()}',
+                                                  '${timeIn.hour.toString()}:${timeIn.minute.toString()}',
                                                   style: primaryText.copyWith(
                                                     fontSize: 16,
                                                   ),
@@ -354,56 +376,108 @@ class _AddStockPageState extends State<AddStockPage> {
                                   primary: Colors.white,
                                 ),
                                 onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return SimpleDialog(
-                                            title: Text('Pilih Barang'),
-                                            children: [
-                                              Container(
-                                                width: 500,
-                                                height: 300,
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 20),
-                                                child: StreamBuilder<
-                                                    QuerySnapshot>(
-                                                  stream: product
-                                                      .orderBy('nama')
-                                                      .snapshots(),
-                                                  builder: (_, snapshot) {
-                                                    if (snapshot.hasData) {
-                                                      return ListView(
-                                                        children: snapshot
-                                                            .data!.docs
-                                                            .map((e) {
-                                                          Map<String, dynamic>
-                                                              product = e.data()
-                                                                  as Map<String,
-                                                                      dynamic>;
-
-                                                          return Card(
-                                                            child: Text(
-                                                              product['nama'],
-                                                              style: primaryText
-                                                                  .copyWith(
-                                                                fontSize: 24,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }).toList(),
-                                                      );
-                                                    } else {
-                                                      return Column(
-                                                        children: [
-                                                          Text("No Data")
-                                                        ],
-                                                      );
-                                                    }
-                                                  },
+                                  _dropdownSupplier == null
+                                      ? ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Silahkan Pilih Supplier dulu!",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            backgroundColor: redColor,
+                                          ),
+                                        )
+                                      : showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return SimpleDialog(
+                                                title: Text(
+                                                  "Silahkan Pilih Barang",
+                                                  style: primaryText.copyWith(
+                                                      fontSize: 24),
                                                 ),
-                                              )
-                                            ]);
-                                      });
+                                                children: [
+                                                  Container(
+                                                    width: 800,
+                                                    height: 500,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 20),
+                                                    child: StreamBuilder<
+                                                        QuerySnapshot>(
+                                                      stream: product
+                                                          .orderBy('nama')
+                                                          .where("supplier.id",
+                                                              isEqualTo:
+                                                                  _dropdownSupplier!
+                                                                      .id)
+                                                          .snapshots(),
+                                                      builder: (_, snapshot) {
+                                                        if (snapshot.hasData) {
+                                                          return ListView(
+                                                            children: snapshot
+                                                                .data!.docs
+                                                                .map((e) {
+                                                              ProductModel
+                                                                  product =
+                                                                  ProductModel.fromJson(e
+                                                                          .data()
+                                                                      as Map<
+                                                                          String,
+                                                                          dynamic>);
+
+                                                              return GestureDetector(
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    stockIn.addStockIn(
+                                                                        product,
+                                                                        0);
+                                                                  });
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  margin: EdgeInsets
+                                                                      .only(
+                                                                          top:
+                                                                              10),
+                                                                  child: Card(
+                                                                    child:
+                                                                        Container(
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              10,
+                                                                          vertical:
+                                                                              10),
+                                                                      child:
+                                                                          Text(
+                                                                        product
+                                                                            .nama!,
+                                                                        style: primaryText
+                                                                            .copyWith(
+                                                                          fontSize:
+                                                                              24,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }).toList(),
+                                                          );
+                                                        } else {
+                                                          return Column(
+                                                            children: [
+                                                              Text("No Data")
+                                                            ],
+                                                          );
+                                                        }
+                                                      },
+                                                    ),
+                                                  )
+                                                ]);
+                                          });
                                 },
                                 child: Text(
                                   "+ Tambah Barang",
@@ -475,123 +549,118 @@ class _AddStockPageState extends State<AddStockPage> {
                                 ),
                               ),
                             ),
-                            Card(
-                              child: Container(
-                                height: 36,
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 150,
-                                      child: Text(
-                                        "Cabe Segar",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
+                            Column(
+                              children: stockIn.stockIns.map((stock) {
+                                return Card(
+                                  child: InkWell(
+                                    splashColor: redColor,
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => DialogStockIn(
+                                          stock: stock,
                                         ),
+                                      );
+                                    },
+                                    onLongPress: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (_) => CupertinoAlertDialog(
+                                                title: Text(
+                                                    'Konfirmasi menghapus Produk'),
+                                                content: Text(
+                                                    'Apa kamu yakin inging menghapus ${stock.nama}?'),
+                                                actions: [
+                                                  CupertinoDialogAction(
+                                                    child: Text('Batal'),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                  CupertinoDialogAction(
+                                                    child: Text('Hapus'),
+                                                    onPressed: () {
+                                                      stockIn.removeStockIn(
+                                                          stock.id!);
+
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ],
+                                              ));
+                                    },
+                                    child: Container(
+                                      height: 36,
+                                      margin: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            width: 150,
+                                            child: Text(
+                                              stock.nama!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 100,
+                                            child: Text(
+                                              stock.kode!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            NumberFormat.simpleCurrency(
+                                              decimalDigits: 0,
+                                              name: 'Rp. ',
+                                            ).format(stock.harga!),
+                                            style: primaryText.copyWith(
+                                              fontSize: 16,
+                                              color: textGreyColor,
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 80,
+                                            child: Center(
+                                              child: Text(
+                                                NumberFormat.simpleCurrency(
+                                                  decimalDigits: 0,
+                                                  name: '',
+                                                ).format(stock.stok!),
+                                                style: primaryText.copyWith(
+                                                  fontSize: 16,
+                                                  color: textGreyColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            NumberFormat.simpleCurrency(
+                                              decimalDigits: 0,
+                                              name: 'Rp. ',
+                                            ).format(stock.total!),
+                                            style: primaryText.copyWith(
+                                              fontSize: 16,
+                                              color: textGreyColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Container(
-                                      width: 100,
-                                      child: Text(
-                                        "CS-001",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "12.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 80,
-                                      child: TextField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Stok',
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "100.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Card(
-                              child: Container(
-                                height: 36,
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 150,
-                                      child: Text(
-                                        "Wortel Segar",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 100,
-                                      child: Text(
-                                        "WS-001",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "6.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 80,
-                                      child: TextField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Stok',
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "30.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ],
                         ),
@@ -644,7 +713,110 @@ class _AddStockPageState extends State<AddStockPage> {
                                 style: ElevatedButton.styleFrom(
                                   primary: Colors.white,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  _dropdownSupplier == null
+                                      ? ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Silahkan Pilih Supplier dulu!",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            backgroundColor: redColor,
+                                          ),
+                                        )
+                                      : showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return SimpleDialog(
+                                                title: Text(
+                                                  "Silahkan Pilih Barang",
+                                                  style: primaryText.copyWith(
+                                                      fontSize: 24),
+                                                ),
+                                                children: [
+                                                  Container(
+                                                    width: 800,
+                                                    height: 500,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 20),
+                                                    child: StreamBuilder<
+                                                        QuerySnapshot>(
+                                                      stream: product
+                                                          .orderBy('nama')
+                                                          .where("supplier.id",
+                                                              isEqualTo:
+                                                                  _dropdownSupplier!
+                                                                      .id)
+                                                          .snapshots(),
+                                                      builder: (_, snapshot) {
+                                                        if (snapshot.hasData) {
+                                                          return ListView(
+                                                            children: snapshot
+                                                                .data!.docs
+                                                                .map((e) {
+                                                              ProductModel
+                                                                  product =
+                                                                  ProductModel.fromJson(e
+                                                                          .data()
+                                                                      as Map<
+                                                                          String,
+                                                                          dynamic>);
+
+                                                              return GestureDetector(
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    stockOut.addStockRetn(
+                                                                        product,
+                                                                        0);
+                                                                  });
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  margin: EdgeInsets
+                                                                      .only(
+                                                                          top:
+                                                                              10),
+                                                                  child: Card(
+                                                                    child:
+                                                                        Container(
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              10,
+                                                                          vertical:
+                                                                              10),
+                                                                      child:
+                                                                          Text(
+                                                                        product
+                                                                            .nama!,
+                                                                        style: primaryText
+                                                                            .copyWith(
+                                                                          fontSize:
+                                                                              24,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }).toList(),
+                                                          );
+                                                        } else {
+                                                          return Column(
+                                                            children: [
+                                                              Text("No Data")
+                                                            ],
+                                                          );
+                                                        }
+                                                      },
+                                                    ),
+                                                  )
+                                                ]);
+                                          });
+                                },
                                 child: Text(
                                   "+ Tambah Barang",
                                   style: primaryText.copyWith(
@@ -696,11 +868,13 @@ class _AddStockPageState extends State<AddStockPage> {
                                     ),
                                     Container(
                                       width: 80,
-                                      child: Text(
-                                        "Stok",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
+                                      child: Center(
+                                        child: Text(
+                                          "Stok",
+                                          style: primaryText.copyWith(
+                                            fontSize: 16,
+                                            color: textGreyColor,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -715,123 +889,118 @@ class _AddStockPageState extends State<AddStockPage> {
                                 ),
                               ),
                             ),
-                            Card(
-                              child: Container(
-                                height: 36,
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 150,
-                                      child: Text(
-                                        "Cabe Segar",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
+                            Column(
+                              children: stockOut.stockRetn.map((stock) {
+                                return Card(
+                                  child: InkWell(
+                                    splashColor: redColor,
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => DialogStockReturn(
+                                          stock: stock,
                                         ),
+                                      );
+                                    },
+                                    onLongPress: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (_) => CupertinoAlertDialog(
+                                                title: Text(
+                                                    'Konfirmasi menghapus Produk'),
+                                                content: Text(
+                                                    'Apa kamu yakin inging menghapus ${stock.nama}?'),
+                                                actions: [
+                                                  CupertinoDialogAction(
+                                                    child: Text('Batal'),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                  CupertinoDialogAction(
+                                                    child: Text('Hapus'),
+                                                    onPressed: () {
+                                                      stockOut.removeStockRetn(
+                                                          stock.id!);
+
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ],
+                                              ));
+                                    },
+                                    child: Container(
+                                      height: 36,
+                                      margin: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            width: 150,
+                                            child: Text(
+                                              stock.nama!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 100,
+                                            child: Text(
+                                              stock.kode!,
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            NumberFormat.simpleCurrency(
+                                              decimalDigits: 0,
+                                              name: 'Rp. ',
+                                            ).format(stock.harga!),
+                                            style: primaryText.copyWith(
+                                              fontSize: 16,
+                                              color: textGreyColor,
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 80,
+                                            child: Center(
+                                              child: Text(
+                                                NumberFormat.simpleCurrency(
+                                                  decimalDigits: 0,
+                                                  name: '',
+                                                ).format(stock.stok!),
+                                                style: primaryText.copyWith(
+                                                  fontSize: 16,
+                                                  color: textGreyColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            NumberFormat.simpleCurrency(
+                                              decimalDigits: 0,
+                                              name: 'Rp. ',
+                                            ).format(stock.total!),
+                                            style: primaryText.copyWith(
+                                              fontSize: 16,
+                                              color: textGreyColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Container(
-                                      width: 100,
-                                      child: Text(
-                                        "CS-001",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "12.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 80,
-                                      child: TextField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Stok',
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "100.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Card(
-                              child: Container(
-                                height: 36,
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 150,
-                                      child: Text(
-                                        "Wortel Segar",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 100,
-                                      child: Text(
-                                        "WS-001",
-                                        style: primaryText.copyWith(
-                                          fontSize: 16,
-                                          color: textGreyColor,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "6.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 80,
-                                      child: TextField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Stok',
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "30.000",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              }).toList(),
                             ),
                             SizedBox(height: 20),
                             Column(
@@ -846,6 +1015,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                 ),
                                 SizedBox(height: 10),
                                 TextField(
+                                  controller: descController,
                                   maxLines: 3,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
@@ -898,7 +1068,51 @@ class _AddStockPageState extends State<AddStockPage> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      stocksStore.doc(noFaktur.text).set({
+                                        'noFaktur': noFaktur.text,
+                                        'supplier': _dropdownSupplier!.name!,
+                                        'date_in': dateIn,
+                                        'time_in': timeIn,
+                                        'desc': descController.text,
+                                        'stockIn': stockIn.stockIns
+                                            .map((e) => e.toJson())
+                                            .toList(),
+                                        'stockOut': stockOut.stockRetn
+                                            .map((e) => e.toJson())
+                                            .toList(),
+                                      });
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          duration:
+                                              Duration(milliseconds: 1000),
+                                          content: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: const [
+                                              CircularProgressIndicator(),
+                                              SizedBox(width: 20),
+                                              Text(
+                                                "Menambahkan Stok. Mohon Tunggu .....",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                          backgroundColor: primaryColor,
+                                        ),
+                                      );
+
+                                      noFaktur.clear();
+                                      descController.clear();
+                                      stockIn.stockIns.clear();
+                                      stockOut.stockRetn.clear();
+                                      _dropdownSupplier = null;
+                                      stockProvider.stocks.clear();
+
+                                      Navigator.pop(context);
+                                    },
                                     child: Row(
                                       children: [
                                         Icon(

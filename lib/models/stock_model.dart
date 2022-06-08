@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_in_model.dart';
 import 'package:gerai_lam_app/models/stock_return_model.dart';
 
@@ -5,7 +6,7 @@ class StockModel {
   String? noFaktur;
   String? supplier;
   DateTime? dateIn;
-  String? timeIn;
+  TimeOfDay? timeIn;
   List<StockInModel>? stockIn;
   List<StockReturnModel>? stockReturn;
   String? description;
@@ -48,19 +49,3 @@ class StockModel {
     };
   }
 }
-
-List<StockModel> mockStock = [
-  StockModel(
-    noFaktur: 'FS/SS/0702020221',
-    supplier: 'Andrian Wahyu',
-    dateIn: DateTime.now(),
-    timeIn: '20:00',
-    stockIn: [
-      mockStockIn[0],
-    ],
-    stockReturn: [
-      mockStockReturn[0],
-    ],
-    description: '',
-  ),
-];

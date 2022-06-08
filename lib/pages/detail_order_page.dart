@@ -623,7 +623,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                 onTap: () {
                   setState(() {
                     transact.addTransactions(cartsProvider.carts, mtdPayment,
-                        int.parse(ongkir.text), total);
+                        int.parse(ongkir.text), int.parse(bayar.text), total);
 
                     Navigator.push(
                         context,

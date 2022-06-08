@@ -58,9 +58,10 @@ class _ProductPageState extends State<ProductPage> {
 
   String? searchProduct;
 
-  String oldImage =
-      'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
-  String? newImage;
+  List<String> oldImage = [
+    'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3',
+  ];
+  List<String>? newImage;
 
   void imageUpload(String name) async {
     final image = await ImagePicker().pickImage(
@@ -72,7 +73,7 @@ class _ProductPageState extends State<ProductPage> {
     await ref.putFile(File(image!.path));
     ref.getDownloadURL().then((value) {
       setState(() {
-        newImage = value;
+        newImage!.add(value);
       });
     });
   }
@@ -100,6 +101,7 @@ class _ProductPageState extends State<ProductPage> {
                         onPressed: () {
                           print(searchProduct);
                           setState(() {
+                            clear();
                             _addProduct = !_addProduct;
                           });
                         },
@@ -180,6 +182,323 @@ class _ProductPageState extends State<ProductPage> {
                               return Card(
                                 child: InkWell(
                                   splashColor: redColor,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedProduct =
+                                          ProductModel.fromJson(product);
+
+                                      nameController.text =
+                                          selectedProduct!.nama!;
+                                      descController.text =
+                                          selectedProduct!.deskripsi!;
+                                      capitalController.text = selectedProduct!
+                                          .harga_modal!
+                                          .toString();
+                                      newImage = selectedProduct!.imageUrl!
+                                          .map((e) => e.toString())
+                                          .toList();
+                                      priceController.text = selectedProduct!
+                                          .harga_jual!
+                                          .toString();
+                                    });
+
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Container(
+                                          width: 800,
+                                          height: 900,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 30, vertical: 20),
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  "Ubah Data Produk",
+                                                  style: primaryText.copyWith(
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 30),
+                                                Container(
+                                                  width: 133,
+                                                  height: 102,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    image: DecorationImage(
+                                                      image: NetworkImage(
+                                                          selectedProduct!
+                                                              .imageUrl![0]),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    imageUpload(
+                                                        selectedProduct!.kode!);
+                                                  },
+                                                  child: const Text(
+                                                      'Change Image'),
+                                                ),
+                                                SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    Flexible(
+                                                      flex: 1,
+                                                      child: TextField(
+                                                        controller:
+                                                            nameController,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                          ),
+                                                          labelText:
+                                                              'Nama Produk',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    Flexible(
+                                                      flex: 1,
+                                                      child: TextField(
+                                                        controller:
+                                                            descController,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                          ),
+                                                          labelText:
+                                                              'Deskripsi',
+                                                        ),
+                                                        maxLines: 3,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Flexible(
+                                                      flex: 1,
+                                                      child: Container(
+                                                        width: 400,
+                                                        child: TextFormField(
+                                                          controller:
+                                                              capitalController,
+                                                          inputFormatters: [
+                                                            CurrencyTextInputFormatter(
+                                                              decimalDigits: 0,
+                                                              symbol: 'Rp. ',
+                                                              locale: 'ID',
+                                                            )
+                                                          ],
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12),
+                                                            ),
+                                                            labelText:
+                                                                'Harga Modal',
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 20),
+                                                    Flexible(
+                                                      flex: 1,
+                                                      child: Container(
+                                                        width: 400,
+                                                        child: TextFormField(
+                                                          controller:
+                                                              priceController,
+                                                          inputFormatters: [
+                                                            CurrencyTextInputFormatter(
+                                                              decimalDigits: 0,
+                                                              symbol: 'Rp. ',
+                                                              locale: 'ID',
+                                                            )
+                                                          ],
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12),
+                                                            ),
+                                                            labelText:
+                                                                'Harga Jual',
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 30),
+                                                Container(
+                                                  width: double.infinity,
+                                                  height: 60,
+                                                  child: ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      primary: primaryColor,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  1000),
+                                                          content: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: const [
+                                                              CircularProgressIndicator(),
+                                                              SizedBox(
+                                                                  width: 20),
+                                                              Text(
+                                                                "Mengubah. Mohon Tunggu .....",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          backgroundColor:
+                                                              primaryColor,
+                                                        ),
+                                                      );
+
+                                                      products
+                                                          .doc(selectedProduct!
+                                                              .kode!)
+                                                          .update({
+                                                        'imageUrl': newImage ??
+                                                            oldImage,
+                                                        'nama':
+                                                            nameController.text,
+                                                        'deskripsi':
+                                                            descController.text,
+                                                        'harga_modal': int.parse(
+                                                            capitalController
+                                                                .text
+                                                                .replaceAll(
+                                                                    RegExp(
+                                                                        '[A-Za-z]'),
+                                                                    '')
+                                                                .replaceAll(
+                                                                    '.', '')),
+                                                        'harga_jual': int.parse(
+                                                            priceController.text
+                                                                .replaceAll(
+                                                                    RegExp(
+                                                                        '[A-Za-z]'),
+                                                                    '')
+                                                                .replaceAll(
+                                                                    '.', '')),
+                                                      });
+
+                                                      clear();
+
+                                                      setState(() {
+                                                        _addProduct = false;
+                                                        selectedProduct = null;
+                                                      });
+
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text(
+                                                      "SIMPAN",
+                                                      style:
+                                                          primaryText.copyWith(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 20),
+                                                Container(
+                                                  width: double.infinity,
+                                                  height: 60,
+                                                  child: ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      primary: redColor,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text(
+                                                      "BATAL",
+                                                      style:
+                                                          primaryText.copyWith(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   onLongPress: () {
                                     showDialog(
                                         context: context,
@@ -233,7 +552,7 @@ class _ProductPageState extends State<ProductPage> {
                                                     BorderRadius.circular(12),
                                                 image: DecorationImage(
                                                     image: NetworkImage(
-                                                        product['imageUrl']),
+                                                        product['imageUrl'][0]),
                                                     fit: BoxFit.cover),
                                               ),
                                             ),
@@ -397,8 +716,7 @@ class _ProductPageState extends State<ProductPage> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(12),
                                         image: DecorationImage(
-                                          image: NetworkImage(
-                                              newImage ?? oldImage),
+                                          image: NetworkImage(oldImage[0]),
                                           fit: BoxFit.cover,
                                         ),
                                       ),

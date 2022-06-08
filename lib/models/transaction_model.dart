@@ -7,6 +7,7 @@ class TransactionModel {
   String? address;
   List<ItemModel>? items;
   int? totalProducts;
+  int? pay;
   int? totalTransaction;
   int? idCashier;
   String? payment;
@@ -21,6 +22,7 @@ class TransactionModel {
     this.address,
     this.items,
     this.totalProducts,
+    this.pay,
     this.totalTransaction,
     this.idCashier,
     this.payment,
@@ -38,6 +40,7 @@ class TransactionModel {
         .map<ItemModel>((item) => ItemModel.fromJson(item))
         .toList();
     totalProducts = json['total_produk'];
+    pay = json['bayar'];
     totalTransaction = json['total_transaksi'];
     idCashier = json['id_kasir'];
     payment = json['payment'];
@@ -54,6 +57,7 @@ class TransactionModel {
       'address': address,
       'items': items!.map((item) => item.toJson()).toList(),
       'total_produk': totalProducts,
+      'bayar': pay,
       'total_transaksi': totalTransaction,
       'id_kasir': idCashier,
       'payment': payment,

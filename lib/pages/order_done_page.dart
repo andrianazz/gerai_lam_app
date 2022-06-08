@@ -405,6 +405,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
                   'address': tProvider.transactions[0].address,
                   'items': cartProvider.carts.map((e) => e.toJson()).toList(),
                   'total_produk': tProvider.transactions[0].totalProducts,
+                  'bayar': tProvider.transactions[0].pay,
                   'total_transaksi': tProvider.transactions[0].totalTransaction,
                   'id_kasir': tProvider.transactions[0].idCashier,
                   'payment': tProvider.transactions[0].payment,

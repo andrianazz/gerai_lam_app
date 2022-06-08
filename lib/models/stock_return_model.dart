@@ -1,13 +1,22 @@
 class StockReturnModel {
+  int? id;
   int? harga;
   String? kode;
   String? nama;
   int? stok;
   int? total;
 
-  StockReturnModel({this.harga, this.kode, this.nama, this.stok, this.total});
+  StockReturnModel({
+    this.id,
+    this.harga,
+    this.kode,
+    this.nama,
+    this.stok,
+    this.total,
+  });
 
   StockReturnModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     harga = json['harga'];
     kode = json['kode'];
     nama = json['nama'];
@@ -17,6 +26,7 @@ class StockReturnModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'harga': harga,
       'kode': kode,
       'nama': nama,
@@ -26,12 +36,12 @@ class StockReturnModel {
   }
 }
 
-List<StockReturnModel> mockStockReturn = [
+List<StockReturnModel> mockStockIn = [
   StockReturnModel(
     harga: 2000,
     kode: 'WS-001',
     nama: 'Wortel Segar',
-    stok: 4,
-    total: 8000,
+    stok: 1,
+    total: 2000,
   ),
 ];
