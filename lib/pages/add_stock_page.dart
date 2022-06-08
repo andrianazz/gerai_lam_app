@@ -14,7 +14,6 @@ import 'package:uuid/uuid.dart';
 
 import '../models/supplier_model.dart';
 import '../theme.dart';
-import '../widgets/dialog_quantity.dart';
 
 class AddStockPage extends StatefulWidget {
   const AddStockPage({Key? key}) : super(key: key);
@@ -608,6 +607,8 @@ class _AddStockPageState extends State<AddStockPage> {
                                                 fontSize: 16,
                                                 color: textGreyColor,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.clip,
                                             ),
                                           ),
                                           Container(
@@ -1073,12 +1074,12 @@ class _AddStockPageState extends State<AddStockPage> {
                                         'noFaktur': noFaktur.text,
                                         'supplier': _dropdownSupplier!.name!,
                                         'date_in': dateIn,
-                                        'time_in': timeIn,
-                                        'desc': descController.text,
-                                        'stockIn': stockIn.stockIns
+                                        'time_in': timeIn.toString(),
+                                        'description': descController.text,
+                                        'stock_in': stockIn.stockIns
                                             .map((e) => e.toJson())
                                             .toList(),
-                                        'stockOut': stockOut.stockRetn
+                                        'stock_return': stockOut.stockRetn
                                             .map((e) => e.toJson())
                                             .toList(),
                                       });

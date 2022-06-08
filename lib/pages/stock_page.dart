@@ -161,7 +161,7 @@ class _StockPageState extends State<StockPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Container(
-                                      width: 110,
+                                      width: 150,
                                       child: Text(
                                         stock['date_in'].toDate().toString(),
                                         style: primaryText.copyWith(
@@ -172,7 +172,7 @@ class _StockPageState extends State<StockPage> {
                                       ),
                                     ),
                                     Text(
-                                      stock['noFaktur'],
+                                      stock['supplier'],
                                       style: primaryText.copyWith(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w700,
@@ -180,7 +180,7 @@ class _StockPageState extends State<StockPage> {
                                       ),
                                     ),
                                     Text(
-                                      stock['stock_in'][0]['stok'].toString(),
+                                      stock['stock_in'].length.toString(),
                                       style: primaryText.copyWith(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w700,
@@ -188,8 +188,7 @@ class _StockPageState extends State<StockPage> {
                                       ),
                                     ),
                                     Text(
-                                      stock['stockReturn'][0]['stok']
-                                          .toString(),
+                                      stock['stock_return'].length.toString(),
                                       style: primaryText.copyWith(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w700,
@@ -197,9 +196,9 @@ class _StockPageState extends State<StockPage> {
                                       ),
                                     ),
                                     Chip(
-                                      backgroundColor: blueColor,
+                                      backgroundColor: greenColor,
                                       label: Text(
-                                        'Verifikasi',
+                                        'Selesai',
                                         style: primaryText.copyWith(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
