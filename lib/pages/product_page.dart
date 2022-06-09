@@ -5,11 +5,13 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/supplier_model.dart';
 import '../theme.dart';
@@ -25,6 +27,7 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   int idProduct = 0;
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +82,34 @@ class _ProductPageState extends State<ProductPage> {
         print(newImage);
       });
     });
+  }
+
+  void sendImage(String name) async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    File imagePath = File(image!.path);
+    print(image);
+    print(imagePath);
+
+    var postUri = Uri.parse("https://galerilamriau.com/api/image");
+
+    Map<String, String> headers = {
+      "Authorization":
+          "Bearer 2wNAfr1QBPn2Qckv55u5b4GN2jrgfnC8Y7cZO04yNpXciQHrj9NaWQhs1FSMo0Jd",
+      "Content-Type": "multipart/form-data",
+    };
+
+    http.MultipartRequest request = new http.MultipartRequest("POST", postUri);
+    request.headers.addAll(headers);
+    http.MultipartFile multipartFile =
+        await http.MultipartFile.fromPath('file', image.path);
+    request.files.add(multipartFile);
+
+    http.StreamedResponse response = await request.send();
+
+    print(response.statusCode);
   }
 
   @override
@@ -229,27 +260,69 @@ class _ProductPageState extends State<ProductPage> {
                                                 ),
                                                 SizedBox(height: 30),
                                                 Container(
-                                                  width: 133,
-                                                  height: 102,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                    image: DecorationImage(
-                                                      image: NetworkImage(
-                                                          selectedProduct!
-                                                              .imageUrl![0]),
-                                                      fit: BoxFit.cover,
-                                                    ),
+                                                  height: 110,
+                                                  child: ListView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    children: selectedProduct!
+                                                        .imageUrl!
+                                                        .map((e) {
+                                                      return Container(
+                                                        width: 133,
+                                                        height: 102,
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal: 10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          image:
+                                                              DecorationImage(
+                                                            image: NetworkImage(
+                                                                e.toString()),
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }).toList(),
                                                   ),
                                                 ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    imageUpload(
-                                                        selectedProduct!.kode!);
-                                                  },
-                                                  child: const Text(
-                                                      'Change Image'),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        imageUpload(
+                                                            selectedProduct!
+                                                                .kode!);
+                                                      },
+                                                      child: const Text(
+                                                          'Add Image'),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                    selectedProduct!.imageUrl!
+                                                            .isNotEmpty
+                                                        ? ElevatedButton(
+                                                            style: ElevatedButton
+                                                                .styleFrom(
+                                                                    primary:
+                                                                        redColor),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                print(selectedProduct!
+                                                                    .imageUrl);
+                                                              });
+                                                            },
+                                                            child: const Text(
+                                                                'Remove Image'),
+                                                          )
+                                                        : SizedBox(),
+                                                  ],
                                                 ),
                                                 SizedBox(height: 10),
                                                 Row(
@@ -767,8 +840,11 @@ class _ProductPageState extends State<ProductPage> {
                                             onPressed: () {
                                               imageUpload(codeController.text
                                                   .toString());
+
+                                              // sendImage(codeController.text
+                                              //     .toString());
                                             },
-                                            child: const Text('Change Image'),
+                                            child: const Text('Add Image'),
                                           )
                                         : SizedBox(),
                                     const SizedBox(height: 10),

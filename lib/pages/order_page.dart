@@ -444,7 +444,7 @@ class _OrderPageState extends State<OrderPage> {
                         e.data() as Map<String, dynamic>;
                     return Card(
                       color: cartProvider.carts
-                              .any((item) => item.name == product['nama'])
+                              .any((item) => item.idProduk == product['id'])
                           ? secondaryColor
                           : Colors.white,
                       child: GestureDetector(
