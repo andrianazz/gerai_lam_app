@@ -58,22 +58,25 @@ class _ProductPageState extends State<ProductPage> {
 
   String? searchProduct;
 
-  List<String> oldImage = [
-    'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3',
-  ];
-  List<String>? newImage;
+  String oldImage =
+      'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
+  List<String> newImage = [];
 
   void imageUpload(String name) async {
     final image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
 
-    Reference ref = FirebaseStorage.instance.ref().child(name);
+    String length = newImage.length.toString();
+
+    Reference ref = FirebaseStorage.instance.ref().child('${name}${length}');
 
     await ref.putFile(File(image!.path));
     ref.getDownloadURL().then((value) {
       setState(() {
-        newImage!.add(value);
+        newImage.add(value);
+
+        print(newImage);
       });
     });
   }
@@ -99,7 +102,7 @@ class _ProductPageState extends State<ProductPage> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          print(searchProduct);
+                          print(newImage);
                           setState(() {
                             clear();
                             _addProduct = !_addProduct;
@@ -418,8 +421,12 @@ class _ProductPageState extends State<ProductPage> {
                                                           .doc(selectedProduct!
                                                               .kode!)
                                                           .update({
-                                                        'imageUrl': newImage ??
-                                                            oldImage,
+                                                        'imageUrl': newImage
+                                                                .isNotEmpty
+                                                            ? newImage
+                                                                .map((e) => e)
+                                                                .toList()
+                                                            : [oldImage],
                                                         'nama':
                                                             nameController.text,
                                                         'deskripsi':
@@ -622,12 +629,17 @@ class _ProductPageState extends State<ProductPage> {
                                             ],
                                           ),
                                         ),
-                                        Text(
-                                          product['kode'],
-                                          style: primaryText.copyWith(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            color: textGreyColor,
+                                        Container(
+                                          width: 80,
+                                          child: Text(
+                                            product['kode'],
+                                            style: primaryText.copyWith(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w700,
+                                              color: textGreyColor,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.clip,
                                           ),
                                         ),
                                         Container(
@@ -710,17 +722,46 @@ class _ProductPageState extends State<ProductPage> {
                                       ],
                                     ),
                                     SizedBox(height: 10),
-                                    Container(
-                                      width: 133,
-                                      height: 102,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        image: DecorationImage(
-                                          image: NetworkImage(oldImage[0]),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
+                                    newImage.isEmpty
+                                        ? Container(
+                                            width: 133,
+                                            height: 102,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              image: DecorationImage(
+                                                image: NetworkImage(oldImage),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          )
+                                        : Container(
+                                            height: 100,
+                                            child: ListView(
+                                              scrollDirection: Axis.horizontal,
+                                              children: newImage
+                                                  .map((e) => Container(
+                                                        width: 133,
+                                                        height: 102,
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal: 5),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          image:
+                                                              DecorationImage(
+                                                            image:
+                                                                NetworkImage(e),
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      ))
+                                                  .toList(),
+                                            ),
+                                          ),
                                     codeController.text.isNotEmpty
                                         ? ElevatedButton(
                                             onPressed: () {
@@ -903,7 +944,11 @@ class _ProductPageState extends State<ProductPage> {
                                         ),
                                       );
                                       products.doc(codeController.text).set({
-                                        'imageUrl': newImage ?? oldImage,
+                                        'imageUrl': newImage.isNotEmpty
+                                            ? newImage
+                                                .map((e) => e.toString())
+                                                .toList()
+                                            : [oldImage],
                                         'id': Uuid().v5(
                                           Uuid.NAMESPACE_URL,
                                           codeController.text.toString(),
@@ -974,7 +1019,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   clear() {
-    newImage = null;
+    newImage = [];
     nameController.text = '';
     codeController.text = '';
     descController.text = '';

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/models/promo_model.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
