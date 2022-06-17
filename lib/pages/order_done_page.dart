@@ -204,8 +204,6 @@ class _OrderDonePageState extends State<OrderDonePage> {
   }
 
   Widget detailPayment() {
-    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
-
     return Container(
       height: 200,
       padding: const EdgeInsets.all(20),
@@ -360,6 +358,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
     CartProvider cartProvider = Provider.of<CartProvider>(context);
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     CollectionReference transactions = firestore.collection('transactions');
+    CollectionReference products = firestore.collection('product');
 
     return Container(
       height: 90,
@@ -396,12 +395,28 @@ class _OrderDonePageState extends State<OrderDonePage> {
             flex: 2,
             child: GestureDetector(
               onTap: () {
+                cartProvider.carts.map((e) {
+                  return products
+                      .where('id', isEqualTo: e.idProduk)
+                      .get()
+                      .then((value) {
+                    value.docs.forEach((doc) {
+                      Map<String, dynamic> product =
+                          doc.data() as Map<String, dynamic>;
+                      products.doc(product['kode']).update({
+                        'sisa_stok': FieldValue.increment(
+                            -num.parse(e.quantity.toString())),
+                      });
+                    });
+                  });
+                }).toList();
+
                 transactions
                     .doc('${tProvider.transactions[0].id.toString()}')
                     .set({
                   'id': tProvider.transactions[0].id,
                   'tanggal': tProvider.transactions[0].date,
-                  'id_costumer': tProvider.transactions[0].idCostumer,
+                  'id_customer': tProvider.transactions[0].idCostumer,
                   'address': tProvider.transactions[0].address,
                   'items': cartProvider.carts.map((e) => e.toJson()).toList(),
                   'total_produk': tProvider.transactions[0].totalProducts,

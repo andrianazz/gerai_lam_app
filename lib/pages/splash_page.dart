@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/login_page.dart';
-import 'package:gerai_lam_app/providers/product_provider.dart';
-import 'package:provider/provider.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -19,7 +17,6 @@ class _SplashPageState extends State<SplashPage> {
 
   getInit() async {
     await Future.delayed(Duration(seconds: 2), () {
-      Provider.of<ProductProvider>(context, listen: false).getProducts();
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),

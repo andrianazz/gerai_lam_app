@@ -89,27 +89,55 @@ class _ProductPageState extends State<ProductPage> {
       source: ImageSource.gallery,
     );
 
-    File imagePath = File(image!.path);
-    print(image);
-    print(imagePath);
+    // File imagePath = File(image!.path);
 
+    //Cara Pertama
+    // var url = "https://galerilamriau.com/api/image";
+    // var headers = {
+    //   "Authorization":
+    //       "Bearer 2wNAfr1QBPn2Qckv55u5b4GN2jrgfnC8Y7cZO04yNpXciQHrj9NaWQhs1FSMo0Jd",
+    //   "Content-Type": "multipart/form-data"
+    // };
+
+    // var body = {
+    //   "image": imagePath,
+    // };
+    //
+    // var response =
+    //     await http.post(Uri.parse(url), headers: headers, body: body);
+    // print(response.body);
+    // print(response.statusCode);
+
+    // if (response.statusCode == 200) {
+    //   print("Berhasil Set");
+    // } else {
+    //   throw Exception("Gagal get Products");
+    // }
+
+    //Cara Kedua
     var postUri = Uri.parse("https://galerilamriau.com/api/image");
-
-    Map<String, String> headers = {
+    var headers = {
       "Authorization":
           "Bearer 2wNAfr1QBPn2Qckv55u5b4GN2jrgfnC8Y7cZO04yNpXciQHrj9NaWQhs1FSMo0Jd",
       "Content-Type": "multipart/form-data",
+      "Accept": "application/json",
     };
 
     http.MultipartRequest request = new http.MultipartRequest("POST", postUri);
     request.headers.addAll(headers);
     http.MultipartFile multipartFile =
-        await http.MultipartFile.fromPath('file', image.path);
+        await http.MultipartFile.fromPath('image', image!.path);
     request.files.add(multipartFile);
-
     http.StreamedResponse response = await request.send();
 
     print(response.statusCode);
+    var responseData = await response.stream.toBytes();
+    var result = String.fromCharCodes(responseData);
+    var res = result.substring(12, result.length - 2).replaceAll(r"\", "");
+
+    setState(() {
+      newImage.add(res);
+    });
   }
 
   @override
@@ -295,9 +323,13 @@ class _ProductPageState extends State<ProductPage> {
                                                   children: [
                                                     ElevatedButton(
                                                       onPressed: () {
-                                                        imageUpload(
-                                                            selectedProduct!
-                                                                .kode!);
+                                                        // imageUpload(
+                                                        //     selectedProduct!
+                                                        //         .kode!);
+
+                                                        sendImage(codeController
+                                                            .text
+                                                            .toString());
                                                       },
                                                       child: const Text(
                                                           'Add Image'),
@@ -838,11 +870,14 @@ class _ProductPageState extends State<ProductPage> {
                                     codeController.text.isNotEmpty
                                         ? ElevatedButton(
                                             onPressed: () {
-                                              imageUpload(codeController.text
+                                              // imageUpload(codeController.text
+                                              //     .toString());
+
+                                              sendImage(codeController.text
                                                   .toString());
 
-                                              // sendImage(codeController.text
-                                              //     .toString());
+                                              // uploadImage('image',
+                                              //     File("assets/app_logo.png"));
                                             },
                                             child: const Text('Add Image'),
                                           )

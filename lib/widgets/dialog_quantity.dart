@@ -28,9 +28,14 @@ class _DialogQuantityState extends State<DialogQuantity> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              widget.item!.name!,
-              style: primaryText.copyWith(fontSize: 42),
+            Container(
+              width: 550,
+              child: Text(
+                widget.item!.name!,
+                style: primaryText.copyWith(fontSize: 42),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
             Row(
               children: [

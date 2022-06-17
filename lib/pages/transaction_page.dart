@@ -5,7 +5,10 @@ import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../models/transaction_model.dart';
+import '../providers/transaction_provider.dart';
 import '../theme.dart';
 
 class TransactionPage extends StatefulWidget {
@@ -30,12 +33,11 @@ class _TransactionPageState extends State<TransactionPage> {
   List<SupplierModel> suppliers = [];
   String? _dropdownSupplier;
 
-  final dts = DTS();
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getInit();
     getAll();
   }
 
@@ -74,8 +76,19 @@ class _TransactionPageState extends State<TransactionPage> {
             }));
   }
 
+  Future<void> getInit() async {
+    await Provider.of<TransactionProvider>(context, listen: false)
+        .getTransaction();
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
+    List<TransactionModel>? trans = tProvider.transactions;
+    DTS dts = DTS(transDTS: trans);
+
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
@@ -125,7 +138,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 ),
                 SizedBox(width: 20),
                 Container(
-                  width: 240,
+                  width: 250,
                   child: DropdownButtonFormField(
                       hint: Text("Semua Produk"),
                       decoration: InputDecoration(
@@ -137,9 +150,12 @@ class _TransactionPageState extends State<TransactionPage> {
                       value: _dropdownProduct,
                       items: products
                           .map((item) => DropdownMenuItem<String>(
-                                child: Text(
-                                  item.nama!,
-                                  overflow: TextOverflow.clip,
+                                child: Container(
+                                  width: 200,
+                                  child: Text(
+                                    item.nama!,
+                                    overflow: TextOverflow.clip,
+                                  ),
                                 ),
                                 value: item.nama,
                               ))
@@ -265,26 +281,8 @@ Widget columnAppbarRight(context) {
 }
 
 class DTS extends DataTableSource {
-  List<Map<String, dynamic>> transactions = [
-    {
-      'date': DateTime.now(),
-      'totalCashier': 10000000,
-      'totalProduct': 350,
-      'totalGlobal': 350000000,
-    },
-    {
-      'date': DateTime.now(),
-      'totalCashier': 250000,
-      'totalProduct': 200,
-      'totalGlobal': 350000000,
-    },
-    {
-      'date': DateTime.now(),
-      'totalCashier': 1500500,
-      'totalProduct': 2000,
-      'totalGlobal': 350000000,
-    },
-  ];
+  List<TransactionModel>? transDTS;
+  DTS({this.transDTS});
 
   final rupiah =
       NumberFormat.currency(locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
@@ -293,10 +291,10 @@ class DTS extends DataTableSource {
   @override
   DataRow? getRow(int index) {
     return DataRow(cells: [
-      DataCell(Text(transactions[index]['date'].toString())),
-      DataCell(Text('${rupiah.format(transactions[index]['totalCashier'])}')),
-      DataCell(Text('${angka.format(transactions[index]['totalProduct'])}')),
-      DataCell(Text('${rupiah.format(transactions[index]['totalGlobal'])}')),
+      DataCell(Text('transDTS![index].date.toString()')),
+      DataCell(Text('${rupiah.format(transDTS![index].totalTransaction)}')),
+      DataCell(Text('${angka.format(transDTS![index].totalProducts)}')),
+      DataCell(Text('${rupiah.format(transDTS![index].totalTransaction)}')),
     ]);
   }
 
@@ -306,7 +304,7 @@ class DTS extends DataTableSource {
 
   @override
   // TODO: implement rowCount
-  int get rowCount => transactions.length;
+  int get rowCount => transDTS!.length;
 
   @override
   // TODO: implement selectedRowCount

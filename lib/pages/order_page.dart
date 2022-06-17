@@ -9,7 +9,6 @@ import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/item_model.dart';
 import '../theme.dart';
 
 class OrderPage extends StatefulWidget {
@@ -27,24 +26,27 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        drawer: DrawerWidget(),
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: primaryColor,
-          flexibleSpace: SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                children: [
-                  columnAppbarLeft(context),
-                  columnAppbarRight(context),
-                ],
+    return WillPopScope(
+      onWillPop: showExitPopup,
+      child: Scaffold(
+          drawer: DrawerWidget(),
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: primaryColor,
+            flexibleSpace: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Row(
+                  children: [
+                    columnAppbarLeft(context),
+                    columnAppbarRight(context),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        body: landscape(context));
+          body: landscape(context)),
+    );
   }
 
   Widget columnAppbarLeft(context) {
@@ -477,16 +479,34 @@ class _OrderPageState extends State<OrderPage> {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          subtitle: Text(
-                            NumberFormat.simpleCurrency(
-                              decimalDigits: 0,
-                              name: 'Rp. ',
-                            ).format(product['harga_jual']),
-                            style: primaryText.copyWith(
-                              color: greenColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          subtitle: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                NumberFormat.simpleCurrency(
+                                  decimalDigits: 0,
+                                  name: 'Rp. ',
+                                ).format(product['harga_jual']),
+                                style: primaryText.copyWith(
+                                  color: greenColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                NumberFormat.simpleCurrency(
+                                  decimalDigits: 0,
+                                  name: '',
+                                ).format(product['sisa_stok']),
+                                style: primaryText.copyWith(
+                                  color: product['sisa_stok'] > 5
+                                      ? greenColor
+                                      : redColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -816,5 +836,36 @@ class _OrderPageState extends State<OrderPage> {
         ),
       ],
     );
+  }
+
+  Future<bool> showExitPopup() async {
+    return await showDialog(
+          //show confirm dialogue
+          //the return value will be from "Yes" or "No" options
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Keluar Aplikasi'),
+            content: Text('Apakah anda ingin keluar dari Aplikasi?'),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                style: ElevatedButton.styleFrom(
+                  primary: greenColor,
+                ),
+                //return false when click on "NO"
+                child: Text('Tidak'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  primary: redColor,
+                ),
+                //return true when click on "Yes"
+                child: Text('Keluar'),
+              ),
+            ],
+          ),
+        ) ??
+        false; //if showDialouge had returned null, then return false
   }
 }

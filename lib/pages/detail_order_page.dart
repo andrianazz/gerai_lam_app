@@ -7,6 +7,7 @@ import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme.dart';
 
@@ -22,7 +23,15 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   TextEditingController ongkir = TextEditingController(text: '0');
   TextEditingController bayar = TextEditingController(text: '0');
 
+  String idKasir = '';
+
   String mtdPayment = "TUNAI";
+
+  @override
+  void initState() {
+    super.initState();
+    getAll();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -622,8 +631,14 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    transact.addTransactions(cartsProvider.carts, mtdPayment,
-                        int.parse(ongkir.text), int.parse(bayar.text), total);
+                    transact.addTransactions(
+                      cartsProvider.carts,
+                      mtdPayment,
+                      int.parse(ongkir.text),
+                      int.parse(bayar.text),
+                      total,
+                      idKasir,
+                    );
 
                     Navigator.push(
                         context,
@@ -1045,5 +1060,14 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   int getKembali(int total) {
     int kembali = int.parse(bayar.text) - total;
     return kembali;
+  }
+
+  Future<void> getAll() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String id = pref.getString("id") ?? '';
+
+    setState(() {
+      idKasir = id;
+    });
   }
 }

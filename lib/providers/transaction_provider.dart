@@ -40,22 +40,22 @@ class TransactionProvider with ChangeNotifier {
   }
 
   addTransactions(List<ItemModel> carts, String payment, int ongkir, int bayar,
-      int total) async {
+      int total, String id) async {
     CollectionReference ref = firestore.collection('transactions');
     ref.get().then((snap) {
       _transactions.add(
         TransactionModel(
             id: Uuid().v1(),
-            idCashier: 1,
+            idCashier: id,
             payment: payment,
             date: DateTime.now(),
-            address: 'JL. Nelayan',
+            address: 'JL. Diponegoro, Pekanbaru 28127',
             idCostumer: "0",
             items: carts,
             totalProducts: carts.length,
             pay: bayar,
             totalTransaction: total,
-            status: 'Proses',
+            status: 'Selesai',
             ongkir: ongkir,
             keterangan: ''),
       );

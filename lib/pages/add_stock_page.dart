@@ -948,6 +948,8 @@ class _AddStockPageState extends State<AddStockPage> {
                                                 fontSize: 16,
                                                 color: textGreyColor,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           Container(
@@ -1069,9 +1071,30 @@ class _AddStockPageState extends State<AddStockPage> {
                                       ),
                                     ),
                                     onPressed: () {
+                                      stockIn.stockIns.map((e) {
+                                        return product.doc(e.kode).update({
+                                          "stok_awal": FieldValue.increment(
+                                              num.parse(e.stok.toString())),
+                                          "sisa_stok": FieldValue.increment(
+                                              num.parse(e.stok.toString())),
+                                          "stok_tanggal": DateTime.now(),
+                                        });
+                                      }).toList();
+
+                                      stockOut.stockRetn.map((e) {
+                                        return product.doc(e.kode).update({
+                                          "sisa_stok": FieldValue.increment(
+                                              -num.parse(e.stok.toString())),
+                                        });
+                                      }).toList();
+
                                       stocksStore.doc(noFaktur.text).set({
                                         'noFaktur': noFaktur.text,
-                                        'supplier': _dropdownSupplier!.name!,
+                                        'supplier': {
+                                          'id': _dropdownSupplier!.id,
+                                          'nama': _dropdownSupplier!.name,
+                                          'daerah': _dropdownSupplier!.zone
+                                        },
                                         'date_in': dateIn,
                                         'time_in': timeIn.toString(),
                                         'description': descController.text,

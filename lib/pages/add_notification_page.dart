@@ -1,24 +1,23 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/supplier_model.dart';
 import '../theme.dart';
 
-class AddPromoPage extends StatefulWidget {
-  const AddPromoPage({Key? key}) : super(key: key);
+class AddNotificationPage extends StatefulWidget {
+  const AddNotificationPage({Key? key}) : super(key: key);
 
   @override
-  State<AddPromoPage> createState() => _AddPromoPageState();
+  State<AddNotificationPage> createState() => _AddNotificationPageState();
 }
 
-class _AddPromoPageState extends State<AddPromoPage> {
+class _AddNotificationPageState extends State<AddNotificationPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  int promoLength = 0;
+
+  List<SupplierModel> suppliers = [];
+  String? _dropdownSupplier;
 
   @override
   void initState() {
@@ -28,28 +27,15 @@ class _AddPromoPageState extends State<AddPromoPage> {
 
   getLength() {
     firestore
-        .collection('promo')
+        .collection('supplier')
+        .orderBy('name')
         .get()
-        .then((snapshot) => promoLength = snapshot.docs.length);
-  }
-
-  String oldImage =
-      'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
-  String? newImage;
-
-  void imageUpload(String name) async {
-    final image = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
-
-    Reference ref = FirebaseStorage.instance.ref().child(name);
-
-    await ref.putFile(File(image!.path));
-    ref.getDownloadURL().then((value) {
-      setState(() {
-        newImage = value;
-      });
-    });
+        .then((snapshot) => snapshot.docs.forEach((doc) {
+              setState(() {
+                suppliers.add(
+                    SupplierModel.fromJson(doc.data() as Map<String, dynamic>));
+              });
+            }));
   }
 
   TextEditingController titleController = TextEditingController();
@@ -57,7 +43,7 @@ class _AddPromoPageState extends State<AddPromoPage> {
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference promo = firestore.collection('promo');
+    CollectionReference notifications = firestore.collection('notifications');
 
     String document = Uuid().v1();
 
@@ -86,7 +72,7 @@ class _AddPromoPageState extends State<AddPromoPage> {
               children: [
                 SizedBox(height: 20),
                 Text(
-                  "Tambah Stok Masuk",
+                  "Tambah Notifikasi",
                   style: primaryText.copyWith(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -107,7 +93,7 @@ class _AddPromoPageState extends State<AddPromoPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Konten Artikel",
+                            "Konten Notifikasi",
                             style: primaryText.copyWith(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
@@ -130,36 +116,10 @@ class _AddPromoPageState extends State<AddPromoPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 252,
-                                      height: 130,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: textGreyColor,
-                                        ),
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                              newImage ?? oldImage),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        imageUpload(document);
-                                      },
-                                      child: Text("Tukar Gambar"),
-                                    ),
-                                  ],
-                                ),
-                                Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Judul Artikel",
+                                      "Judul Notifikasi",
                                       style: primaryText.copyWith(
                                         fontSize: 16,
                                         color: textGreyColor,
@@ -179,26 +139,46 @@ class _AddPromoPageState extends State<AddPromoPage> {
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
-                                          hintText: 'Big Sale 50%',
+                                          hintText: 'Pemberitahuan Penting!',
                                         ),
                                       ),
                                     ),
-                                    Visibility(
-                                      visible: false,
-                                      child: StreamBuilder<QuerySnapshot>(
-                                          stream: promo.snapshots(),
-                                          builder: (_, snapshot) {
-                                            if (snapshot.hasData) {
-                                              promoLength =
-                                                  snapshot.data!.docs.length;
-                                              return SizedBox();
-                                            } else {
-                                              return SizedBox();
-                                            }
-                                          }),
-                                    ),
                                   ],
-                                )
+                                ),
+                                Container(
+                                  width: 270,
+                                  margin: EdgeInsets.only(top: 10),
+                                  child: DropdownButtonFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Supplier',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      value: _dropdownSupplier,
+                                      hint: Text("Semua Supplier"),
+                                      items: suppliers
+                                          .map((item) =>
+                                              DropdownMenuItem<String>(
+                                                child: Container(
+                                                  width: 140,
+                                                  child: Text(
+                                                    item.name!,
+                                                    overflow: TextOverflow.clip,
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                                value: item.name,
+                                              ))
+                                          .toList(),
+                                      onChanged: (selected) {
+                                        setState(() {
+                                          _dropdownSupplier =
+                                              selected as String?;
+                                        });
+                                      }),
+                                ),
                               ],
                             ),
                             SizedBox(height: 20),
@@ -302,11 +282,11 @@ class _AddPromoPageState extends State<AddPromoPage> {
                                         ),
                                       );
 
-                                      promo.doc(document).set({
+                                      notifications.doc(document).set({
                                         'code': document,
-                                        'imageUrl': newImage ?? oldImage,
                                         'title': titleController.text,
                                         'description': descController.text,
+                                        'supplier': _dropdownSupplier,
                                         'date': DateTime.now(),
                                       });
 

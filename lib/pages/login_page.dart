@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
-import 'package:gerai_lam_app/pages/sign_up_page.dart';
 
 import 'package:gerai_lam_app/services/auth_service.dart';
 import 'package:gerai_lam_app/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -17,6 +17,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  late SharedPreferences preferences;
 
   bool _isEmail = true;
   bool _isSecure = true;
@@ -27,6 +28,16 @@ class _LoginPageState extends State<LoginPage> {
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController password2Controller = TextEditingController();
+
+  @override
+  initState() {
+    super.initState();
+    init();
+  }
+
+  Future init() async {
+    preferences = await SharedPreferences.getInstance();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -352,6 +363,15 @@ class _LoginPageState extends State<LoginPage> {
   isEmployees(String email) {
     CollectionReference employees = firestore.collection('employees');
     employees.doc(email).get().then((snapshot) {
+      var json = snapshot.data() as Map<String, dynamic>;
+
+      preferences.setString('name', json['name'].toString());
+      preferences.setString('id', json['id'].toString());
+      preferences.setString('email', json['email'].toString());
+      preferences.setString('phone', json['phone'].toString());
+      preferences.setString('role', json['role'].toString());
+      preferences.setString('status', json['status'].toString());
+
       if (snapshot.exists) {
         return AuthService().signIn(
           context,
@@ -438,12 +458,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OrderPage(),
-                ),
-              );
+              isEmployeesPhone(phoneController.text.toString());
             },
             child: Text(
               "MASUK",
@@ -457,5 +472,39 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ],
     );
+  }
+
+  isEmployeesPhone(String phone) {
+    CollectionReference employees = firestore.collection('employees');
+    employees.where('phone', isEqualTo: phone).get().then((snapshot) {
+      Map<String, dynamic> data =
+          snapshot.docs.first.data() as Map<String, dynamic>;
+      print(data['email']);
+
+      preferences.setString('name', data['name'].toString());
+      preferences.setString('id', data['id'].toString());
+      preferences.setString('email', data['email'].toString());
+      preferences.setString('phone', data['phone'].toString());
+      preferences.setString('role', data['role'].toString());
+      preferences.setString('status', data['status'].toString());
+
+      if (data != null) {
+        return AuthService().signIn(
+          context,
+          data['email'].toString(),
+          password2Controller.text.trim(),
+        );
+      } else {
+        return ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Anda belum mendaftarkan diri!",
+              textAlign: TextAlign.center,
+            ),
+            backgroundColor: redColor,
+          ),
+        );
+      }
+    });
   }
 }

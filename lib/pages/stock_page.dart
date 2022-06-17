@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/add_stock_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:intl/intl.dart';
 
 import '../theme.dart';
 
@@ -22,6 +23,7 @@ class _StockPageState extends State<StockPage> {
   }
 
   DateTime? _datetime;
+
   @override
   Widget build(BuildContext context) {
     CollectionReference stocks = firestore.collection('stock');
@@ -143,13 +145,19 @@ class _StockPageState extends State<StockPage> {
                 ),
                 SizedBox(height: 50),
                 StreamBuilder<QuerySnapshot>(
-                    stream: stocks.snapshots(),
+                    stream:
+                        stocks.orderBy("date_in", descending: true).snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {
                         return Column(
                           children: snapshot.data!.docs.map((e) {
                             Map<String, dynamic> stock =
                                 e.data() as Map<String, dynamic>;
+
+                            var date = (stock['date_in'] as Timestamp).toDate();
+                            String tanggal =
+                                DateFormat('dd MMMM yyyy').format(date);
+
                             return Card(
                               child: Container(
                                 height: 60,
@@ -163,7 +171,7 @@ class _StockPageState extends State<StockPage> {
                                     Container(
                                       width: 150,
                                       child: Text(
-                                        stock['date_in'].toDate().toString(),
+                                        tanggal.toString(),
                                         style: primaryText.copyWith(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
@@ -172,7 +180,7 @@ class _StockPageState extends State<StockPage> {
                                       ),
                                     ),
                                     Text(
-                                      stock['supplier'],
+                                      stock['supplier']['nama'],
                                       style: primaryText.copyWith(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w700,

@@ -1,23 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/pages/add_promo_page.dart';
-import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:gerai_lam_app/pages/add_notification_page.dart';
 
 import '../theme.dart';
+import '../widgets/drawer_widget.dart';
 
-class PromoPage extends StatelessWidget {
-  const PromoPage({Key? key}) : super(key: key);
+class NotificationPage extends StatelessWidget {
+  NotificationPage({Key? key}) : super(key: key);
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference promos = firestore.collection('promo');
-
+    CollectionReference notifications = firestore.collection('notifications');
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
-        title: Text("Artikel Promo"),
+        title: Text("Notifikasi"),
         backgroundColor: primaryColor,
         flexibleSpace: SafeArea(
           child: Container(
@@ -41,7 +40,7 @@ class PromoPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Daftar Artikel Promo',
+                  'Daftar Notifikasi',
                   style: primaryText.copyWith(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -50,11 +49,9 @@ class PromoPage extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddPromoPage(),
-                      ),
-                    );
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddNotificationPage()));
                   },
                   style: ElevatedButton.styleFrom(
                     primary: primaryColor,
@@ -65,7 +62,7 @@ class PromoPage extends StatelessWidget {
                     color: Colors.white,
                   ),
                   label: Text(
-                    'Tambah Artikel',
+                    'Tambah Notifikasi',
                     style: primaryText.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -77,7 +74,7 @@ class PromoPage extends StatelessWidget {
             SizedBox(height: 30),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: promos.orderBy('date').snapshots(),
+                stream: notifications.orderBy('date').snapshots(),
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     return ListView(
@@ -85,30 +82,33 @@ class PromoPage extends StatelessWidget {
                         Map<String, dynamic> promo =
                             e.data() as Map<String, dynamic>;
                         return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                                horizontal: 20, vertical: 20),
+                            decoration: BoxDecoration(),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      height: 54,
-                                      width: 54,
+                                      width: 50,
+                                      height: 50,
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        image: DecorationImage(
-                                          image:
-                                              NetworkImage(promo['imageUrl']),
-                                          fit: BoxFit.cover,
-                                        ),
+                                        shape: BoxShape.circle,
+                                        color: orangeColor,
+                                      ),
+                                      child: Icon(
+                                        Icons.notifications,
+                                        size: 25,
+                                        color: Colors.white,
                                       ),
                                     ),
-                                    const SizedBox(width: 14),
+                                    SizedBox(width: 20),
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -125,6 +125,19 @@ class PromoPage extends StatelessWidget {
                                             maxLines: 1,
                                           ),
                                         ),
+                                        Container(
+                                          width: 250,
+                                          child: Text(
+                                            promo['supplier'],
+                                            style: primaryText.copyWith(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            overflow: TextOverflow.clip,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
                                         Container(
                                           width: 250,
                                           child: Text(
@@ -161,7 +174,7 @@ class PromoPage extends StatelessWidget {
                                                   CupertinoDialogAction(
                                                     child: Text('Hapus'),
                                                     onPressed: () {
-                                                      promos
+                                                      notifications
                                                           .doc(promo['code'])
                                                           .delete();
 
@@ -174,7 +187,7 @@ class PromoPage extends StatelessWidget {
                                     icon: Icon(
                                       Icons.highlight_remove_rounded,
                                       color: redColor,
-                                      size: 50,
+                                      size: 40,
                                     )),
                               ],
                             ),
@@ -195,22 +208,22 @@ class PromoPage extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget columnAppbarLeft(context) {
-  return Container(
-    width: MediaQuery.of(context).size.width * 2 / 3 - 60,
-    child: Row(
-      children: [],
-    ),
-  );
-}
+  Widget columnAppbarLeft(context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 2 / 3 - 60,
+      child: Row(
+        children: [],
+      ),
+    );
+  }
 
-Widget columnAppbarRight(context) {
-  return Expanded(
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [],
-    ),
-  );
+  Widget columnAppbarRight(context) {
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [],
+      ),
+    );
+  }
 }

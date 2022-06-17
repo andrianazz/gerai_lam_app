@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_in_model.dart';
 import 'package:gerai_lam_app/providers/stock_in_provider.dart';
-import 'package:gerai_lam_app/providers/stock_return_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../theme.dart';
@@ -27,9 +26,14 @@ class _DialogStockInState extends State<DialogStockIn> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              widget.stock!.nama!,
-              style: primaryText.copyWith(fontSize: 42),
+            Container(
+              width: 550,
+              child: Text(
+                widget.stock!.nama!,
+                style: primaryText.copyWith(fontSize: 42),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
             Row(
               children: [
