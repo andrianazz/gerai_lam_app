@@ -1,7 +1,5 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/staff_page.dart';
 import 'package:gerai_lam_app/pages/supplier_page.dart';
@@ -46,13 +44,37 @@ class _SignUpPageState extends State<SignUpPage> {
       source: ImageSource.gallery,
     );
 
-    Reference ref = FirebaseStorage.instance.ref().child(name);
+    // Reference ref = FirebaseStorage.instance.ref().child(name);
+    //
+    // await ref.putFile(File(image!.path));
+    // ref.getDownloadURL().then((value) {
+    //   setState(() {
+    //     newImage = value;
+    //   });
+    // });
 
-    await ref.putFile(File(image!.path));
-    ref.getDownloadURL().then((value) {
-      setState(() {
-        newImage = value;
-      });
+    var postUri = Uri.parse("https://galerilamriau.com/api/image");
+    var headers = {
+      "Authorization":
+          "Bearer 2wNAfr1QBPn2Qckv55u5b4GN2jrgfnC8Y7cZO04yNpXciQHrj9NaWQhs1FSMo0Jd",
+      "Content-Type": "multipart/form-data",
+      "Accept": "application/json",
+    };
+
+    http.MultipartRequest request = new http.MultipartRequest("POST", postUri);
+    request.headers.addAll(headers);
+    http.MultipartFile multipartFile =
+        await http.MultipartFile.fromPath('image', image!.path);
+    request.files.add(multipartFile);
+    http.StreamedResponse response = await request.send();
+
+    print(response.statusCode);
+    var responseData = await response.stream.toBytes();
+    var result = String.fromCharCodes(responseData);
+    var res = result.substring(12, result.length - 2).replaceAll(r"\", "");
+
+    setState(() {
+      newImage = res;
     });
   }
 

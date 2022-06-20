@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
 import 'package:gerai_lam_app/pages/sign_up_page.dart';
 import 'package:gerai_lam_app/services/auth_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
@@ -23,6 +25,41 @@ class _SuppplierPageState extends State<SuppplierPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController zoneController = TextEditingController();
+
+  String oldImage =
+      'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
+  String? newImage;
+
+  void imageUpload(String name) async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    var postUri = Uri.parse("https://galerilamriau.com/api/image");
+    var headers = {
+      "Authorization":
+          "Bearer 2wNAfr1QBPn2Qckv55u5b4GN2jrgfnC8Y7cZO04yNpXciQHrj9NaWQhs1FSMo0Jd",
+      "Content-Type": "multipart/form-data",
+      "Accept": "application/json",
+    };
+
+    http.MultipartRequest request = new http.MultipartRequest("POST", postUri);
+    request.headers.addAll(headers);
+    http.MultipartFile multipartFile =
+        await http.MultipartFile.fromPath('image', image!.path);
+    request.files.add(multipartFile);
+    http.StreamedResponse response = await request.send();
+
+    print(response.statusCode);
+    var responseData = await response.stream.toBytes();
+    var result = String.fromCharCodes(responseData);
+    var res = result.substring(12, result.length - 2).replaceAll(r"\", "");
+
+    setState(() {
+      newImage = res;
+      print(newImage);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -499,13 +536,46 @@ class _SuppplierPageState extends State<SuppplierPage> {
     CollectionReference suppliers =
         FirebaseFirestore.instance.collection('supplier');
 
-    String oldImage =
-        'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
+    String oldImage = selectedSupplier!.imageUrl ??
+        "https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3";
     String? newImage;
+
+    void imageUpload(String name) async {
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+      );
+
+      var postUri = Uri.parse("https://galerilamriau.com/api/image");
+      var headers = {
+        "Authorization":
+            "Bearer 2wNAfr1QBPn2Qckv55u5b4GN2jrgfnC8Y7cZO04yNpXciQHrj9NaWQhs1FSMo0Jd",
+        "Content-Type": "multipart/form-data",
+        "Accept": "application/json",
+      };
+
+      http.MultipartRequest request =
+          new http.MultipartRequest("POST", postUri);
+      request.headers.addAll(headers);
+      http.MultipartFile multipartFile =
+          await http.MultipartFile.fromPath('image', image!.path);
+      request.files.add(multipartFile);
+      http.StreamedResponse response = await request.send();
+
+      print(response.statusCode);
+      var responseData = await response.stream.toBytes();
+      var result = String.fromCharCodes(responseData);
+      var res = result.substring(12, result.length - 2).replaceAll(r"\", "");
+
+      setState(() {
+        newImage = res;
+        print(newImage);
+      });
+    }
 
     nameController.text = selectedSupplier!.name!;
     phoneController.text = selectedSupplier!.phone!;
     zoneController.text = selectedSupplier!.zone!;
+    newImage = selectedSupplier!.imageUrl!;
 
     showDialog(
       context: context,
@@ -542,6 +612,18 @@ class _SuppplierPageState extends State<SuppplierPage> {
                         fit: BoxFit.cover,
                       ),
                     ),
+                  ),
+                ),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        print(selectedSupplier!.email);
+                        imageUpload(selectedSupplier!.email!.toString());
+                      });
+                      setState(() {});
+                    },
+                    child: const Text('Change Image'),
                   ),
                 ),
                 Row(
@@ -685,6 +767,7 @@ class _SuppplierPageState extends State<SuppplierPage> {
                                 'name': nameController.text,
                                 'phone': phoneController.text,
                                 'zone': zoneController.text,
+                                'imageUrl': newImage ?? oldImage,
                               });
 
                               ScaffoldMessenger.of(context).showSnackBar(
