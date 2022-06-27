@@ -97,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
             android: AndroidNotificationDetails(
               channel!.id,
               channel!.name,
+              styleInformation: BigTextStyleInformation(''),
               icon: 'launch_background',
             ),
           ),
