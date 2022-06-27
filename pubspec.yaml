@@ -47,6 +47,9 @@ dependencies:
   dio: ^4.0.6
   uuid: ^3.0.6
   shared_preferences:
+  firebase_messaging: ^11.4.2
+  overlay_support:
+  flutter_local_notifications:
 
 dev_dependencies:
   flutter_test:

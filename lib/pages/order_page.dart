@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/pages/detail_order_page.dart';
@@ -8,6 +9,7 @@ import 'package:gerai_lam_app/widgets/dialog_quantity.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme.dart';
 
@@ -23,6 +25,15 @@ class _OrderPageState extends State<OrderPage> {
 
   bool isOrder = false;
   TextEditingController searchController = TextEditingController();
+
+  String emailSupplier = "";
+
+  @override
+  void initState() {
+    getAll();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -867,5 +878,13 @@ class _OrderPageState extends State<OrderPage> {
           ),
         ) ??
         false; //if showDialouge had returned null, then return false
+  }
+
+  Future<void> getAll() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String email = pref.getString("email") ?? '';
+    setState(() {
+      emailSupplier = email;
+    });
   }
 }

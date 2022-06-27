@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/models/notification_model.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/supplier_model.dart';
 import '../theme.dart';
@@ -16,8 +20,34 @@ class AddNotificationPage extends StatefulWidget {
 class _AddNotificationPageState extends State<AddNotificationPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  List<SupplierModel> suppliers = [];
-  String? _dropdownSupplier;
+  List<NotificationModel> suppliers = [];
+  NotificationModel? _dropdownSupplier;
+
+  void sendNotificationMessage(String title, String body, String token) async {
+    try {
+      await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization':
+                'key=AAAATv2OdgQ:APA91bFRUB1YE8sv0iR_AwEHOH2QZuQNj_BkCJ67h8v7tEOBdCiMOBEsDw13WhoAX8lpoVaXCQqbT-T15GxGg7zaggMOEAG9KfItRrypXnoFAQogSvtB0VDhJBSK0rL4wLYToWkdpjEu',
+          },
+          body: jsonEncode({
+            'notification': {
+              'body': '${body}',
+              'title': '${title}',
+            },
+            'priority': 'high',
+            'data': {
+              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+              'id': '1',
+              'status': 'done',
+            },
+            'to': '${token}'
+          }));
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   void initState() {
@@ -26,16 +56,13 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
   }
 
   getLength() {
-    firestore
-        .collection('supplier')
-        .orderBy('name')
-        .get()
-        .then((snapshot) => snapshot.docs.forEach((doc) {
-              setState(() {
-                suppliers.add(
-                    SupplierModel.fromJson(doc.data() as Map<String, dynamic>));
-              });
-            }));
+    firestore.collection('tokenFCM').orderBy('name').get().then((snapshot) =>
+        snapshot.docs.forEach((doc) {
+          setState(() {
+            suppliers.add(
+                NotificationModel.fromJson(doc.data() as Map<String, dynamic>));
+          });
+        }));
   }
 
   TextEditingController titleController = TextEditingController();
@@ -159,8 +186,8 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                       value: _dropdownSupplier,
                                       hint: Text("Semua Supplier"),
                                       items: suppliers
-                                          .map((item) =>
-                                              DropdownMenuItem<String>(
+                                          .map((item) => DropdownMenuItem<
+                                                  NotificationModel>(
                                                 child: Container(
                                                   width: 140,
                                                   child: Text(
@@ -169,13 +196,13 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                                     maxLines: 1,
                                                   ),
                                                 ),
-                                                value: item.name,
+                                                value: item,
                                               ))
                                           .toList(),
                                       onChanged: (selected) {
                                         setState(() {
                                           _dropdownSupplier =
-                                              selected as String?;
+                                              selected as NotificationModel;
                                         });
                                       }),
                                 ),
@@ -286,9 +313,14 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                         'code': document,
                                         'title': titleController.text,
                                         'description': descController.text,
-                                        'supplier': _dropdownSupplier,
+                                        'supplier': _dropdownSupplier!.name,
                                         'date': DateTime.now(),
                                       });
+
+                                      sendNotificationMessage(
+                                          titleController.text,
+                                          descController.text,
+                                          _dropdownSupplier!.token!);
 
                                       Navigator.pop(context);
                                     },

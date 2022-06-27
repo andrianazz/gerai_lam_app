@@ -2,6 +2,7 @@
     package="com.example.gerai_lam_app">
    <application
         android:label="Aplikasi Kasir Galeri LAM"
+        android:usesCleartextTraffic="true"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

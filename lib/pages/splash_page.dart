@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/login_page.dart';
 
@@ -12,6 +13,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     getInit();
+
     super.initState();
   }
 
