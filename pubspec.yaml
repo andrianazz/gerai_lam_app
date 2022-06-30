@@ -50,6 +50,7 @@ dependencies:
   firebase_messaging: ^11.4.2
   overlay_support:
   flutter_local_notifications:
+  blue_thermal_printer: ^1.2.0
 
 dev_dependencies:
   flutter_test:

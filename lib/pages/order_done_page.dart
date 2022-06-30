@@ -1,3 +1,4 @@
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
@@ -30,6 +31,21 @@ class OrderDonePage extends StatefulWidget {
 }
 
 class _OrderDonePageState extends State<OrderDonePage> {
+  List<BluetoothDevice> devices = [];
+  BluetoothDevice? selectedDevice;
+  BlueThermalPrinter printer = BlueThermalPrinter.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    getDevices();
+  }
+
+  void getDevices() async {
+    devices = await printer.getBondedDevices();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -366,28 +382,74 @@ class _OrderDonePageState extends State<OrderDonePage> {
         children: [
           Flexible(
             flex: 1,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(
-                border: Border.all(color: primaryColor, width: 3),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.local_print_shop_outlined,
-                    color: primaryColor,
-                    size: 40,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    "CETAK STRUK",
-                    style: primaryText.copyWith(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w500,
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      width: 800,
+                      height: 500,
+                      padding: EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Printer Thermal",
+                            style: primaryText.copyWith(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Column(
+                            children: devices
+                                .map(
+                                  (e) => GestureDetector(
+                                    onTap: () {
+                                      testPrint(e);
+                                      Navigator.pop(context);
+                                    },
+                                    child: ListTile(
+                                      title: Text(e.name!),
+                                      subtitle: Text(e.address!),
+                                      leading: Icon(Icons.print),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: primaryColor, width: 3),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.local_print_shop_outlined,
+                      color: primaryColor,
+                      size: 40,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      "CETAK STRUK",
+                      style: primaryText.copyWith(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -489,5 +551,44 @@ class _OrderDonePageState extends State<OrderDonePage> {
         ],
       ),
     );
+  }
+
+  void testPrint(BluetoothDevice device) async {
+    printer.connect(device);
+    //SIZE
+    // 0- normal size text
+    // 1- only bold text
+    // 2- bold with medium text
+    // 3- bold with large text
+    //ALIGN
+    // 0- ESC_ALIGN_LEFT
+    // 1- ESC_ALIGN_CENTER
+    // 2- ESC_ALIGN_RIGHT
+
+    if ((await printer.isConnected)!) {
+      printer.printNewLine();
+      printer.printCustom("Galeri LAM Riau", 3, 1);
+      printer.printCustom("Jl. Diponegoro, Suka Mulia,", 1, 1);
+      printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
+      printer.printCustom("Riau 28156", 1, 1);
+      printer.printCustom("www.galerilamriau.com", 1, 1);
+      printer.printCustom("==========================================", 0, 2);
+      //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+      printer.printCustom("No Struk : 90812t3hjhu123696hgjahsgjagjsdad", 1, 1);
+      printer.printCustom("==========================================", 0, 2);
+      printer.printNewLine();
+      printer.printLeftRight("Tikar Anyaman", "", 1);
+      printer.print4Column("   4.000", "x2", ":", "8.000", 1);
+      printer.printLeftRight("Bekal", "", 1);
+      printer.print4Column("   2.000", "x2", ":", "4.000", 1);
+      printer.printLeftRight("Baju Lebaran", "", 1);
+      printer.print4Column("   8.000", "x1", ":", "8.000", 1);
+      printer.printLeftRight("Total(ppn)", "Rp. 2.000.000", 1);
+      printer.printNewLine();
+      printer.printQRcode("https://galerilamriau.com", 200, 200, 1);
+      printer.printCustom("Terima kasih", 1, 1);
+      printer.printCustom("Semoga puas dengan pelayanan kami", 0, 1);
+      printer.paperCut();
+    }
   }
 }
