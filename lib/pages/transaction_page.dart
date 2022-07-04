@@ -291,7 +291,7 @@ class DTS extends DataTableSource {
   @override
   DataRow? getRow(int index) {
     return DataRow(cells: [
-      DataCell(Text('transDTS![index].date.toString()')),
+      DataCell(Text('${transDTS![index].date}')),
       DataCell(Text('${rupiah.format(transDTS![index].totalTransaction)}')),
       DataCell(Text('${angka.format(transDTS![index].totalProducts)}')),
       DataCell(Text('${rupiah.format(transDTS![index].totalTransaction)}')),

@@ -35,6 +35,7 @@ class _DialogQuantityState extends State<DialogQuantity> {
                 style: primaryText.copyWith(fontSize: 42),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
+                textAlign: TextAlign.center,
               ),
             ),
             Row(
@@ -61,7 +62,6 @@ class _DialogQuantityState extends State<DialogQuantity> {
                     ),
                   ),
                 ),
-                SizedBox(width: 50),
                 Spacer(),
                 Container(
                   width: 200,
@@ -199,7 +199,7 @@ class _DialogQuantityState extends State<DialogQuantity> {
                         });
                       },
                       child: Container(
-                        width: 80,
+                        width: 100,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             color: secondaryColor,

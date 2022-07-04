@@ -15,6 +15,8 @@ class CostumerPage extends StatefulWidget {
 class _CostumerPageState extends State<CostumerPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  TextEditingController searchController = TextEditingController();
+
   CostumerModel? selectedCostumer;
 
   @override
@@ -46,7 +48,21 @@ class _CostumerPageState extends State<CostumerPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
-                  keyboardType: TextInputType.none,
+                  controller: searchController,
+                  onTap: () {
+                    setState(() {
+                      searchController.clear();
+                    });
+                  },
+                  onChanged: (value) async {
+                    await Future.delayed(Duration(seconds: 3), () {
+                      setState(() {
+                        searchController.text = value[0].toUpperCase() +
+                            value.substring(1).toLowerCase();
+                      });
+                      print(searchController.text);
+                    });
+                  },
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
                       focusColor: primaryColor,
@@ -70,7 +86,12 @@ class _CostumerPageState extends State<CostumerPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: customers.orderBy('name').snapshots(),
+                    stream: searchController.text.isEmpty
+                        ? customers.orderBy('name').snapshots()
+                        : customers
+                            .where('name',
+                                isGreaterThanOrEqualTo: searchController.text)
+                            .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         return ListView(

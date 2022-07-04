@@ -25,6 +25,7 @@ class _SuppplierPageState extends State<SuppplierPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController zoneController = TextEditingController();
+  TextEditingController searchController = TextEditingController();
 
   String oldImage =
       'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
@@ -91,7 +92,21 @@ class _SuppplierPageState extends State<SuppplierPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
-                  keyboardType: TextInputType.none,
+                  controller: searchController,
+                  onTap: () {
+                    setState(() {
+                      searchController.clear();
+                    });
+                  },
+                  onChanged: (value) async {
+                    await Future.delayed(Duration(seconds: 3), () {
+                      setState(() {
+                        searchController.text = value[0].toUpperCase() +
+                            value.substring(1).toLowerCase();
+                      });
+                      print(searchController.text);
+                    });
+                  },
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
                       focusColor: primaryColor,
@@ -115,7 +130,12 @@ class _SuppplierPageState extends State<SuppplierPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: suppliers.orderBy('name').snapshots(),
+                    stream: searchController.text.isEmpty
+                        ? suppliers.orderBy('name').snapshots()
+                        : suppliers
+                            .where("name",
+                                isGreaterThanOrEqualTo: searchController.text)
+                            .snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {
                         return ListView(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -23,17 +25,19 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  String selectedTag = '';
+
   bool isOrder = false;
-  TextEditingController searchController = TextEditingController();
 
   String emailSupplier = "";
 
   @override
   void initState() {
-    getAll();
-
     super.initState();
+    getAll();
   }
+
+  TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,78 +65,57 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget columnAppbarLeft(context) {
+    CollectionReference tags = firestore.collection("tags");
+
     return Container(
-      width: MediaQuery.of(context).size.width * 2 / 3 - 60,
+      width: MediaQuery.of(context).size.width * 2 / 3 - 90,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          Row(
-            children: [
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "SEMUA",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "MAKANAN",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "MINUMAN",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "OBAT",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "HEALTHCARE",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "SEMBAKO",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "BUAH",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "ROTI",
-                  style:
-                      primaryText.copyWith(fontSize: 20, color: Colors.white),
-                ),
-              ),
-            ],
+          TextButton(
+            onPressed: () {
+              setState(() {
+                selectedTag = "";
+                searchController.clear();
+              });
+            },
+            child: Text(
+              "Semua",
+              style: primaryText.copyWith(fontSize: 20, color: Colors.white),
+            ),
+          ),
+          StreamBuilder<QuerySnapshot>(
+            stream: tags.snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Row(
+                  children: snapshot.data!.docs.map((e) {
+                    Map<String, dynamic> tag = e.data() as Map<String, dynamic>;
+                    return TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedTag = tag['name'];
+                          searchController.text = '';
+                        });
+                        print(selectedTag);
+                      },
+                      child: Text(
+                        tag['name'].toString(),
+                        style: primaryText.copyWith(
+                            fontSize: 20, color: Colors.white),
+                      ),
+                    );
+                  }).toList(),
+                );
+              } else {
+                return Center(
+                  child: Text(
+                    "No Data",
+                    style: primaryText.copyWith(color: Colors.white),
+                  ),
+                );
+              }
+            },
           ),
         ],
       ),
@@ -144,15 +127,18 @@ class _OrderPageState extends State<OrderPage> {
       width: MediaQuery.of(context).size.width / 3 - 60,
       child: Row(
         children: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                isOrder = !isOrder;
-              });
-            },
-            child: Text(
-              "DAFTAR ORDER",
-              style: primaryText.copyWith(fontSize: 20, color: Colors.white),
+          Visibility(
+            visible: false,
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  isOrder = !isOrder;
+                });
+              },
+              child: Text(
+                "DAFTAR ORDER",
+                style: primaryText.copyWith(fontSize: 20, color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -431,7 +417,21 @@ class _OrderPageState extends State<OrderPage> {
       children: [
         TextField(
           controller: searchController,
-          keyboardType: TextInputType.none,
+          onChanged: (value) async {
+            await Future.delayed(Duration(seconds: 3), () {
+              setState(() {
+                selectedTag = '';
+                searchController.text =
+                    value[0].toUpperCase() + value.substring(1).toLowerCase();
+              });
+              print(searchController.text);
+            });
+          },
+          onTap: () {
+            setState(() {
+              searchController.text = '';
+            });
+          },
           decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search_sharp),
               focusColor: primaryColor,
@@ -447,7 +447,14 @@ class _OrderPageState extends State<OrderPage> {
         const SizedBox(height: 30),
         Expanded(
           child: StreamBuilder<QuerySnapshot>(
-            stream: products.orderBy('nama').snapshots(),
+            stream: selectedTag.isNotEmpty
+                ? products.where('tag', arrayContains: selectedTag).snapshots()
+                : searchController.text.isNotEmpty
+                    ? products
+                        .where('nama',
+                            isGreaterThanOrEqualTo: searchController.text)
+                        .snapshots()
+                    : products.orderBy('nama').snapshots(),
             builder: (_, snapshot) {
               if (snapshot.hasData) {
                 return ListView(

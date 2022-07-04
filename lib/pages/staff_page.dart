@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gerai_lam_app/models/employee_model.dart';
 import 'package:gerai_lam_app/pages/sign_up_page.dart';
 import 'package:gerai_lam_app/services/auth_service.dart';
@@ -27,6 +28,7 @@ class _StaffPageState extends State<StaffPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController password2Controller = TextEditingController();
+  TextEditingController searchController = TextEditingController();
 
   List<String> role = ['Kasir', 'Owner'];
   String? _dropdownRole;
@@ -94,7 +96,21 @@ class _StaffPageState extends State<StaffPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
-                  keyboardType: TextInputType.none,
+                  controller: searchController,
+                  onTap: () {
+                    setState(() {
+                      searchController.clear();
+                    });
+                  },
+                  onChanged: (value) async {
+                    await Future.delayed(Duration(seconds: 3), () {
+                      setState(() {
+                        searchController.text = value[0].toUpperCase() +
+                            value.substring(1).toLowerCase();
+                      });
+                      print(searchController.text);
+                    });
+                  },
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
                       focusColor: primaryColor,
@@ -118,7 +134,12 @@ class _StaffPageState extends State<StaffPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: employees.orderBy('name').snapshots(),
+                    stream: searchController.text.isEmpty
+                        ? employees.orderBy('name').snapshots()
+                        : employees
+                            .where('name',
+                                isGreaterThanOrEqualTo: searchController.text)
+                            .snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {
                         return ListView(

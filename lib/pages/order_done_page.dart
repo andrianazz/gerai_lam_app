@@ -554,6 +554,27 @@ class _OrderDonePageState extends State<OrderDonePage> {
   }
 
   void testPrint(BluetoothDevice device) async {
+    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+
+    String total = NumberFormat.simpleCurrency(
+      decimalDigits: 0,
+      name: 'Rp. ',
+    ).format(tProvider.transactions[0].totalTransaction);
+    String ongkir = NumberFormat.simpleCurrency(
+      decimalDigits: 0,
+      name: 'Rp. ',
+    ).format(tProvider.transactions[0].ongkir);
+    String bayar = NumberFormat.simpleCurrency(
+      decimalDigits: 0,
+      name: 'Rp. ',
+    ).format(tProvider.transactions[0].pay);
+    String kembalian = NumberFormat.simpleCurrency(
+      decimalDigits: 0,
+      name: 'Rp. ',
+    ).format(tProvider.transactions[0].pay! -
+        tProvider.transactions[0].totalTransaction!);
+
     printer.connect(device);
     //SIZE
     // 0- normal size text
@@ -574,16 +595,19 @@ class _OrderDonePageState extends State<OrderDonePage> {
       printer.printCustom("www.galerilamriau.com", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
-      printer.printCustom("No Struk : 90812t3hjhu123696hgjahsgjagjsdad", 1, 1);
+      printer.printCustom("No Struk : ${tProvider.transactions[0].id}", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       printer.printNewLine();
-      printer.printLeftRight("Tikar Anyaman", "", 1);
-      printer.print4Column("   4.000", "x2", ":", "8.000", 1);
-      printer.printLeftRight("Bekal", "", 1);
-      printer.print4Column("   2.000", "x2", ":", "4.000", 1);
-      printer.printLeftRight("Baju Lebaran", "", 1);
-      printer.print4Column("   8.000", "x1", ":", "8.000", 1);
-      printer.printLeftRight("Total(ppn)", "Rp. 2.000.000", 1);
+      cartProvider.carts.map((e) {
+        printer.printLeftRight("${e.name}", "", 1);
+        printer.print4Column(
+            "   ${e.price}}", "x${e.quantity}", ":", "${e.total}", 1);
+      }).toList();
+      printer.printCustom("-----------------------------------------", 0, 2);
+      printer.printLeftRight("ongkir", "${total}", 1);
+      printer.printLeftRight("Total(ppn)", "${total}", 1);
+      printer.printLeftRight("Bayar", "${bayar}", 1);
+      printer.printLeftRight("Kembalian", '${kembalian}', 1);
       printer.printNewLine();
       printer.printQRcode("https://galerilamriau.com", 200, 200, 1);
       printer.printCustom("Terima kasih", 1, 1);

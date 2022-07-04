@@ -200,9 +200,10 @@ class _ProductPageState extends State<ProductPage> {
                 TextField(
                   controller: searchController,
                   onChanged: (value) async {
-                    await Future.delayed(Duration(seconds: 2), () {
+                    await Future.delayed(Duration(seconds: 3), () {
                       setState(() {
-                        searchProduct = value;
+                        searchProduct = value[0].toUpperCase() +
+                            value.substring(1).toLowerCase();
                       });
                     });
                   },
@@ -229,8 +230,7 @@ class _ProductPageState extends State<ProductPage> {
                       stream: (searchProduct != null && searchProduct != '')
                           ? products
                               .where('nama',
-                                  isLessThanOrEqualTo:
-                                      searchProduct!.toUpperCase())
+                                  isGreaterThanOrEqualTo: searchProduct!)
                               .snapshots()
                           : products.orderBy('nama').snapshots(),
                       builder: (_, snapshot) {

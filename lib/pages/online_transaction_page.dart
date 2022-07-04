@@ -141,7 +141,7 @@ class DTS extends DataTableSource {
     CollectionReference transStore = firestore.collection('transactions');
     return DataRow(
       cells: [
-        DataCell(Text(transDTS![index].id!)),
+        DataCell(Text(transDTS![index].id!.toString())),
         DataCell(Text('${rupiah.format(transDTS![index].ongkir)}')),
         DataCell(Center(
           child: Text(
