@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/order_done_page.dart';
+import 'package:gerai_lam_app/pages/product_page.dart';
 import 'package:gerai_lam_app/providers/cart_provider.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
@@ -20,6 +21,10 @@ class DetailOrderPage extends StatefulWidget {
 
 class _DetailOrderPageState extends State<DetailOrderPage> {
   bool isOngkir = false;
+  int kodeUnik = Random().nextInt(499);
+  int ppn = 0;
+  int ppl = 0;
+
   TextEditingController ongkir = TextEditingController(text: '0');
   TextEditingController bayar = TextEditingController(text: '0');
 
@@ -31,6 +36,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   void initState() {
     super.initState();
     getAll();
+    getPpnPpl();
   }
 
   @override
@@ -647,6 +653,9 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                                   subTotal: subTotal,
                                   total: total,
                                   kembali: kembali,
+                                  kodeUnik: kodeUnik,
+                                  ppn: ppn,
+                                  ppl: ppl,
                                   ongkir: int.parse(ongkir.text),
                                   bayar: int.parse(bayar.text),
                                 )));
@@ -889,128 +898,224 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   }
 
   Widget detailPayment(int subTotal, int total) {
-    return Container(
-      height: 200,
-      padding: const EdgeInsets.all(20),
-      color: secondaryBlueColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "SUBTOTAL",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
+    return SingleChildScrollView(
+      child: Container(
+        height: 200,
+        padding: const EdgeInsets.all(10),
+        color: secondaryBlueColor,
+        child: ListView(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ExpansionTile(
+                  tilePadding: EdgeInsets.all(0),
+                  childrenPadding: EdgeInsets.only(left: 10, bottom: 10),
+                  title: Row(
+                    children: [
+                      Text(
+                        "RINCIAN BIAYA",
+                        style: primaryText.copyWith(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "SUBTOTAL",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            decimalDigits: 0,
+                            name: 'Rp. ',
+                          ).format(subTotal),
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isOngkir = true;
+                        });
+                      },
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "ONGKOS KIRIM",
+                              style: primaryText.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              NumberFormat.simpleCurrency(
+                                decimalDigits: 0,
+                                name: 'Rp. ',
+                              ).format(int.parse(ongkir.text)),
+                              style: primaryText.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Kode Unik",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            decimalDigits: 0,
+                            name: 'Rp. ',
+                          ).format(kodeUnik),
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "PPN (${ppn} %)",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            decimalDigits: 0,
+                            name: 'Rp. ',
+                          ).format((ppn / 100 * subTotal)),
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "PPL (${ppl} %)",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            decimalDigits: 0,
+                            name: 'Rp. ',
+                          ).format((ppl / 100 * subTotal)),
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-              Text(
-                NumberFormat.simpleCurrency(
-                  decimalDigits: 0,
-                  name: 'Rp. ',
-                ).format(subTotal),
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "TOTAL",
+                      style: primaryText.copyWith(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      NumberFormat.simpleCurrency(
+                        decimalDigits: 0,
+                        name: 'Rp. ',
+                      ).format(total),
+                      style: primaryText.copyWith(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isOngkir = true;
-              });
-            },
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "ONGKOS KIRIM",
-                    style: primaryText.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isOngkir = false;
+                    });
+                  },
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "BAYAR",
+                          style: primaryText.copyWith(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            decimalDigits: 0,
+                            name: 'Rp. ',
+                          ).format(int.parse(bayar.text)),
+                          style: primaryText.copyWith(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    NumberFormat.simpleCurrency(
-                      decimalDigits: 0,
-                      name: 'Rp. ',
-                    ).format(int.parse(ongkir.text)),
-                    style: primaryText.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+                )
+              ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "TOTAL (ppn)",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                NumberFormat.simpleCurrency(
-                  decimalDigits: 0,
-                  name: 'Rp. ',
-                ).format(total),
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isOngkir = false;
-              });
-            },
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "BAYAR",
-                    style: primaryText.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    NumberFormat.simpleCurrency(
-                      decimalDigits: 0,
-                      name: 'Rp. ',
-                    ).format(int.parse(bayar.text)),
-                    style: primaryText.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1053,7 +1158,11 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   }
 
   int getTotal(int subtotal) {
-    int total = subtotal + int.parse(ongkir.text) + Random().nextInt(499);
+    int ppnTotal = (ppl / 100 * subtotal).toInt();
+    int pplTotal = (ppl / 100 * subtotal).toInt();
+
+    int total =
+        subtotal + int.parse(ongkir.text) + kodeUnik + ppnTotal + pplTotal;
     return total;
   }
 
@@ -1068,6 +1177,15 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
 
     setState(() {
       idKasir = id;
+    });
+  }
+
+  Future<void> getPpnPpl() async {
+    await firestore.collection('settings').doc('galerilam').get().then((value) {
+      setState(() {
+        ppn = value['ppn'];
+        ppl = value['ppl'];
+      });
     });
   }
 }

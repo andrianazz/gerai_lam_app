@@ -6,6 +6,7 @@ import 'package:gerai_lam_app/pages/online_transaction_page.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
 import 'package:gerai_lam_app/pages/product_page.dart';
 import 'package:gerai_lam_app/pages/promo_page.dart';
+import 'package:gerai_lam_app/pages/settings_page.dart';
 import 'package:gerai_lam_app/pages/staff_page.dart';
 import 'package:gerai_lam_app/pages/stock_page.dart';
 import 'package:gerai_lam_app/pages/supplier_page.dart';
@@ -409,6 +410,30 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                     ),
                   ),
                 ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingPage(),
+                    ),
+                  );
+                },
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  ),
+                  title: Text(
+                    "Settings",
+                    style: primaryText.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

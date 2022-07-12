@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/pages/detail_order_page.dart';
@@ -28,8 +27,10 @@ class _OrderPageState extends State<OrderPage> {
   String selectedTag = '';
 
   bool isOrder = false;
+  bool isBeranda = true;
 
   String emailSupplier = "";
+  String searchText = '';
 
   @override
   void initState() {
@@ -75,8 +76,24 @@ class _OrderPageState extends State<OrderPage> {
           TextButton(
             onPressed: () {
               setState(() {
+                isBeranda = true;
                 selectedTag = "";
                 searchController.clear();
+                searchText = '';
+              });
+            },
+            child: Text(
+              "Beranda",
+              style: primaryText.copyWith(fontSize: 20, color: Colors.white),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                isBeranda = false;
+                selectedTag = "";
+                searchController.clear();
+                searchText = '';
               });
             },
             child: Text(
@@ -95,6 +112,7 @@ class _OrderPageState extends State<OrderPage> {
                       onPressed: () {
                         setState(() {
                           selectedTag = tag['name'];
+                          isBeranda = false;
                           searchController.text = '';
                         });
                         print(selectedTag);
@@ -296,7 +314,7 @@ class _OrderPageState extends State<OrderPage> {
                   height: 80,
                   color: secondaryColor,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton.icon(
                         onPressed: () {
@@ -332,23 +350,6 @@ class _OrderPageState extends State<OrderPage> {
                         ),
                         label: Text(
                           "HAPUS",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            color: primaryColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {
-                          print(cartProvider.carts);
-                        },
-                        icon: const Icon(
-                          Icons.save,
-                          color: primaryColor,
-                        ),
-                        label: Text(
-                          "SIMPAN",
                           style: primaryText.copyWith(
                             fontSize: 20,
                             color: primaryColor,
@@ -418,22 +419,30 @@ class _OrderPageState extends State<OrderPage> {
         TextField(
           controller: searchController,
           onChanged: (value) async {
-            await Future.delayed(Duration(seconds: 3), () {
+            await Future.delayed(Duration(milliseconds: 1200), () {
               setState(() {
                 selectedTag = '';
-                searchController.text =
-                    value[0].toUpperCase() + value.substring(1).toLowerCase();
+                if (searchController.text.isNotEmpty) {
+                  searchText =
+                      value[0].toUpperCase() + value.substring(1).toLowerCase();
+                }
               });
               print(searchController.text);
             });
           },
-          onTap: () {
-            setState(() {
-              searchController.text = '';
-            });
-          },
           decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search_sharp),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    searchController.text = '';
+                  });
+                },
+                icon: Icon(
+                  Icons.clear,
+                  color: redColor,
+                ),
+              ),
               focusColor: primaryColor,
               enabledBorder: OutlineInputBorder(
                   borderSide: const BorderSide(color: greyColor),
@@ -449,12 +458,13 @@ class _OrderPageState extends State<OrderPage> {
           child: StreamBuilder<QuerySnapshot>(
             stream: selectedTag.isNotEmpty
                 ? products.where('tag', arrayContains: selectedTag).snapshots()
-                : searchController.text.isNotEmpty
+                : searchText.isNotEmpty
                     ? products
-                        .where('nama',
-                            isGreaterThanOrEqualTo: searchController.text)
+                        .where('nama', isGreaterThanOrEqualTo: searchText)
                         .snapshots()
-                    : products.orderBy('nama').snapshots(),
+                    : isBeranda == true
+                        ? products.orderBy('nama').limit(20).snapshots()
+                        : products.orderBy('nama').snapshots(),
             builder: (_, snapshot) {
               if (snapshot.hasData) {
                 return ListView(

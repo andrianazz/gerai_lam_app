@@ -31,6 +31,8 @@ class _SuppplierPageState extends State<SuppplierPage> {
       'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
   String? newImage;
 
+  String searchText = '';
+
   void imageUpload(String name) async {
     final image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -99,16 +101,29 @@ class _SuppplierPageState extends State<SuppplierPage> {
                     });
                   },
                   onChanged: (value) async {
-                    await Future.delayed(Duration(seconds: 3), () {
+                    await Future.delayed(Duration(milliseconds: 1200), () {
                       setState(() {
-                        searchController.text = value[0].toUpperCase() +
-                            value.substring(1).toLowerCase();
+                        if (searchController.text.isNotEmpty) {
+                          searchText = value[0].toUpperCase() +
+                              value.substring(1).toLowerCase();
+                        }
                       });
                       print(searchController.text);
                     });
                   },
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            searchController.text = '';
+                          });
+                        },
+                        icon: Icon(
+                          Icons.clear,
+                          color: redColor,
+                        ),
+                      ),
                       focusColor: primaryColor,
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: greyColor),
@@ -130,11 +145,10 @@ class _SuppplierPageState extends State<SuppplierPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: searchController.text.isEmpty
+                    stream: searchText.isEmpty
                         ? suppliers.orderBy('name').snapshots()
                         : suppliers
-                            .where("name",
-                                isGreaterThanOrEqualTo: searchController.text)
+                            .where("name", isGreaterThanOrEqualTo: searchText)
                             .snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {

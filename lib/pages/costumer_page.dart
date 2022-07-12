@@ -18,6 +18,7 @@ class _CostumerPageState extends State<CostumerPage> {
   TextEditingController searchController = TextEditingController();
 
   CostumerModel? selectedCostumer;
+  String searchText = "";
 
   @override
   Widget build(BuildContext context) {
@@ -49,22 +50,31 @@ class _CostumerPageState extends State<CostumerPage> {
               children: [
                 TextField(
                   controller: searchController,
-                  onTap: () {
-                    setState(() {
-                      searchController.clear();
-                    });
-                  },
                   onChanged: (value) async {
-                    await Future.delayed(Duration(seconds: 3), () {
-                      setState(() {
-                        searchController.text = value[0].toUpperCase() +
-                            value.substring(1).toLowerCase();
-                      });
+                    await Future.delayed(Duration(milliseconds: 1200), () {
+                      if (searchController.text.isEmpty) {
+                        setState(() {
+                          searchText = value[0].toUpperCase() +
+                              value.substring(1).toLowerCase();
+                        });
+                      }
                       print(searchController.text);
                     });
                   },
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            searchController.text = '';
+                          });
+                        },
+                        icon: Icon(
+                          Icons.clear,
+                          color: redColor,
+                        ),
+                      ),
                       focusColor: primaryColor,
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: greyColor),
@@ -86,11 +96,10 @@ class _CostumerPageState extends State<CostumerPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: searchController.text.isEmpty
+                    stream: searchText.isEmpty
                         ? customers.orderBy('name').snapshots()
                         : customers
-                            .where('name',
-                                isGreaterThanOrEqualTo: searchController.text)
+                            .where('name', isGreaterThanOrEqualTo: searchText)
                             .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {

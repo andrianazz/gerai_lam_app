@@ -26,7 +26,7 @@ class TransactionService {
     try {
       await firestore
           .collection("transactions")
-          .where('id_costumer', isNotEqualTo: '0')
+          .where('id_customer', isNotEqualTo: '0')
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((doc) {

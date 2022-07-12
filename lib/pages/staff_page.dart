@@ -33,6 +33,8 @@ class _StaffPageState extends State<StaffPage> {
   List<String> role = ['Kasir', 'Owner'];
   String? _dropdownRole;
 
+  String searchText = '';
+
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -97,23 +99,32 @@ class _StaffPageState extends State<StaffPage> {
               children: [
                 TextField(
                   controller: searchController,
-                  onTap: () {
-                    setState(() {
-                      searchController.clear();
-                    });
-                  },
                   onChanged: (value) async {
-                    await Future.delayed(Duration(seconds: 3), () {
+                    await Future.delayed(Duration(milliseconds: 1200), () {
                       setState(() {
-                        searchController.text = value[0].toUpperCase() +
-                            value.substring(1).toLowerCase();
+                        if (searchController.text.isNotEmpty) {
+                          searchText = value[0].toUpperCase() +
+                              value.substring(1).toLowerCase();
+                        }
                       });
                       print(searchController.text);
                     });
                   },
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_sharp),
                       focusColor: primaryColor,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            searchController.text = '';
+                          });
+                        },
+                        icon: Icon(
+                          Icons.clear,
+                          color: redColor,
+                        ),
+                      ),
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: greyColor),
                           borderRadius: BorderRadius.circular(12)),
@@ -134,11 +145,10 @@ class _StaffPageState extends State<StaffPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: searchController.text.isEmpty
+                    stream: searchText.isEmpty
                         ? employees.orderBy('name').snapshots()
                         : employees
-                            .where('name',
-                                isGreaterThanOrEqualTo: searchController.text)
+                            .where('name', isGreaterThanOrEqualTo: searchText)
                             .snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {
@@ -146,7 +156,6 @@ class _StaffPageState extends State<StaffPage> {
                           children: snapshot.data!.docs.map<Widget>((e) {
                             Map<String, dynamic> employee =
                                 e.data()! as Map<String, dynamic>;
-
                             return GestureDetector(
                               onTap: () {
                                 setState(() {

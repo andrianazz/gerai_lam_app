@@ -16,21 +16,30 @@ class OrderDonePage extends StatefulWidget {
   int? total;
   int? bayar;
   int? kembali;
+  int? kodeUnik;
+  int? ppl;
+  int? ppn;
 
-  OrderDonePage(
-      {Key? key,
-      this.subTotal,
-      this.total,
-      this.kembali,
-      this.ongkir,
-      this.bayar})
-      : super(key: key);
+  OrderDonePage({
+    Key? key,
+    this.subTotal,
+    this.total,
+    this.kembali,
+    this.ongkir,
+    this.bayar,
+    this.kodeUnik,
+    this.ppn,
+    this.ppl,
+  }) : super(key: key);
 
   @override
   State<OrderDonePage> createState() => _OrderDonePageState();
 }
 
 class _OrderDonePageState extends State<OrderDonePage> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  int ppn = 0;
+  int ppl = 0;
   List<BluetoothDevice> devices = [];
   BluetoothDevice? selectedDevice;
   BlueThermalPrinter printer = BlueThermalPrinter.instance;
@@ -39,11 +48,21 @@ class _OrderDonePageState extends State<OrderDonePage> {
   void initState() {
     super.initState();
     getDevices();
+    getPpnPpl();
   }
 
   void getDevices() async {
     devices = await printer.getBondedDevices();
     setState(() {});
+  }
+
+  Future<void> getPpnPpl() async {
+    await firestore.collection('settings').doc('galerilam').get().then((value) {
+      setState(() {
+        ppn = value['ppn'];
+        ppl = value['ppl'];
+      });
+    });
   }
 
   @override
@@ -224,109 +243,199 @@ class _OrderDonePageState extends State<OrderDonePage> {
       height: 200,
       padding: const EdgeInsets.all(20),
       color: secondaryBlueColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: ListView(
         children: [
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "SUBTOTAL",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
+              ExpansionTile(
+                tilePadding: EdgeInsets.all(0),
+                childrenPadding: EdgeInsets.only(left: 10, bottom: 10),
+                title: Text(
+                  "RINCIAN BIAYA",
+                  style: primaryText.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
                 ),
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "SUBTOTAL",
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        NumberFormat.simpleCurrency(
+                          decimalDigits: 0,
+                          name: 'Rp. ',
+                        ).format(widget.subTotal),
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "ONGKOS KIRIM",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            decimalDigits: 0,
+                            name: 'Rp. ',
+                          ).format(widget.ongkir),
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Kode Unik",
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        NumberFormat.simpleCurrency(
+                          decimalDigits: 0,
+                          name: 'Rp. ',
+                        ).format(widget.kodeUnik),
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "PPN (${ppn} %)",
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        NumberFormat.simpleCurrency(
+                          decimalDigits: 0,
+                          name: 'Rp. ',
+                        ).format((ppn / 100 * (widget.subTotal!).toInt())),
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "PPL (${ppl} %",
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        NumberFormat.simpleCurrency(
+                          decimalDigits: 0,
+                          name: 'Rp. ',
+                        ).format((ppl / 100 * widget.subTotal!).toInt()),
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              Text(
-                NumberFormat.simpleCurrency(
-                  decimalDigits: 0,
-                  name: 'Rp. ',
-                ).format(widget.subTotal),
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "TOTAL (ppn)",
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.simpleCurrency(
+                      decimalDigits: 0,
+                      name: 'Rp. ',
+                    ).format(widget.total),
+                    style: primaryText.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "BAYAR",
+                      style: primaryText.copyWith(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      NumberFormat.simpleCurrency(
+                        decimalDigits: 0,
+                        name: 'Rp. ',
+                      ).format(widget.bayar),
+                      style: primaryText.copyWith(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              )
             ],
           ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "ONGKOS KIRIM",
-                  style: primaryText.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  NumberFormat.simpleCurrency(
-                    decimalDigits: 0,
-                    name: 'Rp. ',
-                  ).format(widget.ongkir),
-                  style: primaryText.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "TOTAL (ppn)",
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                NumberFormat.simpleCurrency(
-                  decimalDigits: 0,
-                  name: 'Rp. ',
-                ).format(widget.total),
-                style: primaryText.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "BAYAR",
-                  style: primaryText.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  NumberFormat.simpleCurrency(
-                    decimalDigits: 0,
-                    name: 'Rp. ',
-                  ).format(widget.bayar),
-                  style: primaryText.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          )
         ],
       ),
     );
@@ -593,6 +702,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
       printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
       printer.printCustom("Riau 28156", 1, 1);
       printer.printCustom("www.galerilamriau.com", 1, 1);
+      printer.printCustom("www.galerilamriau.com", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
       printer.printCustom("No Struk : ${tProvider.transactions[0].id}", 1, 1);
@@ -604,8 +714,11 @@ class _OrderDonePageState extends State<OrderDonePage> {
             "   ${e.price}}", "x${e.quantity}", ":", "${e.total}", 1);
       }).toList();
       printer.printCustom("-----------------------------------------", 0, 2);
-      printer.printLeftRight("ongkir", "${total}", 1);
-      printer.printLeftRight("Total(ppn)", "${total}", 1);
+      printer.printLeftRight("ongkir", "${ongkir}", 1);
+      printer.printLeftRight("ppn", "${(ppn / 100 * (widget.subTotal!))}", 2);
+      printer.printLeftRight("ppl", "${(ppl / 100 * (widget.subTotal!))}", 2);
+      printer.printLeftRight("kode unik", "${widget.kodeUnik}", 2);
+      printer.printLeftRight("Total", "${total}", 1);
       printer.printLeftRight("Bayar", "${bayar}", 1);
       printer.printLeftRight("Kembalian", '${kembalian}', 1);
       printer.printNewLine();
