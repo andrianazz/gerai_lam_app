@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/models/item_model.dart';
+import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:intl/intl.dart';
@@ -54,6 +58,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
   void getDevices() async {
     devices = await printer.getBondedDevices();
     setState(() {});
+    print(devices);
   }
 
   Future<void> getPpnPpl() async {
@@ -492,7 +497,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
           Flexible(
             flex: 1,
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
                 showDialog(
                   context: context,
                   builder: (_) => Dialog(
@@ -503,8 +508,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
                       width: 800,
                       height: 500,
                       padding: EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: ListView(
                         children: [
                           Text(
                             "Printer Thermal",
@@ -518,7 +522,9 @@ class _OrderDonePageState extends State<OrderDonePage> {
                                 .map(
                                   (e) => GestureDetector(
                                     onTap: () {
-                                      testPrint(e);
+                                      testPrint(e, tProvider.transactions[0],
+                                          cartProvider.carts);
+
                                       Navigator.pop(context);
                                     },
                                     child: ListTile(
@@ -662,29 +668,25 @@ class _OrderDonePageState extends State<OrderDonePage> {
     );
   }
 
-  void testPrint(BluetoothDevice device) async {
-    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
-    CartProvider cartProvider = Provider.of<CartProvider>(context);
-
+  void testPrint(BluetoothDevice device, TransactionModel trans,
+      List<ItemModel> item) async {
     String total = NumberFormat.simpleCurrency(
       decimalDigits: 0,
       name: 'Rp. ',
-    ).format(tProvider.transactions[0].totalTransaction);
+    ).format(trans.totalTransaction);
     String ongkir = NumberFormat.simpleCurrency(
       decimalDigits: 0,
       name: 'Rp. ',
-    ).format(tProvider.transactions[0].ongkir);
+    ).format(trans.ongkir);
     String bayar = NumberFormat.simpleCurrency(
       decimalDigits: 0,
       name: 'Rp. ',
-    ).format(tProvider.transactions[0].pay);
+    ).format(trans.pay);
     String kembalian = NumberFormat.simpleCurrency(
       decimalDigits: 0,
       name: 'Rp. ',
-    ).format(tProvider.transactions[0].pay! -
-        tProvider.transactions[0].totalTransaction!);
+    ).format(trans.pay! - trans.totalTransaction!);
 
-    printer.connect(device);
     //SIZE
     // 0- normal size text
     // 1- only bold text
@@ -702,30 +704,34 @@ class _OrderDonePageState extends State<OrderDonePage> {
       printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
       printer.printCustom("Riau 28156", 1, 1);
       printer.printCustom("www.galerilamriau.com", 1, 1);
-      printer.printCustom("www.galerilamriau.com", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
-      printer.printCustom("No Struk : ${tProvider.transactions[0].id}", 1, 1);
+      printer.printCustom("No Struk : ${trans.id}", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       printer.printNewLine();
-      cartProvider.carts.map((e) {
+      item.map((e) {
         printer.printLeftRight("${e.name}", "", 1);
         printer.print4Column(
-            "   ${e.price}}", "x${e.quantity}", ":", "${e.total}", 1);
+            "   ${e.price}", "x${e.quantity}", ":", "${e.total}", 1);
       }).toList();
       printer.printCustom("-----------------------------------------", 0, 2);
-      printer.printLeftRight("ongkir", "${ongkir}", 1);
-      printer.printLeftRight("ppn", "${(ppn / 100 * (widget.subTotal!))}", 2);
-      printer.printLeftRight("ppl", "${(ppl / 100 * (widget.subTotal!))}", 2);
-      printer.printLeftRight("kode unik", "${widget.kodeUnik}", 2);
+      printer.printLeftRight("SubTotal", "${(widget.subTotal)}", 1);
+      printer.printLeftRight(
+          "ppn(${ppn}%)", "${(ppn / 100 * (widget.subTotal!)).toInt()}", 1);
+      printer.printLeftRight(
+          "ppl(${ppl}%)", "${(ppl / 100 * (widget.subTotal!)).toInt()}", 1);
+      printer.printCustom("-----------------------------------------", 0, 2);
       printer.printLeftRight("Total", "${total}", 1);
       printer.printLeftRight("Bayar", "${bayar}", 1);
+      printer.printCustom("-----------------------------------------", 0, 2);
       printer.printLeftRight("Kembalian", '${kembalian}', 1);
       printer.printNewLine();
-      printer.printQRcode("https://galerilamriau.com", 200, 200, 1);
+
       printer.printCustom("Terima kasih", 1, 1);
       printer.printCustom("Semoga puas dengan pelayanan kami", 0, 1);
       printer.paperCut();
     }
+
+    printer.connect(device);
   }
 }

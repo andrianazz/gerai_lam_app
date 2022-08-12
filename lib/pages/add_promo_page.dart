@@ -329,6 +329,7 @@ class _AddPromoPageState extends State<AddPromoPage> {
                                         'imageUrl': newImage ?? oldImage,
                                         'title': titleController.text,
                                         'description': descController.text,
+                                        'publikasi': false,
                                         'date': DateTime.now(),
                                       });
 

@@ -18,6 +18,7 @@ class StockReturnProvider with ChangeNotifier {
     _stockRetn.add(StockReturnModel(
       id: _stockRetn.length,
       harga: product.harga_modal,
+      hargaJual: product.harga_jual,
       kode: product.kode,
       nama: product.nama,
       stok: qty,

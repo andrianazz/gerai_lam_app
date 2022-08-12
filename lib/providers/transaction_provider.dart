@@ -45,19 +45,20 @@ class TransactionProvider with ChangeNotifier {
     ref.get().then((snap) {
       _transactions.add(
         TransactionModel(
-            id: Uuid().v1(),
-            idCashier: id,
-            payment: payment,
-            date: DateTime.now(),
-            address: 'JL. Diponegoro, Pekanbaru 28127',
-            idCostumer: "0",
-            items: carts,
-            totalProducts: carts.length,
-            pay: bayar,
-            totalTransaction: total,
-            status: 'Selesai',
-            ongkir: ongkir,
-            keterangan: ''),
+          id: Uuid().v1(),
+          idCashier: id,
+          payment: payment,
+          date: DateTime.now(),
+          address: 'JL. Diponegoro, Pekanbaru 28127',
+          idCostumer: "0",
+          items: carts,
+          totalProducts: carts.length,
+          pay: bayar,
+          totalTransaction: total,
+          status: 'Selesai',
+          ongkir: ongkir,
+          keterangan: '',
+        ),
       );
       print(_transactions);
     });

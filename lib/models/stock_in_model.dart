@@ -1,6 +1,7 @@
 class StockInModel {
   int? id;
   int? harga;
+  int? hargaJual;
   String? kode;
   String? nama;
   int? stok;
@@ -9,6 +10,7 @@ class StockInModel {
   StockInModel({
     this.id,
     this.harga,
+    this.hargaJual,
     this.kode,
     this.nama,
     this.stok,
@@ -18,6 +20,7 @@ class StockInModel {
   StockInModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     harga = json['harga'];
+    hargaJual = json['harga_jual'];
     kode = json['kode'];
     nama = json['nama'];
     stok = json['stok'];
@@ -28,6 +31,7 @@ class StockInModel {
     return {
       'id': id,
       'harga': harga,
+      'harga_jual': hargaJual,
       'kode': kode,
       'nama': nama,
       'stok': stok,

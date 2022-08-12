@@ -2,6 +2,7 @@ class ProductModel {
   String? id;
   String? nama;
   String? kode;
+  String? barcode;
   int? harga_jual;
   int? harga_modal;
   String? deskripsi;
@@ -16,6 +17,7 @@ class ProductModel {
     this.id,
     this.nama,
     this.kode,
+    this.barcode,
     this.harga_jual,
     this.harga_modal,
     this.deskripsi,
@@ -31,6 +33,7 @@ class ProductModel {
     id = json['id'];
     nama = json['nama'];
     kode = json['kode'];
+    barcode = json['barcode'];
     harga_jual = json['harga_jual'];
     harga_modal = json['harga_modal'];
     deskripsi = json['deskripsi'];
@@ -47,6 +50,7 @@ class ProductModel {
       'id': id,
       'nama': nama,
       'kode': kode,
+      'barcode': barcode,
       'harga_jual': harga_jual,
       'harga_modal': harga_modal,
       'deskripsi': deskripsi,

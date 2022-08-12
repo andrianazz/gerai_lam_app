@@ -512,18 +512,21 @@ class _AddStockPageState extends State<AddStockPage> {
                                     Container(
                                       width: 100,
                                       child: Text(
-                                        "ID Produk",
+                                        "Harga",
                                         style: primaryText.copyWith(
                                           fontSize: 16,
                                           color: textGreyColor,
                                         ),
                                       ),
                                     ),
-                                    Text(
-                                      "Harga",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
+                                    Container(
+                                      width: 100,
+                                      child: Text(
+                                        "Harga Jual",
+                                        style: primaryText.copyWith(
+                                          fontSize: 16,
+                                          color: textGreyColor,
+                                        ),
                                       ),
                                     ),
                                     Container(
@@ -613,21 +616,27 @@ class _AddStockPageState extends State<AddStockPage> {
                                           Container(
                                             width: 100,
                                             child: Text(
-                                              stock.kode!,
+                                              NumberFormat.simpleCurrency(
+                                                decimalDigits: 0,
+                                                name: 'Rp. ',
+                                              ).format(stock.harga!),
                                               style: primaryText.copyWith(
                                                 fontSize: 16,
                                                 color: textGreyColor,
                                               ),
                                             ),
                                           ),
-                                          Text(
-                                            NumberFormat.simpleCurrency(
-                                              decimalDigits: 0,
-                                              name: 'Rp. ',
-                                            ).format(stock.harga!),
-                                            style: primaryText.copyWith(
-                                              fontSize: 16,
-                                              color: textGreyColor,
+                                          Container(
+                                            width: 100,
+                                            child: Text(
+                                              NumberFormat.simpleCurrency(
+                                                decimalDigits: 0,
+                                                name: 'Rp. ',
+                                              ).format(stock.hargaJual!),
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
                                             ),
                                           ),
                                           Container(
@@ -852,18 +861,21 @@ class _AddStockPageState extends State<AddStockPage> {
                                     Container(
                                       width: 100,
                                       child: Text(
-                                        "ID Produk",
+                                        "Harga",
                                         style: primaryText.copyWith(
                                           fontSize: 16,
                                           color: textGreyColor,
                                         ),
                                       ),
                                     ),
-                                    Text(
-                                      "Harga",
-                                      style: primaryText.copyWith(
-                                        fontSize: 16,
-                                        color: textGreyColor,
+                                    Container(
+                                      width: 100,
+                                      child: Text(
+                                        "Harga Jual",
+                                        style: primaryText.copyWith(
+                                          fontSize: 16,
+                                          color: textGreyColor,
+                                        ),
                                       ),
                                     ),
                                     Container(
@@ -955,21 +967,27 @@ class _AddStockPageState extends State<AddStockPage> {
                                           Container(
                                             width: 100,
                                             child: Text(
-                                              stock.kode!,
+                                              NumberFormat.simpleCurrency(
+                                                decimalDigits: 0,
+                                                name: 'Rp. ',
+                                              ).format(stock.harga!),
                                               style: primaryText.copyWith(
                                                 fontSize: 16,
                                                 color: textGreyColor,
                                               ),
                                             ),
                                           ),
-                                          Text(
-                                            NumberFormat.simpleCurrency(
-                                              decimalDigits: 0,
-                                              name: 'Rp. ',
-                                            ).format(stock.harga!),
-                                            style: primaryText.copyWith(
-                                              fontSize: 16,
-                                              color: textGreyColor,
+                                          Container(
+                                            width: 100,
+                                            child: Text(
+                                              NumberFormat.simpleCurrency(
+                                                decimalDigits: 0,
+                                                name: 'Rp. ',
+                                              ).format(stock.hargaJual!),
+                                              style: primaryText.copyWith(
+                                                fontSize: 16,
+                                                color: textGreyColor,
+                                              ),
                                             ),
                                           ),
                                           Container(
@@ -1073,6 +1091,8 @@ class _AddStockPageState extends State<AddStockPage> {
                                     onPressed: () {
                                       stockIn.stockIns.map((e) {
                                         return product.doc(e.kode).update({
+                                          'harga_modal': e.harga,
+                                          'harga_jual': e.hargaJual,
                                           "stok_awal": FieldValue.increment(
                                               num.parse(e.stok.toString())),
                                           "sisa_stok": FieldValue.increment(

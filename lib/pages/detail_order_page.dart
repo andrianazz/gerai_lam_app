@@ -21,7 +21,7 @@ class DetailOrderPage extends StatefulWidget {
 
 class _DetailOrderPageState extends State<DetailOrderPage> {
   bool isOngkir = false;
-  int kodeUnik = Random().nextInt(499);
+  int kodeUnik = 0;
   int ppn = 0;
   int ppl = 0;
 
@@ -1158,11 +1158,12 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   }
 
   int getTotal(int subtotal) {
-    int ppnTotal = (ppl / 100 * subtotal).toInt();
-    int pplTotal = (ppl / 100 * subtotal).toInt();
+    int ppnTotal = (ppn / 100 * subtotal).floor();
+    int pplTotal = (ppl / 100 * subtotal).floor();
 
     int total =
         subtotal + int.parse(ongkir.text) + kodeUnik + ppnTotal + pplTotal;
+
     return total;
   }
 

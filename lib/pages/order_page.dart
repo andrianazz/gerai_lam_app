@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/pages/detail_order_page.dart';
 import 'package:gerai_lam_app/providers/cart_provider.dart';
+import 'package:gerai_lam_app/providers/order_provider.dart';
 import 'package:gerai_lam_app/widgets/dialog_quantity.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
@@ -27,6 +28,8 @@ class _OrderPageState extends State<OrderPage> {
   String selectedTag = '';
 
   bool isOrder = false;
+  int? orderIndex;
+  bool isSaveOrder = false;
   bool isBeranda = true;
 
   String emailSupplier = "";
@@ -80,6 +83,8 @@ class _OrderPageState extends State<OrderPage> {
                 selectedTag = "";
                 searchController.clear();
                 searchText = '';
+                isSaveOrder = false;
+                isOrder = false;
               });
             },
             child: Text(
@@ -142,15 +147,17 @@ class _OrderPageState extends State<OrderPage> {
 
   Widget columnAppbarRight(context) {
     return Container(
-      width: MediaQuery.of(context).size.width / 3 - 60,
+      width: MediaQuery.of(context).size.width / 3 - 100,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Visibility(
-            visible: false,
+            visible: true,
             child: TextButton(
               onPressed: () {
                 setState(() {
                   isOrder = !isOrder;
+                  isSaveOrder = false;
                 });
               },
               child: Text(
@@ -166,12 +173,17 @@ class _OrderPageState extends State<OrderPage> {
 
   Widget landscape(context) {
     CartProvider cartProvider = Provider.of<CartProvider>(context);
+    OrderProvider orderProvider = Provider.of<OrderProvider>(context);
     return Row(
       children: [
         Container(
           width: MediaQuery.of(context).size.width * 2 / 3 - 60,
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-          child: isOrder ? listOrder() : listProduct(context),
+          child: isOrder
+              ? listOrder()
+              : isSaveOrder
+                  ? saveOrder()
+                  : listProduct(context),
         ),
         Expanded(
           child: Container(
@@ -314,7 +326,7 @@ class _OrderPageState extends State<OrderPage> {
                   height: 80,
                   color: secondaryColor,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       TextButton.icon(
                         onPressed: () {
@@ -335,7 +347,7 @@ class _OrderPageState extends State<OrderPage> {
                                         child: Text('Hapus'),
                                         onPressed: () {
                                           setState(() {
-                                            cartProvider.carts.clear();
+                                            cartProvider.carts = [];
                                           });
 
                                           Navigator.pop(context);
@@ -357,11 +369,37 @@ class _OrderPageState extends State<OrderPage> {
                           ),
                         ),
                       ),
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            isOrder = false;
+                            isSaveOrder = !isSaveOrder;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.save,
+                          color: primaryColor,
+                        ),
+                        label: Text(
+                          "SIMPAN",
+                          style: primaryText.copyWith(
+                            fontSize: 20,
+                            color: primaryColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
+                    if (orderIndex != null) {
+                      setState(() {
+                        orderProvider.deleteTable(orderIndex!);
+                        orderIndex = null;
+                      });
+                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -418,17 +456,30 @@ class _OrderPageState extends State<OrderPage> {
       children: [
         TextField(
           controller: searchController,
-          onChanged: (value) async {
-            await Future.delayed(Duration(milliseconds: 1200), () {
-              setState(() {
-                selectedTag = '';
-                if (searchController.text.isNotEmpty) {
+          textInputAction: TextInputAction.search,
+          onSubmitted: (value) {
+            selectedTag = '';
+            if (searchController.text.isNotEmpty) {
+              if (double.tryParse(value) != null) {
+                products.get().then((snapshot) => snapshot.docs.map((e) {
+                      ProductModel product = ProductModel.fromJson(
+                          e.data() as Map<String, dynamic>);
+
+                      if (product.barcode!.contains(value)) {
+                        setState(() {
+                          cartProvider.addCart(product);
+                          searchController.clear();
+                        });
+                      }
+                    }).toList());
+              } else {
+                setState(() {
                   searchText =
                       value[0].toUpperCase() + value.substring(1).toLowerCase();
-                }
-              });
-              print(searchController.text);
-            });
+                });
+                print(searchText);
+              }
+            }
           },
           decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search_sharp),
@@ -514,7 +565,8 @@ class _OrderPageState extends State<OrderPage> {
                                 NumberFormat.simpleCurrency(
                                   decimalDigits: 0,
                                   name: 'Rp. ',
-                                ).format(product['harga_jual']),
+                                ).format(int.parse(
+                                    product['harga_jual'].toString())),
                                 style: primaryText.copyWith(
                                   color: greenColor,
                                   fontSize: 16,
@@ -556,6 +608,9 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget listOrder() {
+    OrderProvider orderProvider = Provider.of<OrderProvider>(context);
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+
     return ListView(
       children: [
         Column(
@@ -572,289 +627,559 @@ class _OrderPageState extends State<OrderPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Visibility(
+                    visible: ((orderProvider.table.isEmpty &&
+                            orderProvider.vip.isEmpty) &&
+                        orderProvider.gojek.isEmpty),
+                    child:
+                        Center(child: Text('Belum Ada DATA yang tersimpan'))),
+                Column(
+                  children: orderProvider.table
+                      .map(
+                        (e) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              cartProvider.carts = e.items!;
+                              orderIndex = int.parse(e.id.toString());
+                            });
+                            print(orderIndex);
+                          },
+                          onLongPress: () {
+                            showDialog(
+                                context: context,
+                                builder: (_) => CupertinoAlertDialog(
+                                      title: Text(
+                                          'Konfirmasi menghapus Orderan Meja${int.parse(e.id.toString()) + 1}'),
+                                      content: Text(
+                                          'Apa kamu yakin inging menghapus semua orderan Meja${int.parse(e.id.toString()) + 1}'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          child: Text('Batal'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        CupertinoDialogAction(
+                                          child: Text('Hapus'),
+                                          onPressed: () {
+                                            setState(() {
+                                              orderProvider.deleteTable(
+                                                int.parse(
+                                                  e.id.toString(),
+                                                ),
+                                              );
+                                            });
+
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    ));
+                          },
+                          child: Container(
+                            width: 200,
+                            height: 160,
+                            margin:
+                                const EdgeInsets.only(right: 20, bottom: 20),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 10),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: primaryColor, width: 3),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Meja ${int.parse(e.id.toString()) + 1}",
+                                  style: primaryText.copyWith(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  "${e.totalProducts} Barang",
+                                  style: primaryText.copyWith(
+                                    fontSize: 24,
+                                    color: textGreyColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  NumberFormat.simpleCurrency(
+                                    decimalDigits: 0,
+                                    name: 'Rp. ',
+                                  ).format(e.totalTransaction),
+                                  style: primaryText.copyWith(
+                                    fontSize: 24,
+                                    color: textGreyColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                Column(
+                  children: orderProvider.vip
+                      .map(
+                        (e) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              cartProvider.carts = e.items!;
+                              orderIndex = int.parse(e.id.toString());
+                            });
+                            print(orderIndex);
+                          },
+                          onLongPress: () {
+                            showDialog(
+                                context: context,
+                                builder: (_) => CupertinoAlertDialog(
+                                      title: Text(
+                                          'Konfirmasi menghapus Orderan VIP${int.parse(e.id.toString()) + 1}'),
+                                      content: Text(
+                                          'Apa kamu yakin inging menghapus semua orderan VIP${int.parse(e.id.toString()) + 1}'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          child: Text('Batal'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        CupertinoDialogAction(
+                                          child: Text('Hapus'),
+                                          onPressed: () {
+                                            setState(() {
+                                              orderProvider.deleteVip(
+                                                int.parse(
+                                                  e.id.toString(),
+                                                ),
+                                              );
+                                            });
+
+                                            Navigator.pop(context);
+                                            setState(() {});
+                                          },
+                                        ),
+                                      ],
+                                    ));
+                          },
+                          child: Container(
+                            width: 200,
+                            height: 160,
+                            margin:
+                                const EdgeInsets.only(right: 20, bottom: 20),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 10),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: primaryColor, width: 3),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "VIP ${int.parse(e.id.toString()) + 1}",
+                                  style: primaryText.copyWith(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 15),
+                                Text(
+                                  "${e.totalProducts} Barang",
+                                  style: primaryText.copyWith(
+                                    fontSize: 24,
+                                    color: textGreyColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  NumberFormat.simpleCurrency(
+                                    decimalDigits: 0,
+                                    name: 'Rp. ',
+                                  ).format(e.totalTransaction),
+                                  style: primaryText.copyWith(
+                                    fontSize: 24,
+                                    color: textGreyColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                Column(
+                  children: orderProvider.gojek
+                      .map(
+                        (e) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              cartProvider.carts = e.items!;
+                              orderIndex = int.parse(e.id.toString());
+                            });
+                            print(orderIndex);
+                          },
+                          onLongPress: () {
+                            showDialog(
+                                context: context,
+                                builder: (_) => CupertinoAlertDialog(
+                                      title: Text(
+                                          'Konfirmasi menghapus Orderan Gojek${int.parse(e.id.toString()) + 1}'),
+                                      content: Text(
+                                          'Apa kamu yakin inging menghapus semua orderan Gojek${int.parse(e.id.toString()) + 1}'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          child: Text('Batal'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        CupertinoDialogAction(
+                                          child: Text('Hapus'),
+                                          onPressed: () {
+                                            setState(() {
+                                              orderProvider.deleteGojek(
+                                                int.parse(
+                                                  e.id.toString(),
+                                                ),
+                                              );
+                                            });
+
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    ));
+                          },
+                          child: Container(
+                            width: 200,
+                            height: 160,
+                            margin:
+                                const EdgeInsets.only(right: 20, bottom: 20),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 10),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: primaryColor, width: 3),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Gojek ${int.parse(e.id.toString()) + 1}",
+                                  style: primaryText.copyWith(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  "${e.totalProducts} Barang",
+                                  style: primaryText.copyWith(
+                                    fontSize: 24,
+                                    color: textGreyColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  NumberFormat.simpleCurrency(
+                                    decimalDigits: 0,
+                                    name: 'Rp. ',
+                                  ).format(e.totalTransaction),
+                                  style: primaryText.copyWith(
+                                    fontSize: 24,
+                                    color: textGreyColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget saveOrder() {
+    OrderProvider orderProvider = Provider.of<OrderProvider>(context);
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+    return ListView(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "SIMPAN ORDER",
+              style: primaryText.copyWith(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Column(
                   children: [
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Meja 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          orderProvider.addTable(cartProvider.carts);
+                          isSaveOrder = false;
+                          cartProvider.carts = [];
+                        });
+                      },
+                      child: Container(
+                        width: 200,
+                        height: 160,
+                        margin: const EdgeInsets.only(right: 20, bottom: 20),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: greenColor, width: 3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Tambah \nMeja",
+                            style: primaryText.copyWith(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Meja 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Meja 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Meja 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Meja 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Meja 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                    Column(
+                      children: orderProvider.table
+                          .map(
+                            (e) => Container(
+                              width: 200,
+                              height: 160,
+                              margin:
+                                  const EdgeInsets.only(right: 20, bottom: 20),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: primaryColor, width: 3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Meja ${int.parse(e.id.toString()) + 1}",
+                                    style: primaryText.copyWith(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    "${e.totalProducts} Barang",
+                                    style: primaryText.copyWith(
+                                      fontSize: 24,
+                                      color: textGreyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.simpleCurrency(
+                                      decimalDigits: 0,
+                                      name: 'Rp. ',
+                                    ).format(e.totalTransaction),
+                                    style: primaryText.copyWith(
+                                      fontSize: 24,
+                                      color: textGreyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
                 ),
                 Column(
                   children: [
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "VIP 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          orderProvider.addVip(cartProvider.carts);
+                          isSaveOrder = false;
+                          cartProvider.carts = [];
+                        });
+                      },
+                      child: Container(
+                        width: 200,
+                        height: 160,
+                        margin: const EdgeInsets.only(right: 20, bottom: 20),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: greenColor, width: 3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Tambah \nVIP",
+                            style: primaryText.copyWith(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "VIP 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "VIP 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Gojek 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Gojek 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Gojek 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Gojek 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                    Column(
+                      children: orderProvider.vip
+                          .map(
+                            (e) => Container(
+                              width: 200,
+                              height: 160,
+                              margin:
+                                  const EdgeInsets.only(right: 20, bottom: 20),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: primaryColor, width: 3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "VIP ${int.parse(e.id.toString()) + 1}",
+                                    style: primaryText.copyWith(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    "${e.totalProducts} Barang",
+                                    style: primaryText.copyWith(
+                                      fontSize: 24,
+                                      color: textGreyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.simpleCurrency(
+                                      decimalDigits: 0,
+                                      name: 'Rp. ',
+                                    ).format(e.totalTransaction),
+                                    style: primaryText.copyWith(
+                                      fontSize: 24,
+                                      color: textGreyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
                 ),
                 Column(
                   children: [
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Grab 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          orderProvider.addGojek(cartProvider.carts);
+                          isSaveOrder = false;
+                          cartProvider.carts = [];
+                        });
+                      },
+                      child: Container(
+                        width: 200,
+                        height: 160,
+                        margin: const EdgeInsets.only(right: 20, bottom: 20),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: greenColor, width: 3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Tambah \nGojek",
+                            style: primaryText.copyWith(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     ),
-                    Container(
-                      width: 133,
-                      height: 102,
-                      margin: const EdgeInsets.only(right: 20, bottom: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: greyColor),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Grab 1",
-                          style: primaryText.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                    Column(
+                      children: orderProvider.gojek
+                          .map(
+                            (e) => Container(
+                              width: 200,
+                              height: 160,
+                              margin:
+                                  const EdgeInsets.only(right: 20, bottom: 20),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: primaryColor, width: 3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Gojek ${int.parse(e.id.toString()) + 1}",
+                                    style: primaryText.copyWith(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    "${e.totalProducts} Barang",
+                                    style: primaryText.copyWith(
+                                      fontSize: 24,
+                                      color: textGreyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.simpleCurrency(
+                                      decimalDigits: 0,
+                                      name: 'Rp. ',
+                                    ).format(e.totalTransaction),
+                                    style: primaryText.copyWith(
+                                      fontSize: 24,
+                                      color: textGreyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
                 ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:gerai_lam_app/widgets/bayar_dialog.dart';
+import 'package:gerai_lam_app/widgets/detail_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../theme.dart';
@@ -146,7 +147,17 @@ class DTS extends DataTableSource {
     CollectionReference transStore = firestore.collection('transactions');
     return DataRow(
       cells: [
-        DataCell(Text(transDTS![index].id!.toString())),
+        DataCell(GestureDetector(
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (_) {
+                    return DetailDialog(
+                      trans: transDTS![index],
+                    );
+                  });
+            },
+            child: Text(transDTS![index].id!.toString()))),
         DataCell(Text('${rupiah.format(transDTS![index].ongkir)}')),
         DataCell(Center(
           child: Text(
@@ -217,7 +228,9 @@ class DTS extends DataTableSource {
           ),
           backgroundColor: transDTS![index].status.toString() == "Selesai"
               ? greenColor
-              : greyColor,
+              : transDTS![index].status.toString() == "Bayar"
+                  ? Colors.yellow
+                  : greyColor,
         )),
       ],
     );

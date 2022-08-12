@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/employee_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
+import 'package:gerai_lam_app/pages/filter/daily_filter_page.dart';
+import 'package:gerai_lam_app/pages/filter/transaction_filter_page.dart';
+import 'package:gerai_lam_app/providers/filter_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-import '../models/transaction_model.dart';
-import '../providers/transaction_provider.dart';
 import '../theme.dart';
 
 class TransactionPage extends StatefulWidget {
@@ -22,7 +21,7 @@ class _TransactionPageState extends State<TransactionPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   List<String> filterList = ['Harian', 'Mingguan', 'Bulanan', 'Tahunan'];
-  String? _dropdownFilterList = 'Harian';
+  String? _dropdownFilterList;
 
   List<ProductModel> products = [];
   String? _dropdownProduct;
@@ -35,7 +34,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getInit();
     getAll();
@@ -77,18 +75,17 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> getInit() async {
-    await Provider.of<TransactionProvider>(context, listen: false)
-        .getTransaction();
+    await Provider.of<FilterProvider>(context, listen: false).getStruk();
+    setState(() {});
+  }
 
+  Future<void> getDaily() async {
+    await Provider.of<FilterProvider>(context, listen: false).getDaily();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
-    List<TransactionModel>? trans = tProvider.transactions;
-    DTS dts = DTS(transDTS: trans);
-
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
@@ -117,6 +114,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 Container(
                   width: 150,
                   child: DropdownButtonFormField(
+                      hint: Text('Pilih'),
                       decoration: InputDecoration(
                         labelText: 'Filter',
                         border: OutlineInputBorder(
@@ -133,6 +131,7 @@ class _TransactionPageState extends State<TransactionPage> {
                       onChanged: (selected) {
                         setState(() {
                           _dropdownFilterList = selected as String?;
+                          getDaily();
                         });
                       }),
                 ),
@@ -246,22 +245,11 @@ class _TransactionPageState extends State<TransactionPage> {
               ],
             ),
             SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: [
-                  PaginatedDataTable(
-                      header: const Text('Transaksi Harian'),
-                      rowsPerPage: 10,
-                      columns: [
-                        DataColumn(label: Text('Tanggal')),
-                        DataColumn(label: Text('Total Kasir')),
-                        DataColumn(label: Text('Total Barang')),
-                        DataColumn(label: Text('Total Global')),
-                      ],
-                      source: dts),
-                ],
-              ),
-            ),
+            _dropdownFilterList == "Harian"
+                ? DailyFilterPage(
+                    cashiers: cashiers,
+                  )
+                : TransactionFilterPage(),
           ],
         ),
       ),
@@ -278,35 +266,4 @@ Widget columnAppbarLeft(context) {
 
 Widget columnAppbarRight(context) {
   return Expanded(child: Container());
-}
-
-class DTS extends DataTableSource {
-  List<TransactionModel>? transDTS;
-  DTS({this.transDTS});
-
-  final rupiah =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
-  final angka = NumberFormat.currency(decimalDigits: 0, symbol: '');
-
-  @override
-  DataRow? getRow(int index) {
-    return DataRow(cells: [
-      DataCell(Text('${transDTS![index].date}')),
-      DataCell(Text('${rupiah.format(transDTS![index].totalTransaction)}')),
-      DataCell(Text('${angka.format(transDTS![index].totalProducts)}')),
-      DataCell(Text('${rupiah.format(transDTS![index].totalTransaction)}')),
-    ]);
-  }
-
-  @override
-  // TODO: implement isRowCountApproximate
-  bool get isRowCountApproximate => false;
-
-  @override
-  // TODO: implement rowCount
-  int get rowCount => transDTS!.length;
-
-  @override
-  // TODO: implement selectedRowCount
-  int get selectedRowCount => 0;
 }

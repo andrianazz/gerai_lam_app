@@ -1,12 +1,15 @@
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
+import 'package:gerai_lam_app/pages/print_struk_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -28,11 +31,22 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   int idProduct = 0;
 
+  // List<BluetoothDevice> devices = [];
+  // BluetoothDevice? selectedDevice;
+  // BlueThermalPrinter printer = BlueThermalPrinter.instance;
+
   @override
   void initState() {
     super.initState();
     getSuppliers();
+    // getDevices();
   }
+
+  // void getDevices() async {
+  //   devices = await printer.getBondedDevices();
+  //   setState(() {});
+  //   print(devices);
+  // }
 
   getSuppliers() {
     firestore
@@ -49,17 +63,20 @@ class _ProductPageState extends State<ProductPage> {
   TextEditingController searchController = TextEditingController();
 
   TextEditingController nameController = TextEditingController();
+  TextEditingController barController = TextEditingController();
   TextEditingController codeController = TextEditingController();
   TextEditingController descController = TextEditingController();
   TextEditingController capitalController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController tagController = TextEditingController();
 
+  TextEditingController qtyController = TextEditingController();
+
   List<SupplierModel> supplier = [];
   SupplierModel? _dropdownSupplier;
   ProductModel? selectedProduct;
 
-  String? searchProduct;
+  String searchProduct = '';
 
   String oldImage =
       'https://firebasestorage.googleapis.com/v0/b/phr-marketplace.appspot.com/o/no-image.png?alt=media&token=370795d8-34c8-454d-8e7b-6a297e404bb3';
@@ -227,10 +244,10 @@ class _ProductPageState extends State<ProductPage> {
                 const SizedBox(height: 30),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                      stream: (searchProduct != null && searchProduct != '')
+                      stream: (searchProduct.isNotEmpty && searchProduct != '')
                           ? products
                               .where('nama',
-                                  isGreaterThanOrEqualTo: searchProduct!)
+                                  isGreaterThanOrEqualTo: searchProduct)
                               .snapshots()
                           : products.orderBy('nama').snapshots(),
                       builder: (_, snapshot) {
@@ -251,6 +268,8 @@ class _ProductPageState extends State<ProductPage> {
 
                                       nameController.text =
                                           selectedProduct!.nama!;
+                                      barController.text =
+                                          selectedProduct!.barcode ?? '';
                                       descController.text =
                                           selectedProduct!.deskripsi!;
                                       capitalController.text = selectedProduct!
@@ -279,12 +298,62 @@ class _ProductPageState extends State<ProductPage> {
                                           child: SingleChildScrollView(
                                             child: Column(
                                               children: [
-                                                Text(
-                                                  "Ubah Data Produk",
-                                                  style: primaryText.copyWith(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      "Detail Data Produk",
+                                                      style:
+                                                          primaryText.copyWith(
+                                                        fontSize: 24,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 100,
+                                                          child: TextField(
+                                                            controller:
+                                                                qtyController,
+                                                            decoration:
+                                                                InputDecoration(
+                                                              border:
+                                                                  OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            12),
+                                                              ),
+                                                              labelText:
+                                                                  'Banyak',
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 10),
+                                                        Container(
+                                                          height: 50,
+                                                          child: ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (_) =>
+                                                                          PrintStrukPage(
+                                                                            product:
+                                                                                selectedProduct,
+                                                                          )));
+                                                            },
+                                                            child: Text(
+                                                                'Print Label'),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
                                                 SizedBox(height: 30),
                                                 Container(
@@ -354,6 +423,66 @@ class _ProductPageState extends State<ProductPage> {
                                                                 'Remove Image'),
                                                           )
                                                         : SizedBox(),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Flexible(
+                                                      flex: 4,
+                                                      child: TextField(
+                                                        controller:
+                                                            barController,
+                                                        readOnly: true,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                          ),
+                                                          labelText: 'Barcode',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Flexible(
+                                                      flex: 2,
+                                                      child: Container(
+                                                        height: 50,
+                                                        width: 180,
+                                                        child: ElevatedButton(
+                                                          onPressed: () {
+                                                            var rng = Random();
+                                                            String
+                                                                generatedNumber =
+                                                                '';
+                                                            for (int i = 0;
+                                                                i < 10;
+                                                                i++) {
+                                                              generatedNumber +=
+                                                                  (rng.nextInt(
+                                                                              9) +
+                                                                          1)
+                                                                      .toString();
+                                                            }
+
+                                                            setState(() {
+                                                              barController
+                                                                      .text =
+                                                                  generatedNumber;
+                                                            });
+                                                          },
+                                                          child:
+                                                              Text('Generate'),
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                                 SizedBox(height: 10),
@@ -536,6 +665,8 @@ class _ProductPageState extends State<ProductPage> {
                                                             nameController.text,
                                                         'deskripsi':
                                                             descController.text,
+                                                        'barcode':
+                                                            barController.text,
                                                         'harga_modal': int.parse(
                                                             capitalController
                                                                 .text
@@ -689,8 +820,9 @@ class _ProductPageState extends State<ProductPage> {
                                                     NumberFormat.simpleCurrency(
                                                       decimalDigits: 0,
                                                       name: 'Rp. ',
-                                                    ).format(
-                                                        product['harga_jual']),
+                                                    ).format(int.parse(
+                                                        product['harga_jual']
+                                                            .toString())),
                                                     style: primaryText.copyWith(
                                                       color: primaryColor,
                                                       fontSize: 16,
@@ -710,7 +842,7 @@ class _ProductPageState extends State<ProductPage> {
                                                 CrossAxisAlignment.center,
                                             children: [
                                               Text(
-                                                product['tag'][0],
+                                                product['tag'][0] ?? '',
                                                 style: primaryText.copyWith(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w700,
@@ -723,8 +855,9 @@ class _ProductPageState extends State<ProductPage> {
                                                 NumberFormat.simpleCurrency(
                                                         decimalDigits: 0,
                                                         name: 'Rp. ')
-                                                    .format(
-                                                        product['harga_modal']),
+                                                    .format(int.parse(
+                                                        product['harga_modal']
+                                                            .toString())),
                                                 style: primaryText.copyWith(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500,
@@ -821,6 +954,52 @@ class _ProductPageState extends State<ProductPage> {
                                                     BorderRadius.circular(12),
                                               ),
                                               labelText: 'Nama Produk',
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          flex: 4,
+                                          child: TextField(
+                                            controller: barController,
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              labelText: 'Barcode',
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Flexible(
+                                          flex: 2,
+                                          child: Container(
+                                            height: 50,
+                                            width: 180,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                var rng = Random();
+                                                String generatedNumber = '';
+                                                for (int i = 0; i < 10; i++) {
+                                                  generatedNumber +=
+                                                      (rng.nextInt(9) + 1)
+                                                          .toString();
+                                                }
+
+                                                setState(() {
+                                                  barController.text =
+                                                      generatedNumber;
+                                                });
+                                              },
+                                              child: Text('Generate'),
                                             ),
                                           ),
                                         ),
@@ -977,12 +1156,12 @@ class _ProductPageState extends State<ProductPage> {
                                     TextField(
                                       controller: tagController,
                                       decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        labelText: 'Tag',
-                                      ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          labelText: 'Tag',
+                                          hintText: 'Tag1; Tag2; dst'),
                                     ),
                                   ],
                                 ),
@@ -1065,6 +1244,7 @@ class _ProductPageState extends State<ProductPage> {
                                           codeController.text.toString(),
                                         ),
                                         'kode': codeController.text,
+                                        'barcode': barController.text,
                                         'nama': nameController.text,
                                         'deskripsi': descController.text,
                                         'harga_modal': int.parse(
@@ -1129,10 +1309,65 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
+  // void testPrint(BluetoothDevice device, ProductModel product) async {
+  //   String harga = NumberFormat.simpleCurrency(
+  //     decimalDigits: 0,
+  //     name: 'Rp. ',
+  //   ).format(product.harga_jual);
+  //
+  //   //SIZE
+  //   // 0- normal size text
+  //   // 1- only bold text
+  //   // 2- bold with medium text
+  //   // 3- bold with large text
+  //   //ALIGN
+  //   // 0- ESC_ALIGN_LEFT
+  //   // 1- ESC_ALIGN_CENTER
+  //   // 2- ESC_ALIGN_RIGHT
+  //
+  //   if ((await printer.isConnected)!) {
+  //     printer.printNewLine();
+  //     printer.printCustom("Galeri LAM Riau", 3, 1);
+  //     printer.printCustom("Jl. Diponegoro, Suka Mulia,", 1, 1);
+  //     printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
+  //     printer.printCustom("Riau 28156", 1, 1);
+  //     printer.printCustom("www.galerilamriau.com", 1, 1);
+  //     printer.printCustom("==========================================", 0, 2);
+  //     //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+  //     printer.printCustom("No Struk : ${trans.id}", 1, 1);
+  //     printer.printCustom("==========================================", 0, 2);
+  //     printer.printNewLine();
+  //     item.map((e) {
+  //       printer.printLeftRight("${e.name}", "", 1);
+  //       printer.print4Column(
+  //           "   ${e.price}", "x${e.quantity}", ":", "${e.total}", 1);
+  //     }).toList();
+  //     printer.printCustom("-----------------------------------------", 0, 2);
+  //     printer.printLeftRight("SubTotal", "${(widget.subTotal)}", 1);
+  //     printer.printLeftRight(
+  //         "ppn(${ppn}%)", "${(ppn / 100 * (widget.subTotal!)).toInt()}", 1);
+  //     printer.printLeftRight(
+  //         "ppl(${ppl}%)", "${(ppl / 100 * (widget.subTotal!)).toInt()}", 1);
+  //     printer.printCustom("-----------------------------------------", 0, 2);
+  //     printer.printLeftRight("Total", "${total}", 1);
+  //     printer.printLeftRight("Bayar", "${bayar}", 1);
+  //     printer.printCustom("-----------------------------------------", 0, 2);
+  //     printer.printLeftRight("Kembalian", '${kembalian}', 1);
+  //     printer.printNewLine();
+  //
+  //     printer.printCustom("Terima kasih", 1, 1);
+  //     printer.printCustom("Semoga puas dengan pelayanan kami", 0, 1);
+  //     printer.paperCut();
+  //   }
+  //
+  //   printer.connect(device);
+  // }
+
   clear() {
     newImage = [];
     nameController.text = '';
     codeController.text = '';
+    barController.text = '';
     descController.text = '';
     capitalController.text = '';
     priceController.text = '';

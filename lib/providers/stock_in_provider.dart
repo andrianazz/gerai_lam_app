@@ -16,6 +16,7 @@ class StockInProvider with ChangeNotifier {
     _stockIns.add(StockInModel(
       id: _stockIns.length,
       harga: product.harga_modal,
+      hargaJual: product.harga_jual,
       kode: product.kode,
       nama: product.nama,
       stok: qty,

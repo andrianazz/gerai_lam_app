@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gerai_lam_app/pages/splash_page.dart';
 import 'package:gerai_lam_app/providers/cart_provider.dart';
+import 'package:gerai_lam_app/providers/filter_provider.dart';
+import 'package:gerai_lam_app/providers/order_provider.dart';
 import 'package:gerai_lam_app/providers/product_provider.dart';
 import 'package:gerai_lam_app/providers/stock_in_provider.dart';
 import 'package:gerai_lam_app/providers/stock_provider.dart';
@@ -51,6 +53,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => StockInProvider()),
         ChangeNotifierProvider(create: (_) => StockReturnProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => FilterProvider()),
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -6,9 +6,14 @@ import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 
 import '../theme.dart';
 
-class PromoPage extends StatelessWidget {
+class PromoPage extends StatefulWidget {
   const PromoPage({Key? key}) : super(key: key);
 
+  @override
+  State<PromoPage> createState() => _PromoPageState();
+}
+
+class _PromoPageState extends State<PromoPage> {
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -77,13 +82,15 @@ class PromoPage extends StatelessWidget {
             SizedBox(height: 30),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: promos.orderBy('date').snapshots(),
+                stream: promos.orderBy('date', descending: true).snapshots(),
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     return ListView(
                       children: snapshot.data!.docs.map((e) {
                         Map<String, dynamic> promo =
                             e.data() as Map<String, dynamic>;
+
+                        bool? isChecked = promo['publikasi'];
                         return Card(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -142,40 +149,65 @@ class PromoPage extends StatelessWidget {
                                     )
                                   ],
                                 ),
-                                IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (_) => CupertinoAlertDialog(
-                                                title: Text(
-                                                    'Konfirmasi menghapus Promo'),
-                                                content: Text(
-                                                    'Apa kamu yakin inging menghapus ${promo['title']}'),
-                                                actions: [
-                                                  CupertinoDialogAction(
-                                                    child: Text('Batal'),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                  CupertinoDialogAction(
-                                                    child: Text('Hapus'),
-                                                    onPressed: () {
-                                                      promos
-                                                          .doc(promo['code'])
-                                                          .delete();
+                                Row(
+                                  children: [
+                                    Transform.scale(
+                                      scale: 2,
+                                      child: Checkbox(
+                                        value: isChecked,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            isChecked = value;
+                                            promos
+                                                .doc(promo['code'])
+                                                .update({'publikasi': value});
+                                          });
+                                        },
+                                        shape: CircleBorder(),
+                                        tristate: false,
+                                        splashRadius: 30,
+                                      ),
+                                    ),
+                                    IconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (_) =>
+                                                  CupertinoAlertDialog(
+                                                    title: Text(
+                                                        'Konfirmasi menghapus Promo'),
+                                                    content: Text(
+                                                        'Apa kamu yakin inging menghapus ${promo['title']}'),
+                                                    actions: [
+                                                      CupertinoDialogAction(
+                                                        child: Text('Batal'),
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                      ),
+                                                      CupertinoDialogAction(
+                                                        child: Text('Hapus'),
+                                                        onPressed: () {
+                                                          promos
+                                                              .doc(
+                                                                  promo['code'])
+                                                              .delete();
 
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              ));
-                                    },
-                                    icon: Icon(
-                                      Icons.highlight_remove_rounded,
-                                      color: redColor,
-                                      size: 50,
-                                    )),
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ));
+                                        },
+                                        icon: Icon(
+                                          Icons.highlight_remove_rounded,
+                                          color: redColor,
+                                          size: 50,
+                                        )),
+                                  ],
+                                )
                               ],
                             ),
                           ),

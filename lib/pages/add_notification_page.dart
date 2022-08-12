@@ -314,7 +314,9 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                         'title': titleController.text,
                                         'description': descController.text,
                                         'supplier': _dropdownSupplier!.name,
+                                        'id_supplier': _dropdownSupplier!.email,
                                         'date': DateTime.now(),
+                                        'isRead': false,
                                       });
 
                                       sendNotificationMessage(

@@ -419,6 +419,7 @@ class _BayarDialogState extends State<BayarDialog> {
                   onTap: () {
                     transactions.doc(widget.id).update({
                       'bayar': int.parse(bayarController.toString()),
+                      'status': "Bayar",
                     }).whenComplete(
                       () => Navigator.pushReplacement(
                         context,
