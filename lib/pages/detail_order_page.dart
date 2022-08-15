@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/order_done_page.dart';
 import 'package:gerai_lam_app/pages/product_page.dart';
@@ -29,6 +27,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   TextEditingController bayar = TextEditingController(text: '0');
 
   String idKasir = '';
+  String emailKasir = '';
 
   String mtdPayment = "TUNAI";
 
@@ -36,7 +35,6 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   void initState() {
     super.initState();
     getAll();
-    getPpnPpl();
   }
 
   @override
@@ -1175,18 +1173,31 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
   Future<void> getAll() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String id = pref.getString("id") ?? '';
+    String email = pref.getString("email") ?? '';
 
     setState(() {
       idKasir = id;
+      emailKasir = email;
     });
-  }
 
-  Future<void> getPpnPpl() async {
-    await firestore.collection('settings').doc('galerilam').get().then((value) {
+    var setRef = firestore.collection('settings').doc(emailKasir);
+    var set2Ref = firestore.collection('settings').doc('galerilam');
+    var doc = await setRef.get();
+    var doc2 = await set2Ref.get();
+
+    if (doc.exists) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       setState(() {
-        ppn = value['ppn'];
-        ppl = value['ppl'];
+        print(data['ppn']);
+        ppn = data['ppn'];
+        ppl = data['ppl'];
       });
-    });
+    } else if (doc2.exists) {
+      Map<String, dynamic> data = doc2.data() as Map<String, dynamic>;
+      setState(() {
+        ppn = data['ppn'];
+        ppl = data['ppl'];
+      });
+    }
   }
 }

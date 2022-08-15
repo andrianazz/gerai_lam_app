@@ -1,6 +1,7 @@
 class ItemModel {
   int? id;
   String? idProduk;
+  String? barcode;
   String? name;
   String? imageUrl;
   int? capital;
@@ -14,6 +15,7 @@ class ItemModel {
   ItemModel({
     this.id,
     this.idProduk,
+    this.barcode,
     this.name,
     this.imageUrl,
     this.capital,
@@ -28,6 +30,7 @@ class ItemModel {
   ItemModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     idProduk = json['id_produk'];
+    barcode = json['barcode'];
     name = json['nama_produk'];
     imageUrl = json['imageUrl'] ?? '';
     capital = json['harga_modal'];
@@ -44,6 +47,7 @@ class ItemModel {
       'id': id,
       'id_produk': idProduk,
       'nama_produk': name,
+      'barcode': barcode,
       'imageUrl': imageUrl ?? '',
       'harga_modal': capital,
       'nett': nett,

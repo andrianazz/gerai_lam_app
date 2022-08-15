@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +7,7 @@ import 'package:gerai_lam_app/pages/order_page.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/cart_provider.dart';
 import '../theme.dart';
@@ -48,26 +47,49 @@ class _OrderDonePageState extends State<OrderDonePage> {
   BluetoothDevice? selectedDevice;
   BlueThermalPrinter printer = BlueThermalPrinter.instance;
 
+  String emailKasir = '';
+  String alamat = '';
+
   @override
   void initState() {
-    super.initState();
     getDevices();
-    getPpnPpl();
+    getAll();
+    super.initState();
+  }
+
+  Future<void> getAll() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String email = pref.getString("email") ?? '';
+
+    setState(() {
+      emailKasir = email;
+    });
+
+    var setRef = firestore.collection('settings').doc(emailKasir);
+    var set2Ref = firestore.collection('settings').doc('galerilam');
+    var doc = await setRef.get();
+    var doc2 = await set2Ref.get();
+
+    if (doc.exists) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      setState(() {
+        print(data['ppn']);
+        ppn = data['ppn'];
+        ppl = data['ppl'];
+      });
+    } else if (doc2.exists) {
+      Map<String, dynamic> data = doc2.data() as Map<String, dynamic>;
+      setState(() {
+        ppn = data['ppn'];
+        ppl = data['ppl'];
+      });
+    }
   }
 
   void getDevices() async {
     devices = await printer.getBondedDevices();
     setState(() {});
     print(devices);
-  }
-
-  Future<void> getPpnPpl() async {
-    await firestore.collection('settings').doc('galerilam').get().then((value) {
-      setState(() {
-        ppn = value['ppn'];
-        ppl = value['ppl'];
-      });
-    });
   }
 
   @override
@@ -498,6 +520,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
             flex: 1,
             child: GestureDetector(
               onTap: () async {
+                getDevices();
                 showDialog(
                   context: context,
                   builder: (_) => Dialog(
@@ -674,10 +697,6 @@ class _OrderDonePageState extends State<OrderDonePage> {
       decimalDigits: 0,
       name: 'Rp. ',
     ).format(trans.totalTransaction);
-    String ongkir = NumberFormat.simpleCurrency(
-      decimalDigits: 0,
-      name: 'Rp. ',
-    ).format(trans.ongkir);
     String bayar = NumberFormat.simpleCurrency(
       decimalDigits: 0,
       name: 'Rp. ',
@@ -686,6 +705,11 @@ class _OrderDonePageState extends State<OrderDonePage> {
       decimalDigits: 0,
       name: 'Rp. ',
     ).format(trans.pay! - trans.totalTransaction!);
+
+    // String ongkir = NumberFormat.simpleCurrency(
+    //   decimalDigits: 0,
+    //   name: 'Rp. ',
+    // ).format(trans.ongkir);
 
     //SIZE
     // 0- normal size text
@@ -700,9 +724,9 @@ class _OrderDonePageState extends State<OrderDonePage> {
     if ((await printer.isConnected)!) {
       printer.printNewLine();
       printer.printCustom("Galeri LAM Riau", 3, 1);
-      printer.printCustom("Jl. Diponegoro, Suka Mulia,", 1, 1);
-      printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
-      printer.printCustom("Riau 28156", 1, 1);
+      printer.printCustom("${alamat},", 1, 1);
+      // printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
+      // printer.printCustom("Riau 28156", 1, 1);
       printer.printCustom("www.galerilamriau.com", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));

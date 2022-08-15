@@ -394,18 +394,30 @@ class _OrderPageState extends State<OrderPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    if (orderIndex != null) {
-                      setState(() {
-                        orderProvider.deleteTable(orderIndex!);
-                        orderIndex = null;
-                      });
+                    if (cartProvider.carts.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Silahkan pilih orderan terlebih dahulu!",
+                            textAlign: TextAlign.center,
+                          ),
+                          backgroundColor: redColor,
+                        ),
+                      );
+                    } else {
+                      if (orderIndex != null) {
+                        setState(() {
+                          orderProvider.deleteTable(orderIndex!);
+                          orderIndex = null;
+                        });
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DetailOrderPage(),
+                        ),
+                      );
                     }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DetailOrderPage(),
-                      ),
-                    );
                   },
                   child: Container(
                     height: 80,
@@ -461,17 +473,24 @@ class _OrderPageState extends State<OrderPage> {
             selectedTag = '';
             if (searchController.text.isNotEmpty) {
               if (double.tryParse(value) != null) {
-                products.get().then((snapshot) => snapshot.docs.map((e) {
-                      ProductModel product = ProductModel.fromJson(
-                          e.data() as Map<String, dynamic>);
+                products
+                    .where("barcode", isEqualTo: value)
+                    .get()
+                    .then((snapshot) => snapshot.docs.map((e) {
+                          ProductModel product = ProductModel.fromJson(
+                              e.data() as Map<String, dynamic>);
 
-                      if (product.barcode!.contains(value)) {
-                        setState(() {
-                          cartProvider.addCart(product);
-                          searchController.clear();
-                        });
-                      }
-                    }).toList());
+                          if (product.barcode!.contains(value)) {
+                            if (cartProvider.carts.any(
+                                (item) => item.barcode == product.barcode)) {
+                            } else {
+                              setState(() {
+                                cartProvider.addCart(product);
+                                searchController.text = '';
+                              });
+                            }
+                          }
+                        }).toList());
               } else {
                 setState(() {
                   searchText =
@@ -486,7 +505,7 @@ class _OrderPageState extends State<OrderPage> {
               suffixIcon: IconButton(
                 onPressed: () {
                   setState(() {
-                    searchController.text = '';
+                    searchController.clear();
                   });
                 },
                 icon: Icon(

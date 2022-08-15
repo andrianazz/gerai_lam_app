@@ -1,15 +1,13 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
-import 'package:gerai_lam_app/pages/print_struk_page.dart';
+import 'package:gerai_lam_app/pages/print_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -70,7 +68,7 @@ class _ProductPageState extends State<ProductPage> {
   TextEditingController priceController = TextEditingController();
   TextEditingController tagController = TextEditingController();
 
-  TextEditingController qtyController = TextEditingController();
+  TextEditingController qtyController = TextEditingController(text: "1");
 
   List<SupplierModel> supplier = [];
   SupplierModel? _dropdownSupplier;
@@ -339,13 +337,18 @@ class _ProductPageState extends State<ProductPage> {
                                                           child: ElevatedButton(
                                                             onPressed: () {
                                                               Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (_) =>
-                                                                          PrintStrukPage(
-                                                                            product:
-                                                                                selectedProduct,
-                                                                          )));
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder: (_) =>
+                                                                      PrintPage(
+                                                                    product:
+                                                                        selectedProduct,
+                                                                    qty: int.parse(
+                                                                        qtyController
+                                                                            .text),
+                                                                  ),
+                                                                ),
+                                                              );
                                                             },
                                                             child: Text(
                                                                 'Print Label'),
@@ -463,7 +466,7 @@ class _ProductPageState extends State<ProductPage> {
                                                                 generatedNumber =
                                                                 '';
                                                             for (int i = 0;
-                                                                i < 10;
+                                                                i < 6;
                                                                 i++) {
                                                               generatedNumber +=
                                                                   (rng.nextInt(
@@ -988,7 +991,7 @@ class _ProductPageState extends State<ProductPage> {
                                               onPressed: () {
                                                 var rng = Random();
                                                 String generatedNumber = '';
-                                                for (int i = 0; i < 10; i++) {
+                                                for (int i = 0; i < 6; i++) {
                                                   generatedNumber +=
                                                       (rng.nextInt(9) + 1)
                                                           .toString();

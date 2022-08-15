@@ -79,6 +79,11 @@ class CartProvider with ChangeNotifier {
     print(_carts);
   }
 
+  addCartAddQuantity(ProductModel product) {
+    var exist = _carts.where((element) => element.name == product.nama);
+    if (exist.isNotEmpty) {}
+  }
+
   removeCart(Map<String, dynamic> product) {
     _carts.removeWhere((item) => item.name == product['nama']);
   }
