@@ -6,8 +6,6 @@ import 'package:gerai_lam_app/models/notification_model.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
-
-import '../models/supplier_model.dart';
 import '../theme.dart';
 
 class AddNotificationPage extends StatefulWidget {

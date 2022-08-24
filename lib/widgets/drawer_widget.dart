@@ -15,6 +15,7 @@ import 'package:gerai_lam_app/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../pages/change_password_page.dart';
+import '../pages/transaction2_page.dart';
 import '../theme.dart';
 
 class DrawerWidget extends StatefulWidget {

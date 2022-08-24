@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -43,12 +45,15 @@ class _OrderDonePageState extends State<OrderDonePage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   int ppn = 0;
   int ppl = 0;
+  bool api_bandara = false;
+
   List<BluetoothDevice> devices = [];
   BluetoothDevice? selectedDevice;
   BlueThermalPrinter printer = BlueThermalPrinter.instance;
 
   String emailKasir = '';
   String alamat = '';
+  String token = '';
 
   @override
   void initState() {
@@ -60,6 +65,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
   Future<void> getAll() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String email = pref.getString("email") ?? '';
+    String token = pref.getString("token") ?? '';
 
     setState(() {
       emailKasir = email;
@@ -76,6 +82,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
         print(data['ppn']);
         ppn = data['ppn'];
         ppl = data['ppl'];
+        api_bandara = data['api_bandara'];
       });
     } else if (doc2.exists) {
       Map<String, dynamic> data = doc2.data() as Map<String, dynamic>;
@@ -628,6 +635,63 @@ class _OrderDonePageState extends State<OrderDonePage> {
                   'status': tProvider.transactions[0].status,
                   'keterangan': tProvider.transactions[0].keterangan,
                 });
+
+                if (token.isNotEmpty && api_bandara == true) {
+                  DateTime e = tProvider.transactions[0].date as DateTime;
+
+                  String date = DateFormat("yyyy-MM-dd").format(e);
+
+                  var url =
+                      "https://api-ecsysdev.angkasapura2.co.id/api/v1/transaction/";
+                  var headers = {
+                    'Authorization': token,
+                    'Content-Type': 'application/json',
+                  };
+
+                  var body = jsonEncode({
+                    {
+                      "store": [
+                        {
+                          "store_id": "{{store_id}}",
+                          "transactions": [
+                            for (var cart in cartProvider.carts)
+                              {
+                                {
+                                  "invoice_no":
+                                      "${tProvider.transactions[0].id}",
+                                  "trans_date": "${date}",
+                                  "trans_time":
+                                      "${tProvider.transactions[0].date}",
+                                  "sequence_unique": "${cart.id}",
+                                  "item_name": "${cart.name}",
+                                  "item_code": "${cart.idProduk}",
+                                  "item_qty": "${cart.quantity}",
+                                  "item_price_per_unit": "${cart.price}",
+                                  "item_price_amount": "${cart.price}",
+                                  "item_vat":
+                                      (num.parse(cart.price.toString()) *
+                                              ppn *
+                                              ppl)
+                                          .toString(),
+                                  "item_total_price_amount": (num.parse(
+                                              cart.price.toString()) *
+                                          num.parse(cart.quantity.toString()))
+                                      .toString(),
+                                  "item_total_vat": "0",
+                                  "transaction_amount": (num.parse(
+                                              cart.price.toString()) +
+                                          (num.parse(cart.price.toString()) *
+                                              ppn *
+                                              ppl))
+                                      .toString(),
+                                },
+                              }
+                          ],
+                        }
+                      ]
+                    }
+                  });
+                }
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

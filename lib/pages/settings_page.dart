@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
 
@@ -22,10 +25,22 @@ class _SettingPage extends State<SettingPage> {
   TextEditingController alamatController = TextEditingController();
   TextEditingController telController = TextEditingController();
 
+  TextEditingController userController = TextEditingController();
+  TextEditingController passController = TextEditingController();
+
+  bool isBandara = false;
+
+  late SharedPreferences preferences;
+
   @override
   void initState() {
     super.initState();
     getInit();
+    init();
+  }
+
+  Future init() async {
+    preferences = await SharedPreferences.getInstance();
   }
 
   Future<void> getInit() async {
@@ -45,6 +60,7 @@ class _SettingPage extends State<SettingPage> {
         pplController.text = data['ppl'].toString();
         alamatController.text = data['alamat'].toString();
         telController.text = data['telepon'].toString();
+        isBandara = data['api_bandara'];
       });
     }
 
@@ -230,6 +246,126 @@ class _SettingPage extends State<SettingPage> {
                                     ),
                                   ),
                                   SizedBox(height: 30),
+                                  Text("Integrasi API Bandara"),
+                                  Switch(
+                                    value: isBandara,
+                                    onChanged: (value) {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Dialog(
+                                              child: Container(
+                                                width: 500,
+                                                height: 350,
+                                                padding: EdgeInsets.all(20),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Username",
+                                                      style:
+                                                          primaryText.copyWith(
+                                                              fontSize: 20),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    TextField(
+                                                      controller:
+                                                          userController,
+                                                      style:
+                                                          primaryText.copyWith(
+                                                              fontSize: 20),
+                                                      decoration:
+                                                          InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        20,
+                                                                    vertical:
+                                                                        10),
+                                                        hintText: "Username",
+                                                        hintStyle: primaryText
+                                                            .copyWith(
+                                                          fontSize: 20,
+                                                          color: textGreyColor,
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                  width: 1,
+                                                                  color:
+                                                                      greyColor),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 30),
+                                                    Text(
+                                                      "Password",
+                                                      style:
+                                                          primaryText.copyWith(
+                                                              fontSize: 20),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    TextField(
+                                                      obscureText: true,
+                                                      controller:
+                                                          passController,
+                                                      style:
+                                                          primaryText.copyWith(
+                                                              fontSize: 20),
+                                                      decoration:
+                                                          InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        20,
+                                                                    vertical:
+                                                                        10),
+                                                        hintText: "Password",
+                                                        hintStyle: primaryText
+                                                            .copyWith(
+                                                          fontSize: 20,
+                                                          color: textGreyColor,
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                  width: 1,
+                                                                  color:
+                                                                      greyColor),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 30),
+                                                    Container(
+                                                      width: double.infinity,
+                                                      child: ElevatedButton(
+                                                        onPressed: () async {
+                                                          apiBandara(value);
+                                                        },
+                                                        child: Text(
+                                                          "Login",
+                                                          style: primaryText
+                                                              .copyWith(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                    },
+                                  ),
+                                  SizedBox(height: 30),
                                   Center(
                                     child: ElevatedButton.icon(
                                       onPressed: () {
@@ -242,6 +378,7 @@ class _SettingPage extends State<SettingPage> {
                                               ppnController.text.toString()),
                                           'ppl': int.parse(
                                               pplController.text.toString()),
+                                          'api_bandara': isBandara,
                                         });
 
                                         ScaffoldMessenger.of(context)
@@ -290,6 +427,7 @@ class _SettingPage extends State<SettingPage> {
                                   'telepon': '085210680008',
                                   'ppn': 0,
                                   'ppl': 0,
+                                  'api_bandara': false,
                                 });
 
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -330,6 +468,47 @@ class _SettingPage extends State<SettingPage> {
         ),
       ),
     );
+  }
+
+  void apiBandara(bool value) async {
+    CollectionReference settings = firestore.collection("settings");
+    if (isBandara == false) {
+      var url = 'https://api-ecsysdev.angkasapura2.co.id/api/auth/login';
+
+      var headers = {
+        "Content-Type": "application/json",
+      };
+
+      var body = jsonEncode({
+        "username": "${userController.text.toString()}",
+        "password": "${passController.text.toString()}"
+      });
+
+      var response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        print("Berhasil Login");
+        Map<String, dynamic> temp = json.decode(response.body);
+        String token = temp['token'];
+
+        setState(() {
+          preferences.setString('token', token.toString());
+        });
+
+        settings.doc(emailEmployee).update({
+          'api_bandara': value,
+        });
+      }
+    } else {
+      setState(() {
+        isBandara = value;
+      });
+      settings.doc(emailEmployee).update({
+        'api_bandara': value,
+      });
+    }
   }
 }
 

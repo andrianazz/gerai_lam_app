@@ -35,10 +35,22 @@ class _OrderPageState extends State<OrderPage> {
   String emailSupplier = "";
   String searchText = '';
 
+  late FocusNode myFocusNode;
+
   @override
   void initState() {
     super.initState();
     getAll();
+
+    myFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Clean up the focus node when the Form is disposed.
+    myFocusNode.dispose();
+
+    super.dispose();
   }
 
   TextEditingController searchController = TextEditingController();
@@ -468,29 +480,43 @@ class _OrderPageState extends State<OrderPage> {
       children: [
         TextField(
           controller: searchController,
+          focusNode: myFocusNode,
           textInputAction: TextInputAction.search,
           onSubmitted: (value) {
             selectedTag = '';
+
             if (searchController.text.isNotEmpty) {
               if (double.tryParse(value) != null) {
                 products
                     .where("barcode", isEqualTo: value)
                     .get()
-                    .then((snapshot) => snapshot.docs.map((e) {
+                    .then((snapshot) => snapshot.docs.forEach((i) {
                           ProductModel product = ProductModel.fromJson(
-                              e.data() as Map<String, dynamic>);
+                              i.data() as Map<String, dynamic>);
 
-                          if (product.barcode!.contains(value)) {
-                            if (cartProvider.carts.any(
-                                (item) => item.barcode == product.barcode)) {
-                            } else {
-                              setState(() {
-                                cartProvider.addCart(product);
-                                searchController.text = '';
-                              });
-                            }
+                          final itemFound = cartProvider.carts
+                              .any((item) => item.name == product.nama);
+
+                          if (!itemFound) {
+                            print("tidak ada");
+
+                            setState(() {
+                              cartProvider.addCart(product);
+                              searchController.text = '';
+                              myFocusNode.requestFocus();
+                            });
+                          } else {
+                            print("ada");
+                            final item = cartProvider.carts.firstWhere(
+                                (item) => item.name == product.nama);
+
+                            setState(() {
+                              cartProvider.addQuantity(item.id!, 1);
+                              searchController.text = '';
+                              myFocusNode.requestFocus();
+                            });
                           }
-                        }).toList());
+                        }));
               } else {
                 setState(() {
                   searchText =
@@ -506,6 +532,7 @@ class _OrderPageState extends State<OrderPage> {
                 onPressed: () {
                   setState(() {
                     searchController.clear();
+                    myFocusNode.requestFocus();
                   });
                 },
                 icon: Icon(

@@ -336,19 +336,47 @@ class _ProductPageState extends State<ProductPage> {
                                                           height: 50,
                                                           child: ElevatedButton(
                                                             onPressed: () {
-                                                              Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                  builder: (_) =>
-                                                                      PrintPage(
-                                                                    product:
-                                                                        selectedProduct,
-                                                                    qty: int.parse(
-                                                                        qtyController
-                                                                            .text),
+                                                              if (selectedProduct!
+                                                                          .barcode!
+                                                                          .length >
+                                                                      6 ||
+                                                                  selectedProduct!
+                                                                          .barcode!
+                                                                          .length <
+                                                                      6) {
+                                                                Navigator.pop(
+                                                                    context);
+
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(
+                                                                  const SnackBar(
+                                                                    content:
+                                                                        Text(
+                                                                      "Silahkan Generate ulang barcode anda!",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                    ),
+                                                                    backgroundColor:
+                                                                        redColor,
                                                                   ),
-                                                                ),
-                                                              );
+                                                                );
+                                                              } else {
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder: (_) =>
+                                                                        PrintPage(
+                                                                      product:
+                                                                          selectedProduct,
+                                                                      qty: int.parse(
+                                                                          qtyController
+                                                                              .text),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              }
                                                             },
                                                             child: Text(
                                                                 'Print Label'),

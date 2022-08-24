@@ -226,21 +226,22 @@ class _PrintPageState extends State<PrintPage> {
     Map<String, dynamic> config = Map();
     config['width'] = 33; // 标签宽度，单位mm
     config['height'] = 20; // 标签高度，单位mm
-    config['gap'] = 5;
+    config['gap'] = 4;
 
     List<LineText> list = [];
     // list.add(LineText(
     //   type: LineText.TYPE_TEXT,
     //   align: LineText.ALIGN_CENTER,
-    //   x: 50,
-    //   y: 20,
-    //   content: '${widget.product!.nama}',
+    //   x: 20,
+    //   y: 4,
+    //   content: '${widget.product!.barcode!}',
     // ));
     list.add(
       LineText(
         type: LineText.TYPE_BARCODE,
         align: LineText.ALIGN_CENTER,
-        x: 40,
+        x: 45,
+        // y: 40,
         y: 20,
         content: widget.product!.barcode.toString(),
       ),

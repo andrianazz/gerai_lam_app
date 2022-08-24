@@ -1,24 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/models/employee_model.dart';
-import 'package:gerai_lam_app/models/product_model.dart';
-import 'package:gerai_lam_app/models/supplier_model.dart';
-import 'package:gerai_lam_app/pages/filter/daily_filter_page.dart';
-import 'package:gerai_lam_app/pages/filter/transaction_filter_page.dart';
-import 'package:gerai_lam_app/providers/filter_provider.dart';
-import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
-import '../models/filter_model.dart';
-import '../theme.dart';
 
-class TransactionPage extends StatefulWidget {
-  const TransactionPage({Key? key}) : super(key: key);
+import '../models/employee_model.dart';
+import '../models/product_model.dart';
+import '../models/supplier_model.dart';
+import '../models/transaction_model.dart';
+import '../providers/filter_provider.dart';
+import '../theme.dart';
+import '../widgets/drawer_widget.dart';
+
+class Transaction2Page extends StatefulWidget {
+  const Transaction2Page({Key? key}) : super(key: key);
 
   @override
-  State<TransactionPage> createState() => _TransactionPageState();
+  State<Transaction2Page> createState() => _Transaction2PageState();
 }
 
-class _TransactionPageState extends State<TransactionPage> {
+class _Transaction2PageState extends State<Transaction2Page> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   List<String> filterList = ['Harian', 'Mingguan', 'Bulanan', 'Tahunan'];
@@ -33,11 +33,10 @@ class _TransactionPageState extends State<TransactionPage> {
   List<SupplierModel> suppliers = [];
   String? _dropdownSupplier;
 
-  @override
-  void initState() {
-    super.initState();
-    getInit();
-    getAll();
+  Future<void> getInit() async {
+    await Provider.of<TransactionProvider>(context, listen: false)
+        .getTransaction();
+    setState(() {});
   }
 
   getAll() {
@@ -75,18 +74,19 @@ class _TransactionPageState extends State<TransactionPage> {
             }));
   }
 
-  Future<void> getInit() async {
-    await Provider.of<FilterProvider>(context, listen: false).getStruk();
-    setState(() {});
-  }
-
-  Future<void> getDaily() async {
-    await Provider.of<FilterProvider>(context, listen: false).getDaily();
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    getInit();
+    getAll();
   }
 
   @override
   Widget build(BuildContext context) {
+    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
+    List<TransactionModel>? trans = tProvider.transactions;
+    DTS dts = DTS(transDTS: trans);
+
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
@@ -130,10 +130,7 @@ class _TransactionPageState extends State<TransactionPage> {
                               ))
                           .toList(),
                       onChanged: (selected) {
-                        setState(() {
-                          _dropdownFilterList = selected as String?;
-                          getDaily();
-                        });
+                        setState(() {});
                       }),
                 ),
                 SizedBox(width: 20),
@@ -246,14 +243,55 @@ class _TransactionPageState extends State<TransactionPage> {
               ],
             ),
             SizedBox(height: 20),
-            _dropdownFilterList == "Harian"
-                ? DailyFilterPage()
-                : TransactionFilterPage()
+            Expanded(
+              child: ListView(
+                children: [
+                  PaginatedDataTable(
+                      header: const Text('Transaksi per Struk'),
+                      rowsPerPage: 10,
+                      columns: [
+                        DataColumn(label: Text('Tanggal')),
+                        DataColumn(label: Text('Total')),
+                        DataColumn(label: Text('Total Barang')),
+                        DataColumn(label: Text('Bayar')),
+                      ],
+                      source: dts),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+class DTS extends DataTableSource {
+  List<TransactionModel>? transDTS;
+  String? filter;
+  String? produk;
+  String? kasir;
+  String? supplier;
+  DTS({this.transDTS, this.produk, this.kasir, this.supplier});
+
+  @override
+  DataRow? getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Text('${transDTS![index].date}')),
+      DataCell(Text('${transDTS![index].totalTransaction}')),
+      DataCell(Text('${transDTS![index].totalProducts}')),
+      DataCell(Text('${transDTS![index].pay}')),
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => transDTS!.length;
+
+  @override
+  int get selectedRowCount => 0;
 }
 
 Widget columnAppbarLeft(context) {
