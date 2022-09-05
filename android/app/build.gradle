@@ -33,7 +33,9 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33
+//    compileSdkVersion flutter.compileSdkVersion
+//    compileSdkVersion localProperties.getProperty('flutter.compileSdkVersion').toInteger()
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -58,6 +60,7 @@ android {
 
         minSdkVersion localProperties.getProperty('flutter.minSdkVersion').toInteger()
         targetSdkVersion localProperties.getProperty('flutter.targetSdkVersion').toInteger()
+
 
         manifestPlaceholders = [applicationName: "android.app.Application"]
         multiDexEnabled true
