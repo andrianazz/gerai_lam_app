@@ -1,15 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/transaction_model.dart';
+import 'package:gerai_lam_app/pages/online_transaction_page.dart';
 import 'package:intl/intl.dart';
 
 import '../theme.dart';
 
-class DetailDialog extends StatelessWidget {
+class DetailDialog extends StatefulWidget {
   TransactionModel? trans;
   DetailDialog({Key? key, this.trans}) : super(key: key);
 
   @override
+  State<DetailDialog> createState() => _DetailDialogState();
+}
+
+class _DetailDialogState extends State<DetailDialog> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  @override
   Widget build(BuildContext context) {
+    CollectionReference transactions = firestore.collection("transactions");
+    TextEditingController resiController =
+        TextEditingController(text: widget.trans!.resi);
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -21,7 +34,7 @@ class DetailDialog extends StatelessWidget {
         child: ListView(
           children: [
             Column(
-              children: trans!.items!
+              children: widget.trans!.items!
                   .map(
                     (item) => Container(
                       width: double.infinity,
@@ -149,7 +162,7 @@ class DetailDialog extends StatelessWidget {
                           Container(
                             width: 200,
                             child: Text(
-                              trans!.address!,
+                              widget.trans!.address!,
                               style: primaryText.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -216,7 +229,7 @@ class DetailDialog extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            trans!.payment!,
+                            widget.trans!.payment!,
                             style: primaryText.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -286,7 +299,7 @@ class DetailDialog extends StatelessWidget {
                                 NumberFormat.simpleCurrency(
                                   decimalDigits: 0,
                                   name: 'Rp. ',
-                                ).format(trans!.ongkir!),
+                                ).format(widget.trans!.ongkir!),
                                 style: primaryText.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -297,6 +310,62 @@ class DetailDialog extends StatelessWidget {
                       ),
                     ],
                   ),
+                ],
+              ),
+            ),
+            SizedBox(height: 30),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cartColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Resi",
+                    style: primaryText.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: 300,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey,
+                          ),
+                        ),
+                        child: TextField(
+                          controller: resiController,
+                          decoration: InputDecoration.collapsed(
+                              hintText: "Masukkan No Resi"),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      ElevatedButton(
+                          onPressed: () {
+                            transactions
+                                .doc(widget.trans!.id.toString())
+                                .update({'resi': resiController.text});
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OnlineTransactionPage(),
+                              ),
+                            );
+                            setState(() {});
+                          },
+                          child: Text("Ubah")),
+                    ],
+                  )
                 ],
               ),
             ),

@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/employee_model.dart';
+import 'package:gerai_lam_app/models/filter_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
-import 'package:gerai_lam_app/pages/filter/daily_filter_page.dart';
-import 'package:gerai_lam_app/pages/filter/transaction_filter_page.dart';
 import 'package:gerai_lam_app/providers/filter_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:provider/provider.dart';
-import '../models/filter_model.dart';
 import '../theme.dart';
 
 class TransactionPage extends StatefulWidget {
@@ -76,7 +74,7 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> getInit() async {
-    await Provider.of<FilterProvider>(context, listen: false).getStruk();
+    await Provider.of<FilterProvider>(context, listen: false).getStruk2();
     setState(() {});
   }
 
@@ -87,6 +85,10 @@ class _TransactionPageState extends State<TransactionPage> {
 
   @override
   Widget build(BuildContext context) {
+    FilterProvider fProvider = Provider.of<FilterProvider>(context);
+    List<FilterModel>? trans = fProvider.dataTable;
+    DTS dts = DTS(transDTS: trans);
+
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
@@ -246,9 +248,21 @@ class _TransactionPageState extends State<TransactionPage> {
               ],
             ),
             SizedBox(height: 20),
-            _dropdownFilterList == "Harian"
-                ? DailyFilterPage()
-                : TransactionFilterPage()
+            Expanded(
+              child: ListView(
+                children: [
+                  PaginatedDataTable(
+                      header: const Text('Transaksi per Struk'),
+                      rowsPerPage: 10,
+                      columns: [
+                        DataColumn(label: Text('Tanggal')),
+                        DataColumn(label: Text('Total Barang')),
+                        DataColumn(label: Text('Total Transaksi')),
+                      ],
+                      source: dts),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -265,4 +279,27 @@ Widget columnAppbarLeft(context) {
 
 Widget columnAppbarRight(context) {
   return Expanded(child: Container());
+}
+
+class DTS extends DataTableSource {
+  List<FilterModel>? transDTS;
+  DTS({this.transDTS});
+
+  @override
+  DataRow? getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Text('${transDTS![index].column1}')),
+      DataCell(Text('${transDTS![index].column2}')),
+      DataCell(Text('${transDTS![index].column3}')),
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => transDTS!.length;
+
+  @override
+  int get selectedRowCount => 0;
 }

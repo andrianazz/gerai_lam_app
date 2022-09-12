@@ -25,6 +25,15 @@ class FilterProvider with ChangeNotifier {
     }
   }
 
+  Future<void> getStruk2() async {
+    try {
+      List<FilterModel> dataTable = await FilterService().getStruk2();
+      _dataTable = dataTable;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> getDaily() async {
     try {
       List<FilterModel> dataTable = await FilterService().getDaily();

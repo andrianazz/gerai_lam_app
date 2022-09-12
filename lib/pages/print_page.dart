@@ -22,7 +22,7 @@ class _PrintPageState extends State<PrintPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) => initBluetooth());
+    WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
   }
 
   Future<void> initBluetooth() async {

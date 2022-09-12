@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
     requestPermission();
     loadFCM();
     listenFCM();
-    getToken();
+    // getToken();
 
     init();
   }
@@ -410,7 +410,7 @@ class _LoginPageState extends State<LoginPage> {
                                                   ),
                                                 ),
                                                 onPressed: () {
-                                                  saveToken();
+                                                  // saveToken();
                                                   isEmployees(emailController
                                                       .text
                                                       .toString());
