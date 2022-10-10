@@ -71,7 +71,7 @@ class _ProductPageState extends State<ProductPage> {
   TextEditingController qtyController = TextEditingController(text: "1");
 
   List<SupplierModel> supplier = [];
-  SupplierModel? _dropdownSupplier;
+  SupplierModel? _dropdownSupplier = SupplierModel();
   ProductModel? selectedProduct;
 
   String searchProduct = '';
@@ -638,6 +638,43 @@ class _ProductPageState extends State<ProductPage> {
                                                     ),
                                                   ],
                                                 ),
+                                                SizedBox(height: 10),
+                                                DropdownButtonFormField(
+                                                    decoration: InputDecoration(
+                                                      labelText: 'Supplier',
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                    hint: Text(
+                                                        "${selectedProduct!.supplier!['nama']}"),
+                                                    items: supplier
+                                                        .map((item) =>
+                                                            DropdownMenuItem(
+                                                              child: Container(
+                                                                width: 300,
+                                                                child: Text(
+                                                                  item.name
+                                                                      .toString(),
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .clip,
+                                                                  maxLines: 1,
+                                                                ),
+                                                              ),
+                                                              value: item,
+                                                            ))
+                                                        .toList(),
+                                                    onChanged: (selected) {
+                                                      setState(() {
+                                                        _dropdownSupplier =
+                                                            selected
+                                                                as SupplierModel;
+                                                      });
+                                                    }),
                                                 SizedBox(height: 30),
                                                 Container(
                                                   width: double.infinity,
@@ -682,40 +719,111 @@ class _ProductPageState extends State<ProductPage> {
                                                         ),
                                                       );
 
-                                                      products
-                                                          .doc(selectedProduct!
-                                                              .kode!)
-                                                          .update({
-                                                        'imageUrl': newImage
-                                                                .isNotEmpty
-                                                            ? newImage
-                                                                .map((e) => e)
-                                                                .toList()
-                                                            : [oldImage],
-                                                        'nama':
-                                                            nameController.text,
-                                                        'deskripsi':
-                                                            descController.text,
-                                                        'barcode':
-                                                            barController.text,
-                                                        'harga_modal': int.parse(
-                                                            capitalController
-                                                                .text
-                                                                .replaceAll(
-                                                                    RegExp(
-                                                                        '[A-Za-z]'),
-                                                                    '')
-                                                                .replaceAll(
-                                                                    '.', '')),
-                                                        'harga_jual': int.parse(
-                                                            priceController.text
-                                                                .replaceAll(
-                                                                    RegExp(
-                                                                        '[A-Za-z]'),
-                                                                    '')
-                                                                .replaceAll(
-                                                                    '.', '')),
-                                                      });
+                                                      if (_dropdownSupplier!
+                                                              .name !=
+                                                          null) {
+                                                        products
+                                                            .doc(
+                                                                selectedProduct!
+                                                                    .kode!)
+                                                            .update({
+                                                          'imageUrl': newImage
+                                                                  .isNotEmpty
+                                                              ? newImage
+                                                                  .map((e) => e)
+                                                                  .toList()
+                                                              : [oldImage],
+                                                          'nama': nameController
+                                                              .text,
+                                                          'deskripsi':
+                                                              descController
+                                                                  .text,
+                                                          'barcode':
+                                                              barController
+                                                                  .text,
+                                                          'harga_modal': int.parse(
+                                                              capitalController
+                                                                  .text
+                                                                  .replaceAll(
+                                                                      RegExp(
+                                                                          '[A-Za-z]'),
+                                                                      '')
+                                                                  .replaceAll(
+                                                                      '.', '')),
+                                                          'harga_jual': int.parse(
+                                                              priceController
+                                                                  .text
+                                                                  .replaceAll(
+                                                                      RegExp(
+                                                                          '[A-Za-z]'),
+                                                                      '')
+                                                                  .replaceAll(
+                                                                      '.', '')),
+                                                          'supplier': {
+                                                            'id':
+                                                                _dropdownSupplier!
+                                                                    .id,
+                                                            'daerah':
+                                                                _dropdownSupplier!
+                                                                    .zone,
+                                                            'nama':
+                                                                _dropdownSupplier!
+                                                                    .name,
+                                                          },
+                                                        });
+                                                      } else {
+                                                        products
+                                                            .doc(
+                                                                selectedProduct!
+                                                                    .kode!)
+                                                            .update({
+                                                          'imageUrl': newImage
+                                                                  .isNotEmpty
+                                                              ? newImage
+                                                                  .map((e) => e)
+                                                                  .toList()
+                                                              : [oldImage],
+                                                          'nama': nameController
+                                                              .text,
+                                                          'deskripsi':
+                                                              descController
+                                                                  .text,
+                                                          'barcode':
+                                                              barController
+                                                                  .text,
+                                                          'harga_modal': int.parse(
+                                                              capitalController
+                                                                  .text
+                                                                  .replaceAll(
+                                                                      RegExp(
+                                                                          '[A-Za-z]'),
+                                                                      '')
+                                                                  .replaceAll(
+                                                                      '.', '')),
+                                                          'harga_jual': int.parse(
+                                                              priceController
+                                                                  .text
+                                                                  .replaceAll(
+                                                                      RegExp(
+                                                                          '[A-Za-z]'),
+                                                                      '')
+                                                                  .replaceAll(
+                                                                      '.', '')),
+                                                          'supplier': {
+                                                            'id': selectedProduct!
+                                                                    .supplier![
+                                                                'id'],
+                                                            'daerah':
+                                                                selectedProduct!
+                                                                        .supplier![
+                                                                    'daerah'],
+                                                            'nama':
+                                                                selectedProduct!
+                                                                        .supplier![
+                                                                    'nama'],
+                                                          },
+                                                        });
+                                                      }
 
                                                       clear();
 
@@ -1403,6 +1511,7 @@ class _ProductPageState extends State<ProductPage> {
     capitalController.text = '';
     priceController.text = '';
     tagController.text = '';
+    _dropdownSupplier = SupplierModel();
   }
 }
 

@@ -4,9 +4,11 @@ import 'package:gerai_lam_app/models/employee_model.dart';
 import 'package:gerai_lam_app/models/filter_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
+import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/providers/filter_provider.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import '../theme.dart';
 
 class TransactionPage extends StatefulWidget {
@@ -19,22 +21,22 @@ class TransactionPage extends StatefulWidget {
 class _TransactionPageState extends State<TransactionPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  List<String> filterList = ['Harian', 'Mingguan', 'Bulanan', 'Tahunan'];
-  String? _dropdownFilterList;
+  List<String> filterList = ['Harian', 'Bulanan', 'Tahunan'];
+  String? _dropdownFilterList = "Harian";
 
   List<ProductModel> products = [];
-  String? _dropdownProduct;
+  ProductModel? _dropdownProduct;
 
   List<EmployeeModel> cashiers = [];
-  String? _dropdownCashier;
+  EmployeeModel? _dropdownCashier;
 
   List<SupplierModel> suppliers = [];
-  String? _dropdownSupplier;
+  SupplierModel? _dropdownSupplier;
 
   @override
   void initState() {
     super.initState();
-    getInit();
+    getDaily();
     getAll();
   }
 
@@ -73,13 +75,36 @@ class _TransactionPageState extends State<TransactionPage> {
             }));
   }
 
-  Future<void> getInit() async {
-    await Provider.of<FilterProvider>(context, listen: false).getStruk2();
+  Future<void> getDaily(
+      {ProductModel? product,
+      SupplierModel? supplier,
+      EmployeeModel? cashier}) async {
+    await Provider.of<FilterProvider>(context, listen: false).getDaily(
+        filterProduct: product,
+        filterSupplier: supplier,
+        filterChasier: cashier);
     setState(() {});
   }
 
-  Future<void> getDaily() async {
-    await Provider.of<FilterProvider>(context, listen: false).getDaily();
+  Future<void> getMonthly(
+      {ProductModel? product,
+      SupplierModel? supplier,
+      EmployeeModel? cashier}) async {
+    await Provider.of<FilterProvider>(context, listen: false).getMonthly(
+        filterProduct: product,
+        filterSupplier: supplier,
+        filterCashier: cashier);
+    setState(() {});
+  }
+
+  Future<void> getAnnual(
+      {ProductModel? product,
+      SupplierModel? supplier,
+      EmployeeModel? cashier}) async {
+    await Provider.of<FilterProvider>(context, listen: false).getAnnual(
+        filterProduct: product,
+        filterSupplier: supplier,
+        filterCashier: cashier);
     setState(() {});
   }
 
@@ -88,6 +113,8 @@ class _TransactionPageState extends State<TransactionPage> {
     FilterProvider fProvider = Provider.of<FilterProvider>(context);
     List<FilterModel>? trans = fProvider.dataTable;
     DTS dts = DTS(transDTS: trans);
+
+    List<FilterModel> reversedList = new List.from(trans.reversed);
 
     return Scaffold(
       drawer: DrawerWidget(),
@@ -133,9 +160,13 @@ class _TransactionPageState extends State<TransactionPage> {
                           .toList(),
                       onChanged: (selected) {
                         setState(() {
-                          _dropdownFilterList = selected as String?;
-                          getDaily();
+                          _dropdownFilterList = selected as String;
                         });
+                        getData(
+                          filter: selected as String,
+                          product: _dropdownProduct,
+                          supplier: _dropdownSupplier,
+                        );
                       }),
                 ),
                 SizedBox(width: 20),
@@ -151,7 +182,7 @@ class _TransactionPageState extends State<TransactionPage> {
                       ),
                       value: _dropdownProduct,
                       items: products
-                          .map((item) => DropdownMenuItem<String>(
+                          .map((item) => DropdownMenuItem<ProductModel>(
                                 child: Container(
                                   width: 200,
                                   child: Text(
@@ -159,13 +190,20 @@ class _TransactionPageState extends State<TransactionPage> {
                                     overflow: TextOverflow.clip,
                                   ),
                                 ),
-                                value: item.nama,
+                                value: item,
                               ))
                           .toList(),
                       onChanged: (selected) {
                         setState(() {
-                          _dropdownProduct = selected as String?;
+                          _dropdownProduct = selected as ProductModel;
                         });
+
+                        print(_dropdownFilterList);
+
+                        getData(
+                          filter: _dropdownFilterList,
+                          product: _dropdownProduct,
+                        );
                       }),
                 ),
                 SizedBox(width: 20),
@@ -181,7 +219,7 @@ class _TransactionPageState extends State<TransactionPage> {
                       ),
                       value: _dropdownCashier,
                       items: cashiers
-                          .map((item) => DropdownMenuItem<String>(
+                          .map((item) => DropdownMenuItem<EmployeeModel>(
                                 child: Container(
                                   width: 140,
                                   child: Text(
@@ -190,13 +228,20 @@ class _TransactionPageState extends State<TransactionPage> {
                                     maxLines: 1,
                                   ),
                                 ),
-                                value: item.name,
+                                value: item,
                               ))
                           .toList(),
                       onChanged: (selected) {
                         setState(() {
-                          _dropdownCashier = selected as String?;
+                          _dropdownCashier = selected as EmployeeModel;
                         });
+
+                        print(_dropdownFilterList);
+
+                        getData(
+                          filter: _dropdownFilterList,
+                          cashier: _dropdownCashier,
+                        );
                       }),
                 ),
                 SizedBox(width: 20),
@@ -212,7 +257,7 @@ class _TransactionPageState extends State<TransactionPage> {
                       value: _dropdownSupplier,
                       hint: Text("Semua Supplier"),
                       items: suppliers
-                          .map((item) => DropdownMenuItem<String>(
+                          .map((item) => DropdownMenuItem<SupplierModel>(
                                 child: Container(
                                   width: 140,
                                   child: Text(
@@ -221,45 +266,164 @@ class _TransactionPageState extends State<TransactionPage> {
                                     maxLines: 1,
                                   ),
                                 ),
-                                value: item.name,
+                                value: item,
                               ))
                           .toList(),
                       onChanged: (selected) {
                         setState(() {
-                          _dropdownSupplier = selected as String?;
+                          _dropdownSupplier = selected as SupplierModel;
                         });
+
+                        print(_dropdownSupplier);
+
+                        getData(
+                          filter: _dropdownFilterList,
+                          supplier: _dropdownSupplier,
+                        );
                       }),
                 ),
                 Expanded(child: Container()),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    primary: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                  ),
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.print,
-                  ),
-                  label: Text("Print PDF"),
-                )
+                IconButton(
+                    onPressed: () {
+                      refresh();
+                    },
+                    icon: Icon(Icons.refresh_outlined)),
+                // ElevatedButton.icon(
+                //   style: ElevatedButton.styleFrom(
+                //     primary: primaryColor,
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(8),
+                //     ),
+                //     padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                //   ),
+                //   onPressed: () {},
+                //   icon: Icon(
+                //     Icons.print,
+                //   ),
+                //   label: Text("Print PDF"),
+                // )
               ],
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PaginatedDataTable(
-                      header: const Text('Transaksi per Struk'),
-                      rowsPerPage: 10,
-                      columns: [
-                        DataColumn(label: Text('Tanggal')),
-                        DataColumn(label: Text('Total Barang')),
-                        DataColumn(label: Text('Total Transaksi')),
+                  Flexible(
+                    flex: 2,
+                    child: ListView(
+                      children: [
+                        PaginatedDataTable(
+                            header: const Text('Transaksi per Struk'),
+                            rowsPerPage: 10,
+                            columns: [
+                              DataColumn(label: Text('Tanggal')),
+                              DataColumn(
+                                  label: Text(_dropdownProduct != null
+                                      ? 'Harga Barang'
+                                      : 'Banyak Items')),
+                              DataColumn(label: Text('Total Barang')),
+                              DataColumn(label: Text('Total Transaksi')),
+                            ],
+                            source: dts),
                       ],
-                      source: dts),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        Flexible(
+                          child: Container(
+                            margin: EdgeInsets.only(left: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: SfCartesianChart(
+                              primaryXAxis: CategoryAxis(),
+                              // Chart title
+                              title: ChartTitle(
+                                text:
+                                    'Laporan ${_dropdownFilterList} \n Total Transaksi',
+                                textStyle: TextStyle(
+                                  color: Color.fromARGB(255, 74, 39, 136),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              // Enable legend
+                              legend: Legend(isVisible: false),
+                              // Enable tooltip
+                              tooltipBehavior: TooltipBehavior(),
+                              series: <LineSeries<FilterModel, String>>[
+                                LineSeries<FilterModel, String>(
+                                    name: 'Total Transaksi',
+                                    dataSource: reversedList,
+                                    xValueMapper: (FilterModel filter, _) =>
+                                        filter.column1.toString(),
+                                    yValueMapper: (FilterModel filter, _) =>
+                                        num.parse(filter.column4!
+                                            .replaceAll("Rp. ", "")
+                                            .replaceAll(".", "")
+                                            .toString()),
+                                    markerSettings:
+                                        MarkerSettings(isVisible: true),
+                                    width: 3,
+                                    dataLabelSettings:
+                                        DataLabelSettings(isVisible: true))
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Flexible(
+                          child: Container(
+                            margin: EdgeInsets.only(left: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: SfCartesianChart(
+                              primaryXAxis: CategoryAxis(),
+                              // Chart title
+                              title: ChartTitle(
+                                text:
+                                    'Laporan ${_dropdownFilterList} \n Total Barang',
+                                textStyle: TextStyle(
+                                  color: Color.fromARGB(255, 74, 39, 136),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              // Enable legend
+                              legend: Legend(isVisible: false),
+                              // Enable tooltip
+                              tooltipBehavior: TooltipBehavior(),
+                              series: <LineSeries<FilterModel, String>>[
+                                LineSeries<FilterModel, String>(
+                                    name: 'Total Barang',
+                                    color: greenColor,
+                                    dataSource: reversedList,
+                                    xValueMapper: (FilterModel filter, _) =>
+                                        filter.column1.toString(),
+                                    yValueMapper: (FilterModel filter, _) =>
+                                        num.parse(filter.column3!
+                                            .replaceAll("Rp. ", "")
+                                            .replaceAll(".", "")
+                                            .toString()),
+                                    markerSettings:
+                                        MarkerSettings(isVisible: true),
+                                    width: 3,
+                                    dataLabelSettings:
+                                        DataLabelSettings(isVisible: true))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -267,6 +431,33 @@ class _TransactionPageState extends State<TransactionPage> {
         ),
       ),
     );
+  }
+
+  void getData(
+      {String? filter,
+      ProductModel? product,
+      SupplierModel? supplier,
+      EmployeeModel? cashier}) {
+    switch (filter.toString()) {
+      case "Harian":
+        getDaily(product: product, supplier: supplier, cashier: cashier);
+        setState(() {});
+        break;
+      case "Bulanan":
+        getMonthly(product: product, supplier: supplier, cashier: cashier);
+        setState(() {});
+        break;
+      case "Tahunan":
+        getAnnual(product: product, supplier: supplier, cashier: cashier);
+        setState(() {});
+        break;
+      default:
+    }
+  }
+
+  void refresh() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => TransactionPage()));
   }
 }
 
@@ -291,6 +482,7 @@ class DTS extends DataTableSource {
       DataCell(Text('${transDTS![index].column1}')),
       DataCell(Text('${transDTS![index].column2}')),
       DataCell(Text('${transDTS![index].column3}')),
+      DataCell(Text('${transDTS![index].column4}')),
     ]);
   }
 

@@ -79,6 +79,7 @@ android {
         release {
             signingConfig signingConfigs.release
             manifestPlaceholders = [applicationName: "android.app.Application"]
+            
         }
     }
 }

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../theme.dart';
 
+// ignore: must_be_immutable
 class DialogStockIn extends StatefulWidget {
   StockInModel? stock;
   DialogStockIn({Key? key, this.stock}) : super(key: key);

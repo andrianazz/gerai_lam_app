@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../pages/online_transaction_page.dart';
 import '../theme.dart';
 
+// ignore: must_be_immutable
 class BayarDialog extends StatefulWidget {
   String? id;
   String? bayar;
@@ -426,6 +426,24 @@ class _BayarDialogState extends State<BayarDialog> {
                         MaterialPageRoute(
                           builder: (context) => OnlineTransactionPage(),
                         ),
+                      ),
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: Duration(milliseconds: 1000),
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            CircularProgressIndicator(),
+                            SizedBox(width: 20),
+                            Text(
+                              "Pembayaran sudah diperbaharui",
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        backgroundColor: primaryColor,
                       ),
                     );
                   },

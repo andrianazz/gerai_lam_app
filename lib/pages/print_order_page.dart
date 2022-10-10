@@ -1,20 +1,34 @@
 import 'package:bluetooth_print/bluetooth_print.dart';
 import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/models/product_model.dart';
+import 'package:gerai_lam_app/models/item_model.dart';
+import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/theme.dart';
 import 'package:intl/intl.dart';
 
-class PrintPage extends StatefulWidget {
-  final ProductModel? product;
-  final int? qty;
-  PrintPage({Key? key, this.product, this.qty}) : super(key: key);
+class PrintOrderPage extends StatefulWidget {
+  final TransactionModel? trans;
+  final String? alamat;
+  final List<ItemModel>? items;
+  final int? subtotal;
+  final int? ppn;
+  final int? ppl;
+
+  const PrintOrderPage(
+      {Key? key,
+      this.trans,
+      this.alamat,
+      this.items,
+      this.subtotal,
+      this.ppl,
+      this.ppn})
+      : super(key: key);
 
   @override
-  State<PrintPage> createState() => _PrintPageState();
+  State<PrintOrderPage> createState() => _PrintOrderPageState();
 }
 
-class _PrintPageState extends State<PrintPage> {
+class _PrintOrderPageState extends State<PrintOrderPage> {
   BluetoothPrint bluetoothPrint = BluetoothPrint.instance;
   bool _connected = false;
   BluetoothDevice? _device;
@@ -196,7 +210,7 @@ class _PrintPageState extends State<PrintPage> {
                             EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
                       child: Text(
-                        'Print Label (TSC)',
+                        'Print Struk',
                         style: primaryText.copyWith(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -219,37 +233,196 @@ class _PrintPageState extends State<PrintPage> {
   }
 
   Future<void> startPrint() async {
-    String harga = NumberFormat.simpleCurrency(
+    Map<String, dynamic> config = Map();
+    // config['width'] = 58; // 标签宽度，单位mm
+    // config['height'] = 20; // 标签高度，单位mm
+    // config['gap'] = 0;
+
+    String total = NumberFormat.simpleCurrency(
       decimalDigits: 0,
       name: 'Rp. ',
-    ).format(widget.product!.harga_jual);
-
-    Map<String, dynamic> config = Map();
-    config['width'] = 33; // 标签宽度，单位mm
-    config['height'] = 20; // 标签高度，单位mm
-    config['gap'] = 4;
+    ).format(widget.trans!.totalTransaction);
+    String bayar = NumberFormat.simpleCurrency(
+      decimalDigits: 0,
+      name: 'Rp. ',
+    ).format(widget.trans!.pay);
+    String kembalian = NumberFormat.simpleCurrency(
+      decimalDigits: 0,
+      name: 'Rp. ',
+    ).format(widget.trans!.pay! - widget.trans!.totalTransaction!);
+    var rupiah = NumberFormat.simpleCurrency(decimalDigits: 0, name: 'Rp. ');
 
     List<LineText> list = [];
     list.add(LineText(
-      type: LineText.TYPE_TEXT,
-      align: LineText.ALIGN_CENTER,
-      x: 45,
-      y: 4,
-      content: '${harga}',
-    ));
-    list.add(
-      LineText(
-        type: LineText.TYPE_BARCODE,
+        type: LineText.TYPE_TEXT,
+        content: 'Galeri LAM Riau',
+        weight: 1,
         align: LineText.ALIGN_CENTER,
-        x: 45,
-        // y: 40,
-        y: 30,
-        content: widget.product!.barcode.toString(),
-      ),
-    );
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${widget.alamat!}',
+        weight: 0,
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'www.galerilamriau.com',
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '================================',
+        align: LineText.ALIGN_RIGHT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'No Struk :',
+        weight: 0,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${widget.trans!.id}',
+        weight: 0,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '================================',
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(linefeed: 1));
 
-    for (var i = 0; i < (widget.qty)!.toInt(); i++) {
-      await bluetoothPrint.printLabel(config, list);
-    }
+    widget.items!.map((e) {
+      list.add(LineText(
+          type: LineText.TYPE_TEXT,
+          content: '${e.name}',
+          weight: 0,
+          align: LineText.ALIGN_LEFT,
+          linefeed: 1));
+
+      list.add(LineText(
+          type: LineText.TYPE_TEXT,
+          content: '${rupiah.format(e.price)} x${e.quantity} ',
+          align: LineText.ALIGN_LEFT,
+          weight: 0,
+          linefeed: 1));
+
+      list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${rupiah.format(e.total)}',
+        align: LineText.ALIGN_RIGHT,
+        weight: 1,
+        linefeed: 1,
+      ));
+    }).toList();
+
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '--------------------------------',
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+      type: LineText.TYPE_TEXT,
+      content: 'Subtotal',
+      weight: 0,
+      align: LineText.ALIGN_LEFT,
+      linefeed: 1,
+    ));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${rupiah.format(widget.subtotal)}',
+        weight: 0,
+        align: LineText.ALIGN_RIGHT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'PPN ${widget.ppn}%',
+        weight: 0,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${rupiah.format(widget.ppn! / 100 * (widget.subtotal!))}',
+        weight: 0,
+        align: LineText.ALIGN_RIGHT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'PPL ${widget.ppl}%',
+        weight: 0,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${rupiah.format(widget.ppl! / 100 * (widget.subtotal!))}',
+        weight: 0,
+        align: LineText.ALIGN_RIGHT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '--------------------------------',
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'Total',
+        weight: 1,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${total}',
+        weight: 1,
+        align: LineText.ALIGN_RIGHT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'Bayar',
+        weight: 1,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '${bayar}',
+        weight: 1,
+        align: LineText.ALIGN_RIGHT,
+        linefeed: 1));
+
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: '--------------------------------',
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'Kembalian',
+        weight: 1,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
+    list.add(LineText(
+      type: LineText.TYPE_TEXT,
+      content: '${kembalian}',
+      weight: 1,
+      align: LineText.ALIGN_RIGHT,
+      linefeed: 1,
+    ));
+    list.add(LineText(linefeed: 1));
+
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'Terima Kasih',
+        align: LineText.ALIGN_CENTER,
+        weight: 0,
+        linefeed: 1));
+    list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: 'Pelayanan menjadi prioritas kami',
+        weight: 0,
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1));
+
+    await bluetoothPrint.printReceipt(config, list);
   }
 }

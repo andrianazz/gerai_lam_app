@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gerai_lam_app/models/item_model.dart';
 
 class DayRecapModel {
   DateTime? tanggal;
-  num? totalProduk;
+  int? totalProduk;
   num? totalTransaksi;
   List<ItemModel>? items;
 
@@ -14,9 +15,9 @@ class DayRecapModel {
   });
 
   DayRecapModel.fromJson(Map<String, dynamic> json) {
-    tanggal = json['tanggal'].toDate();
-    totalProduk = num.parse(json['total_produk']);
-    totalTransaksi = num.parse(json['total_transaksi']);
+    tanggal = (json['tanggal'] as Timestamp).toDate();
+    totalProduk = json['total_produk'];
+    totalTransaksi = json['total_transaksi'];
     items = json['items']
         .map<ItemModel>((item) => ItemModel.fromJson(item))
         .toList();

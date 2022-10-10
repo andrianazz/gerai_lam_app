@@ -196,7 +196,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
         child: Column(
           children: [
             Container(
-              margin: const EdgeInsets.only(top: 30),
+              margin: const EdgeInsets.only(top: 30, bottom: 40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -628,6 +628,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 40),
                 ],
               ),
             ),

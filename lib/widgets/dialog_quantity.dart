@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import '../theme.dart';
 
+// ignore: must_be_immutable
 class DialogQuantity extends StatefulWidget {
   ItemModel? item;
   DialogQuantity({Key? key, this.item}) : super(key: key);

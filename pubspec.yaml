@@ -53,6 +53,7 @@ dependencies:
   blue_thermal_printer: ^1.1.2
   barcode: ^2.2.1
   bluetooth_print: ^3.0.1
+  syncfusion_flutter_charts: ^20.3.47
 
 
 dev_dependencies:

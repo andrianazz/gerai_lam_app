@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../theme.dart';
 
+// ignore: must_be_immutable
 class DetailDialog extends StatefulWidget {
   TransactionModel? trans;
   DetailDialog({Key? key, this.trans}) : super(key: key);

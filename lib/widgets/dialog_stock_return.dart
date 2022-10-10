@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../theme.dart';
 
+// ignore: must_be_immutable
 class DialogStockReturn extends StatefulWidget {
   StockReturnModel? stock;
   DialogStockReturn({Key? key, this.stock}) : super(key: key);

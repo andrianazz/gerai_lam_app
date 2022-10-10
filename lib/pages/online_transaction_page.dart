@@ -37,6 +37,7 @@ class _OnlineTransactionPageState extends State<OnlineTransactionPage> {
   Widget build(BuildContext context) {
     TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
     List<TransactionModel>? trans = tProvider.transactions;
+
     DTS dts = DTS(
       transDTS: trans,
       context: context,
@@ -211,6 +212,24 @@ class DTS extends DataTableSource {
                         .update({'status': 'Selesai'});
 
                     transDTS![index].status = "Selesai";
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: Duration(milliseconds: 1000),
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            CircularProgressIndicator(),
+                            SizedBox(width: 20),
+                            Text(
+                              "Status Transaksi Selesai",
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        backgroundColor: primaryColor,
+                      ),
+                    );
 
                     notifyListeners();
                   },
