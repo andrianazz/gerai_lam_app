@@ -444,6 +444,7 @@ class _OngkirDialogState extends State<OngkirDialog> {
                     transactions.doc(widget.id).update({
                       'ongkir': int.parse(ongkirController.toString()),
                       'setOngkir': true,
+                      'status': "Bayar",
                       'total_transaksi': FieldValue.increment(
                         num.parse(ongkirController.toString()),
                       )
