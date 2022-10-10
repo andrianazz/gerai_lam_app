@@ -423,21 +423,6 @@ class _OngkirDialogState extends State<OngkirDialog> {
                       ))
                     });
 
-                    transactions.doc(widget.id).update({
-                      'ongkir': int.parse(ongkirController.toString()),
-                      'setOngkir': true,
-                      'total_transaksi': FieldValue.increment(
-                        num.parse(ongkirController.toString()),
-                      )
-                    }).whenComplete(
-                      () => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OnlineTransactionPage(),
-                        ),
-                      ),
-                    );
-
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         duration: Duration(milliseconds: 1000),
@@ -453,6 +438,21 @@ class _OngkirDialogState extends State<OngkirDialog> {
                           ],
                         ),
                         backgroundColor: primaryColor,
+                      ),
+                    );
+
+                    transactions.doc(widget.id).update({
+                      'ongkir': int.parse(ongkirController.toString()),
+                      'setOngkir': true,
+                      'total_transaksi': FieldValue.increment(
+                        num.parse(ongkirController.toString()),
+                      )
+                    }).whenComplete(
+                      () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OnlineTransactionPage(),
+                        ),
                       ),
                     );
                   },

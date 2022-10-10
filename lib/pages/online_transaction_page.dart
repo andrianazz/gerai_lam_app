@@ -29,7 +29,6 @@ class _OnlineTransactionPageState extends State<OnlineTransactionPage> {
   Future<void> getInit() async {
     await Provider.of<TransactionProvider>(context, listen: false)
         .getTransactionOnline();
-
     setState(() {});
   }
 

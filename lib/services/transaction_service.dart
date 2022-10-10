@@ -35,8 +35,7 @@ class TransactionService {
         });
       });
 
-      transactions.sort((a, b) => a.date!.compareTo(b.date!));
-      transactions.sort((a, b) => a.status!.compareTo(b.status!));
+      transactions.sort((a, b) => b.date!.compareTo(a.date!));
 
       return transactions;
     } catch (e) {

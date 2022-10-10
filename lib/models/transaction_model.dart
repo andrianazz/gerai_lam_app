@@ -13,6 +13,7 @@ class TransactionModel {
   String? payment;
   int? ongkir;
   String? status;
+  bool? setOngkir;
   String? keterangan;
   String? resi;
 
@@ -29,6 +30,7 @@ class TransactionModel {
     this.payment,
     this.ongkir,
     this.status,
+    this.setOngkir,
     this.keterangan,
     this.resi,
   });
@@ -48,6 +50,7 @@ class TransactionModel {
     payment = json['payment'];
     ongkir = json['ongkir'];
     status = json['status'];
+    setOngkir = json['setOngkir'] ?? false;
     keterangan = json['keterangan'];
     resi = json['resi'] ?? '';
   }
@@ -66,6 +69,7 @@ class TransactionModel {
       'payment': payment,
       'ongkir': ongkir,
       'status': status,
+      'setOngkir': setOngkir,
       'keterangan': keterangan,
       'resi': resi,
     };
