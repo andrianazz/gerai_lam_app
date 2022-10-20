@@ -187,51 +187,56 @@ class DTS extends DataTableSource {
         DataCell(
           transDTS![index].status.toString() != "Selesai"
               ? ElevatedButton(
-                  onPressed: () {
-                    String? bayar = transDTS![index].pay.toString();
-                    String? id = transDTS![index].id;
+                  onPressed: transDTS![index].setOngkir == true
+                      ? () {
+                          String? bayar = transDTS![index].pay.toString();
+                          String? id = transDTS![index].id;
 
-                    showDialog(
-                      context: context,
-                      builder: (_) => BayarDialog(
-                        id: id,
-                        bayar: bayar,
-                      ),
-                    );
-                  },
+                          showDialog(
+                            context: context,
+                            builder: (_) => BayarDialog(
+                              id: id,
+                              bayar: bayar,
+                            ),
+                          );
+                        }
+                      : null,
                   child: Text('Bayar'))
               : ElevatedButton(onPressed: null, child: Text('Bayar')),
         ),
         DataCell(
           transDTS![index].status.toString() != "Selesai"
               ? ElevatedButton(
-                  onPressed: () {
-                    transStore
-                        .doc('${transDTS![index].id.toString()}')
-                        .update({'status': 'Selesai'});
+                  onPressed: transDTS![index].pay! >=
+                          transDTS![index].totalTransaction!
+                      ? () {
+                          transStore
+                              .doc('${transDTS![index].id.toString()}')
+                              .update({'status': 'Selesai'});
 
-                    transDTS![index].status = "Selesai";
+                          transDTS![index].status = "Selesai";
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: Duration(milliseconds: 1000),
-                        content: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            CircularProgressIndicator(),
-                            SizedBox(width: 20),
-                            Text(
-                              "Status Transaksi Selesai",
-                              textAlign: TextAlign.center,
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              duration: Duration(milliseconds: 1000),
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  CircularProgressIndicator(),
+                                  SizedBox(width: 20),
+                                  Text(
+                                    "Status Transaksi Selesai",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: primaryColor,
                             ),
-                          ],
-                        ),
-                        backgroundColor: primaryColor,
-                      ),
-                    );
+                          );
 
-                    notifyListeners();
-                  },
+                          notifyListeners();
+                        }
+                      : null,
                   child: Text('Selesai'))
               : ElevatedButton(onPressed: null, child: Text('Selesai')),
         ),

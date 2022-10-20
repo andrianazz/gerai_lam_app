@@ -278,69 +278,68 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                 ),
                                 SizedBox(width: 20),
                                 ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: primaryColor,
-                                      fixedSize: Size(145, 50),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: primaryColor,
+                                    fixedSize: Size(145, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          duration:
-                                              Duration(milliseconds: 1000),
-                                          content: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: const [
-                                              CircularProgressIndicator(),
-                                              SizedBox(width: 20),
-                                              Text(
-                                                "Menambahkan Promo. Mohon Tunggu .....",
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ],
-                                          ),
-                                          backgroundColor: primaryColor,
+                                  ),
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        duration: Duration(milliseconds: 1000),
+                                        content: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: const [
+                                            CircularProgressIndicator(),
+                                            SizedBox(width: 20),
+                                            Text(
+                                              "Menambahkan Promo. Mohon Tunggu .....",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
                                         ),
-                                      );
+                                        backgroundColor: primaryColor,
+                                      ),
+                                    );
 
-                                      notifications.doc(document).set({
-                                        'code': document,
-                                        'title': titleController.text,
-                                        'description': descController.text,
-                                        'supplier': _dropdownSupplier!.name,
-                                        'id_supplier': _dropdownSupplier!.email,
-                                        'date': DateTime.now(),
-                                        'isRead': false,
-                                      });
+                                    notifications.doc(document).set({
+                                      'code': document,
+                                      'title': titleController.text,
+                                      'description': descController.text,
+                                      'supplier': _dropdownSupplier!.name,
+                                      'id_supplier': _dropdownSupplier!.email,
+                                      'date': DateTime.now(),
+                                      'isRead': false,
+                                    });
 
-                                      sendNotificationMessage(
-                                          titleController.text,
-                                          descController.text,
-                                          _dropdownSupplier!.token!);
+                                    sendNotificationMessage(
+                                        titleController.text,
+                                        descController.text,
+                                        _dropdownSupplier!.token!);
 
-                                      Navigator.pop(context);
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.save,
+                                    Navigator.pop(context);
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.save,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        "SIMPAN",
+                                        style: primaryText.copyWith(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          "SIMPAN",
-                                          style: primaryText.copyWith(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      ],
-                                    ))
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ],
                             )
                           ],

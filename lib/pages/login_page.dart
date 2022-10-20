@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -181,7 +184,9 @@ class _LoginPageState extends State<LoginPage> {
                           primary: greenColor,
                           padding: EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10)),
-                      onPressed: () {},
+                      onPressed: () {
+                        exit(0);
+                      },
                       child: Text(
                         "KELUAR APLIKASI",
                         style: primaryText.copyWith(

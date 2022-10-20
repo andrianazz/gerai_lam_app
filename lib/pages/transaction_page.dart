@@ -4,8 +4,8 @@ import 'package:gerai_lam_app/models/employee_model.dart';
 import 'package:gerai_lam_app/models/filter_model.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/models/supplier_model.dart';
-import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/providers/filter_provider.dart';
+import 'package:gerai_lam_app/widgets/dialog_detail_transaction.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -112,7 +112,7 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     FilterProvider fProvider = Provider.of<FilterProvider>(context);
     List<FilterModel>? trans = fProvider.dataTable;
-    DTS dts = DTS(transDTS: trans);
+    DTS dts = DTS(transDTS: trans, context: context);
 
     List<FilterModel> reversedList = new List.from(trans.reversed);
 
@@ -288,20 +288,6 @@ class _TransactionPageState extends State<TransactionPage> {
                       refresh();
                     },
                     icon: Icon(Icons.refresh_outlined)),
-                // ElevatedButton.icon(
-                //   style: ElevatedButton.styleFrom(
-                //     primary: primaryColor,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(8),
-                //     ),
-                //     padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                //   ),
-                //   onPressed: () {},
-                //   icon: Icon(
-                //     Icons.print,
-                //   ),
-                //   label: Text("Print PDF"),
-                // )
               ],
             ),
             SizedBox(height: 20),
@@ -324,6 +310,7 @@ class _TransactionPageState extends State<TransactionPage> {
                                       : 'Banyak Items')),
                               DataColumn(label: Text('Total Barang')),
                               DataColumn(label: Text('Total Transaksi')),
+                              DataColumn(label: Text('Detail')),
                             ],
                             source: dts),
                       ],
@@ -474,7 +461,8 @@ Widget columnAppbarRight(context) {
 
 class DTS extends DataTableSource {
   List<FilterModel>? transDTS;
-  DTS({this.transDTS});
+  BuildContext? context;
+  DTS({this.transDTS, this.context});
 
   @override
   DataRow? getRow(int index) {
@@ -483,6 +471,22 @@ class DTS extends DataTableSource {
       DataCell(Text('${transDTS![index].column2}')),
       DataCell(Text('${transDTS![index].column3}')),
       DataCell(Text('${transDTS![index].column4}')),
+      DataCell(
+        IconButton(
+          onPressed: () {
+            showDialog(
+              context: context!,
+              builder: (context) => DialogDetailTransaction(
+                dailyTrans: transDTS![index].column5!,
+              ),
+            );
+          },
+          icon: Icon(
+            Icons.list_alt_outlined,
+            color: greenColor,
+          ),
+        ),
+      ),
     ]);
   }
 

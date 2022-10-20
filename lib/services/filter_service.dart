@@ -160,7 +160,7 @@ class FilterService {
             if (trans[i].items![j].name == filterProduct.nama) {
               trans[i]
                   .items!
-                  .firstWhere((element) => element.name == filterProduct.nama);
+                  .removeWhere((element) => element.name != filterProduct.nama);
 
               filterTrans.add(trans[i]);
             }
@@ -174,8 +174,8 @@ class FilterService {
         for (var i = 0; i < trans.length; i++) {
           for (var j = 0; j < trans[i].items!.length; j++) {
             if (trans[i].items![j].idSupplier == filterSupplier.id) {
-              trans[i].items!.firstWhere(
-                  (element) => element.idSupplier == filterSupplier.id);
+              trans[i].items!.removeWhere(
+                  (element) => element.idSupplier != filterSupplier.id);
 
               filterTrans.add(trans[i]);
             }
@@ -225,12 +225,14 @@ class FilterService {
 
       if (filterProduct != null) {
         daily.forEach((doc) {
+          doc.totalTransaction = doc.items![0].quantity! * doc.items![0].price!;
           struk.add(FilterModel(
             column1: ' ${doc.tanggal} ' + monthString[doc.bulan!.toInt()],
             column2: rupiah.format(doc.items![0].price),
             column3: angka.format(doc.items![0].quantity),
             column4:
                 rupiah.format(doc.items![0].quantity! * doc.items![0].price!),
+            column5: doc,
           ));
         });
       } else {
@@ -240,6 +242,7 @@ class FilterService {
             column2: angka.format(doc.items!.length),
             column3: angka.format(doc.totalProducts),
             column4: rupiah.format(doc.totalTransaction),
+            column5: doc,
           ));
         });
       }
@@ -293,7 +296,7 @@ class FilterService {
             if (trans[i].items![j].name == filterProduct.nama) {
               trans[i]
                   .items!
-                  .firstWhere((value) => value.name == filterProduct.nama);
+                  .removeWhere((value) => value.name != filterProduct.nama);
 
               filterTrans.add(trans[i]);
             }
@@ -307,8 +310,8 @@ class FilterService {
         for (var i = 0; i < trans.length; i++) {
           for (var j = 0; j < trans[i].items!.length; j++) {
             if (trans[i].items![j].idSupplier == filterSupplier.id) {
-              trans[i].items!.firstWhere(
-                  (element) => element.idSupplier == filterSupplier.id);
+              trans[i].items!.removeWhere(
+                  (element) => element.idSupplier != filterSupplier.id);
 
               filterTrans.add(trans[i]);
             }
@@ -340,6 +343,7 @@ class FilterService {
             column3: angka.format(doc.items![0].quantity),
             column4:
                 rupiah.format(doc.items![0].quantity! * doc.items![0].price!),
+            column5: DailyTransactionModel.fromMonthly(doc),
           ));
         });
       } else {
@@ -349,6 +353,7 @@ class FilterService {
             column2: angka.format(doc.items!.length),
             column3: angka.format(doc.totalProducts),
             column4: rupiah.format(doc.totalTransaction),
+            column5: DailyTransactionModel.fromMonthly(doc),
           ));
         });
       }
@@ -433,6 +438,7 @@ class FilterService {
             column3: angka.format(doc.items![0].quantity),
             column4:
                 rupiah.format(doc.items![0].quantity! * doc.items![0].price!),
+            column5: DailyTransactionModel.fromAnnual(doc),
           ));
         });
       } else {
@@ -442,6 +448,7 @@ class FilterService {
             column2: angka.format(doc.items!.length),
             column3: angka.format(doc.totalProducts),
             column4: rupiah.format(doc.totalTransaction),
+            column5: DailyTransactionModel.fromAnnual(doc),
           ));
         });
       }

@@ -158,6 +158,7 @@ class _PrintPageState extends State<PrintPage> {
                                   if (_device != null &&
                                       _device!.address != null) {
                                     await bluetoothPrint.connect(_device!);
+                                    setState(() {});
                                   } else {
                                     setState(() {
                                       tips = 'please select device';
@@ -184,6 +185,7 @@ class _PrintPageState extends State<PrintPage> {
                           onPressed: _connected
                               ? () async {
                                   await bluetoothPrint.disconnect();
+                                  setState(() {});
                                 }
                               : null,
                         ),

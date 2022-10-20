@@ -1,4 +1,6 @@
+import 'package:gerai_lam_app/models/annual_trans_model.dart';
 import 'package:gerai_lam_app/models/item_model.dart';
+import 'package:gerai_lam_app/models/monthly_transaction_model.dart';
 import 'package:gerai_lam_app/models/transaction_model.dart';
 
 class DailyTransactionModel {
@@ -6,54 +8,58 @@ class DailyTransactionModel {
   int? tahun;
   int? bulan;
   int? tanggal;
-  String? idCostumer;
-  String? address;
   List<ItemModel>? items;
   int? totalProducts;
   int? pay;
   int? totalTransaction;
   String? idCashier;
-  String? payment;
   int? ongkir;
-  String? status;
-  String? keterangan;
-  String? resi;
 
   DailyTransactionModel({
     this.id,
     this.tahun,
     this.bulan,
     this.tanggal,
-    this.idCostumer,
-    this.address,
     this.items,
     this.totalProducts,
     this.pay,
     this.totalTransaction,
     this.idCashier,
-    this.payment,
     this.ongkir,
-    this.status,
-    this.keterangan,
-    this.resi,
   });
 
   DailyTransactionModel.fromTrans(TransactionModel trans) {
     this.tahun = trans.date?.year;
     this.bulan = trans.date?.month;
     this.tanggal = trans.date?.day;
-    // this.idCostumer = trans.idCustomer;
-    //this.address = trans.idCustomer;
     this.items = trans.items;
     this.totalProducts = trans.totalProducts;
     this.pay = trans.pay;
     this.totalTransaction = trans.totalTransaction;
     this.idCashier = trans.idCashier;
-    //this.payment = trans.idCustomer;
     this.ongkir = trans.ongkir;
-    //this.status = trans.idCustomer;
-    //this.keterangan = trans.idCustomer;
-    //this.resi = trans.idCustomer;
+  }
+
+  DailyTransactionModel.fromMonthly(MonthlyTransactionModel trans) {
+    this.tahun = trans.tahun;
+    this.bulan = trans.bulan;
+    this.items = trans.items;
+    this.totalProducts = trans.totalProducts;
+    this.pay = trans.pay;
+    this.totalTransaction = trans.totalTransaction;
+    this.idCashier = trans.idCashier;
+    this.ongkir = trans.ongkir;
+  }
+
+  DailyTransactionModel.fromAnnual(AnnualTransModel trans) {
+    this.tahun = trans.tahun;
+    this.bulan = trans.bulan;
+    this.items = trans.items;
+    this.totalProducts = trans.totalProducts;
+    this.pay = trans.pay;
+    this.totalTransaction = trans.totalTransaction;
+    this.idCashier = trans.idCashier;
+    this.ongkir = trans.ongkir;
   }
 
   DailyTransactionModel.fromJson(Map<String, dynamic> json) {
@@ -61,8 +67,7 @@ class DailyTransactionModel {
     tahun = json['tahun'];
     bulan = json['bulan'];
     tanggal = json['tanggal'];
-    idCostumer = json['id_customer'];
-    address = json['address'];
+
     items = json['items']
         .map<ItemModel>((item) => ItemModel.fromJson(item))
         .toList();
@@ -70,11 +75,7 @@ class DailyTransactionModel {
     pay = json['bayar'];
     totalTransaction = json['total_transaksi'];
     idCashier = json['id_kasir'];
-    payment = json['payment'];
     ongkir = json['ongkir'];
-    status = json['status'];
-    keterangan = json['keterangan'];
-    resi = json['resi'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
@@ -83,18 +84,12 @@ class DailyTransactionModel {
       'tahun': tahun,
       'bulan': bulan,
       'tanggal': tanggal,
-      'id_customer': idCostumer,
-      'address': address,
       'items': items!.map((item) => item.toJson()).toList(),
       'total_produk': totalProducts,
       'bayar': pay,
       'total_transaksi': totalTransaction,
       'id_kasir': idCashier,
-      'payment': payment,
       'ongkir': ongkir,
-      'status': status,
-      'keterangan': keterangan,
-      'resi': resi,
     };
   }
 
