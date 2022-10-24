@@ -9,6 +9,7 @@ import 'package:gerai_lam_app/pages/product_page.dart';
 import 'package:gerai_lam_app/pages/promo_page.dart';
 import 'package:gerai_lam_app/pages/settings_page.dart';
 import 'package:gerai_lam_app/pages/staff_page.dart';
+import 'package:gerai_lam_app/pages/stock_cashier_page.dart';
 import 'package:gerai_lam_app/pages/stock_page.dart';
 import 'package:gerai_lam_app/pages/supplier_page.dart';
 import 'package:gerai_lam_app/pages/transaction_page.dart';
@@ -166,6 +167,24 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       ),
                     ),
                   ),
+                ],
+              ),
+              ExpansionTile(
+                childrenPadding: EdgeInsets.only(left: 20),
+                leading: const Icon(
+                  Icons.handshake,
+                  color: Colors.white,
+                ),
+                collapsedIconColor: Colors.white,
+                title: Text(
+                  'Serah Terima',
+                  style: primaryText.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                children: [
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -177,7 +196,27 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                     },
                     child: ListTile(
                       title: Text(
-                        "Stok Produk",
+                        "Stok Produk Supplier",
+                        style: primaryText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StockCashierPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        "Stok Produk Kasir",
                         style: primaryText.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

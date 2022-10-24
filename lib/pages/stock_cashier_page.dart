@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/models/stock_cashier_model.dart';
+import 'package:gerai_lam_app/pages/add_stock_cashier_page.dart';
 import 'package:gerai_lam_app/pages/add_stock_page.dart';
+import 'package:gerai_lam_app/pages/invoice_supplier_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -8,14 +11,14 @@ import '../theme.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-class StockPage extends StatefulWidget {
-  const StockPage({Key? key}) : super(key: key);
+class StockCashierPage extends StatefulWidget {
+  const StockCashierPage({Key? key}) : super(key: key);
 
   @override
-  State<StockPage> createState() => _StockPageState();
+  State<StockCashierPage> createState() => _StockCashierPageState();
 }
 
-class _StockPageState extends State<StockPage> {
+class _StockCashierPageState extends State<StockCashierPage> {
   @override
   void Initstate() {
     super.initState();
@@ -25,12 +28,12 @@ class _StockPageState extends State<StockPage> {
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference stocks = firestore.collection('stock');
+    CollectionReference stockCashiers = firestore.collection('stock_cashier');
 
     return Scaffold(
       drawer: DrawerWidget(),
       appBar: AppBar(
-        title: Text("Stok Produk UMKM"),
+        title: Text("Stok Produk Kasir"),
         backgroundColor: primaryColor,
         flexibleSpace: SafeArea(
           child: Container(
@@ -127,7 +130,7 @@ class _StockPageState extends State<StockPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AddStockPage(),
+                              builder: (context) => const AddStockCashierPage(),
                             ),
                           );
                         },
@@ -144,8 +147,9 @@ class _StockPageState extends State<StockPage> {
                 ),
                 SizedBox(height: 50),
                 StreamBuilder<QuerySnapshot>(
-                    stream:
-                        stocks.orderBy("date_in", descending: true).snapshots(),
+                    stream: stockCashiers
+                        .orderBy("date_in", descending: true)
+                        .snapshots(),
                     builder: (_, snapshot) {
                       if (snapshot.hasData) {
                         return Column(
@@ -153,67 +157,81 @@ class _StockPageState extends State<StockPage> {
                             Map<String, dynamic> stock =
                                 e.data() as Map<String, dynamic>;
 
+                            StockCashierModel stockCashier =
+                                StockCashierModel.fromJson(stock);
+
                             var date = (stock['date_in'] as Timestamp).toDate();
                             String tanggal =
                                 DateFormat('dd MMMM yyyy').format(date);
 
-                            return Card(
-                              child: Container(
-                                height: 60,
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 150,
-                                      child: Text(
-                                        tanggal.toString(),
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InvoiceSupplierPage(
+                                        stockCashier: stockCashier),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                child: Container(
+                                  height: 60,
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 200,
+                                        child: Text(
+                                          tanggal.toString(),
+                                          style: primaryText.copyWith(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                      Text(
+                                        stock['cashier_in']['name'],
                                         style: primaryText.copyWith(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
+                                          color: textGreyColor,
                                         ),
-                                        maxLines: 1,
                                       ),
-                                    ),
-                                    Text(
-                                      stock['supplier']['nama'],
-                                      style: primaryText.copyWith(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Text(
-                                      stock['stock_in'].length.toString(),
-                                      style: primaryText.copyWith(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Text(
-                                      stock['stock_return'].length.toString(),
-                                      style: primaryText.copyWith(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: textGreyColor,
-                                      ),
-                                    ),
-                                    Chip(
-                                      backgroundColor: greenColor,
-                                      label: Text(
-                                        'Selesai',
+                                      Text(
+                                        stock['stock_in'].length.toString(),
                                         style: primaryText.copyWith(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white,
+                                          color: textGreyColor,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        stock['stock_return'].length.toString(),
+                                        style: primaryText.copyWith(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: textGreyColor,
+                                        ),
+                                      ),
+                                      Chip(
+                                        backgroundColor: greenColor,
+                                        label: Text(
+                                          'Selesai',
+                                          style: primaryText.copyWith(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
