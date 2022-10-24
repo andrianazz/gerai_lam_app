@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/costumer_page.dart';
+import 'package:gerai_lam_app/pages/daily_transaction_page.dart';
 import 'package:gerai_lam_app/pages/login_page.dart';
 import 'package:gerai_lam_app/pages/notification_page.dart';
 import 'package:gerai_lam_app/pages/online_transaction_page.dart';
@@ -203,6 +204,26 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   ),
                 ),
                 children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DailyTransactionPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        "Transaksi Harian",
+                        style: primaryText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(

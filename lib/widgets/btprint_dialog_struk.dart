@@ -8,14 +8,14 @@ import 'package:gerai_lam_app/theme.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class BTPrintDialog extends StatefulWidget {
+class BTPrintDialogStruk extends StatefulWidget {
   final TransactionModel? trans;
   final String? alamat;
   final List<ItemModel>? items;
   final int? subtotal;
   final int? ppn;
   final int? ppl;
-  const BTPrintDialog({
+  const BTPrintDialogStruk({
     Key? key,
     this.trans,
     this.alamat,
@@ -26,10 +26,10 @@ class BTPrintDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<BTPrintDialog> createState() => _BTPrintDialogState();
+  State<BTPrintDialogStruk> createState() => _BTPrintDialogStrukState();
 }
 
-class _BTPrintDialogState extends State<BTPrintDialog> {
+class _BTPrintDialogStrukState extends State<BTPrintDialogStruk> {
   List<BluetoothDevice> devices = [];
   BluetoothDevice? selectedDevice;
   BlueThermalPrinter printer = BlueThermalPrinter.instance;
@@ -48,9 +48,6 @@ class _BTPrintDialogState extends State<BTPrintDialog> {
 
   @override
   Widget build(BuildContext context) {
-    TransactionProvider tProvider = Provider.of<TransactionProvider>(context);
-    CartProvider cartProvider = Provider.of<CartProvider>(context);
-
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -73,8 +70,7 @@ class _BTPrintDialogState extends State<BTPrintDialog> {
                   .map(
                     (e) => GestureDetector(
                       onTap: () {
-                        testPrint(
-                            e, tProvider.transactions[0], cartProvider.carts);
+                        testPrint(e, widget.trans!, widget.items!);
 
                         Navigator.pop(context);
                       },

@@ -125,6 +125,57 @@ class DialogDetailTransaction extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "TOP 3 Produk",
+                    style: primaryText.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: dailyTrans!.items!
+                        .map((e) {
+                          dailyTrans!.items!.sort(
+                              (a, b) => b.quantity!.compareTo(a.quantity!));
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                e.name!,
+                                style: primaryText.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                e.quantity!.toString(),
+                                style: primaryText.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          );
+                        })
+                        .take(3)
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 30),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cartColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
