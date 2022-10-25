@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_cashier_model.dart';
-import 'package:gerai_lam_app/models/stock_model.dart';
 import 'package:intl/intl.dart';
 
 import '../theme.dart';
 
-class InvoiceSupplierPage extends StatelessWidget {
-  StockModel? stockSupplier;
-  InvoiceSupplierPage({Key? key, this.stockSupplier}) : super(key: key);
+class InvoiceCashierPage extends StatelessWidget {
+  StockCashierModel? stockCashier;
+  InvoiceCashierPage({Key? key, this.stockCashier}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,7 @@ class InvoiceSupplierPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Invoice UMKM"),
+        title: Text("Invoice Kasir"),
         backgroundColor: primaryColor,
         flexibleSpace: SafeArea(
           child: Container(
@@ -95,7 +94,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            "Kepada Yth ${stockSupplier!.supplier}",
+                            "Kepada Yth ${stockCashier!.cashier_in!.name}",
                             style: primaryText.copyWith(
                               fontSize: 20,
                             ),
@@ -134,7 +133,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                           Expanded(
                               flex: 6,
                               child: Text(
-                                ": ${stockSupplier!.noFaktur}",
+                                ": ${stockCashier!.noFaktur}",
                                 style: primaryText.copyWith(
                                   fontSize: 20,
                                 ),
@@ -154,7 +153,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                           Expanded(
                               flex: 6,
                               child: Text(
-                                ': ${f.format(stockSupplier!.date_in!)}',
+                                ': ${f.format(stockCashier!.date_in!)}',
                                 style: primaryText.copyWith(
                                   fontSize: 20,
                                 ),
@@ -162,7 +161,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 20),
-                      stockSupplier!.stock_in!.length > 0
+                      stockCashier!.stock_in!.length > 0
                           ? Text(
                               "STOK MASUK",
                               style: primaryText.copyWith(
@@ -171,7 +170,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                               ),
                             )
                           : SizedBox(),
-                      stockSupplier!.stock_in!.length > 0
+                      stockCashier!.stock_in!.length > 0
                           ? Table(
                               border: TableBorder.all(),
                               columnWidths: {
@@ -198,17 +197,17 @@ class InvoiceSupplierPage extends StatelessWidget {
                                   isCenter: true,
                                 ),
                                 for (int i = 0;
-                                    i < stockSupplier!.stock_in!.length;
+                                    i < stockCashier!.stock_in!.length;
                                     i++)
                                   buildRow(
                                     [
-                                      '${stockSupplier!.stock_in![i].nama}',
+                                      '${stockCashier!.stock_in![i].nama}',
                                       '',
-                                      '${stockSupplier!.stock_in![i].nama}',
-                                      '${stockSupplier!.stock_in![i].stok}',
+                                      '${stockCashier!.stock_in![i].nama}',
+                                      '${stockCashier!.stock_in![i].stok}',
                                       'PCS',
-                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockSupplier!.stock_in![i].harga)}",
-                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockSupplier!.stock_in![i].total)}",
+                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockCashier!.stock_in![i].harga)}",
+                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockCashier!.stock_in![i].total)}",
                                     ],
                                     isCenter: true,
                                   ),
@@ -216,7 +215,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                             )
                           : SizedBox(),
                       SizedBox(height: 20),
-                      stockSupplier!.stock_out!.length > 0
+                      stockCashier!.stock_out!.length > 0
                           ? Text(
                               "STOK KELUAR",
                               style: primaryText.copyWith(
@@ -225,7 +224,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                               ),
                             )
                           : SizedBox(),
-                      stockSupplier!.stock_out!.length > 0
+                      stockCashier!.stock_out!.length > 0
                           ? Table(
                               border: TableBorder.all(),
                               columnWidths: {
@@ -252,24 +251,24 @@ class InvoiceSupplierPage extends StatelessWidget {
                                   isCenter: true,
                                 ),
                                 for (int i = 0;
-                                    i < stockSupplier!.stock_out!.length;
+                                    i < stockCashier!.stock_out!.length;
                                     i++)
                                   buildRow(
                                     [
-                                      '${stockSupplier!.stock_out![i].nama}',
+                                      '${stockCashier!.stock_out![i].nama}',
                                       '',
-                                      '${stockSupplier!.stock_out![i].nama}',
-                                      '${stockSupplier!.stock_out![i].stok}',
+                                      '${stockCashier!.stock_out![i].nama}',
+                                      '${stockCashier!.stock_out![i].stok}',
                                       'PCS',
-                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockSupplier!.stock_out![i].harga)}",
-                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockSupplier!.stock_out![i].total)}",
+                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockCashier!.stock_out![i].harga)}",
+                                      "${NumberFormat.currency(name: 'Rp. ', decimalDigits: 0).format(stockCashier!.stock_out![i].total)}",
                                     ],
                                     isCenter: true,
                                   ),
                               ],
                             )
                           : SizedBox(),
-                      stockSupplier!.stock_out!.length > 0
+                      stockCashier!.stock_out!.length > 0
                           ? Table(
                               columnWidths: {
                                 0: FractionColumnWidth(0.20),
@@ -281,10 +280,10 @@ class InvoiceSupplierPage extends StatelessWidget {
                               children: [
                                 buildRow([
                                   'Keterangan',
-                                  '* ${stockSupplier!.description}',
+                                  '* ${stockCashier!.description}',
                                   '',
                                   'Total sub : \nDP : \nTotal Faktur : ',
-                                  "${rupiah.format(stockSupplier!.stock_out!.map((expense) => expense.total).reduce((value, element) => value! + element!))} \n0 \n${rupiah.format(stockSupplier!.stock_out!.map((expense) => expense.total).reduce((value, element) => value! + element!))}"
+                                  "${rupiah.format(stockCashier!.stock_out!.map((expense) => expense.total).reduce((value, element) => value! + element!))} \n0 \n${rupiah.format(stockCashier!.stock_out!.map((expense) => expense.total).reduce((value, element) => value! + element!))}"
                                 ])
                               ],
                             )
@@ -303,7 +302,7 @@ class InvoiceSupplierPage extends StatelessWidget {
                           buildRow([
                             '',
                             'WAN IRZAWATI \nManager Operasional',
-                            '${stockSupplier!.supplier}'
+                            '${stockCashier!.cashier_in!.name}'
                           ], isCenter: true),
                         ],
                       )

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_in_model.dart';
 import 'package:gerai_lam_app/models/stock_model.dart';
@@ -30,18 +29,18 @@ class StockProvider with ChangeNotifier {
     String faktur,
     String deskripsi,
     DateTime dateIn,
-    TimeOfDay timeIn,
+    String timeIn,
     String supplier,
   ) async {
     _stocks.add(
       StockModel(
           noFaktur: faktur,
           description: deskripsi,
-          dateIn: dateIn,
-          timeIn: timeIn,
+          date_in: dateIn,
+          time_in: timeIn,
           supplier: supplier,
-          stockIn: stockIn,
-          stockReturn: stockReturn),
+          stock_in: stockIn,
+          stock_out: stockReturn),
     );
   }
 }

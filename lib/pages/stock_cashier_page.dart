@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_cashier_model.dart';
 import 'package:gerai_lam_app/pages/add_stock_cashier_page.dart';
 import 'package:gerai_lam_app/pages/add_stock_page.dart';
+import 'package:gerai_lam_app/pages/invoice_cashier_page.dart';
 import 'package:gerai_lam_app/pages/invoice_supplier_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
@@ -169,7 +170,7 @@ class _StockCashierPageState extends State<StockCashierPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => InvoiceSupplierPage(
+                                    builder: (context) => InvoiceCashierPage(
                                         stockCashier: stockCashier),
                                   ),
                                 );
