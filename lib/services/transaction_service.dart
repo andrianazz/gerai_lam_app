@@ -43,4 +43,27 @@ class TransactionService {
       return [];
     }
   }
+
+  Future<List<TransactionModel>> getTransactionsPending() async {
+    List<TransactionModel> transactions = [];
+    try {
+      await firestore
+          .collection("transactions")
+          .where('status', isEqualTo: 'Belum Bayar')
+          .get()
+          .then((snapshot) {
+        snapshot.docs.forEach((doc) {
+          transactions.add(
+              TransactionModel.fromJson(doc.data() as Map<String, dynamic>));
+        });
+      });
+
+      transactions.sort((a, b) => b.date!.compareTo(a.date!));
+
+      return transactions;
+    } catch (e) {
+      print(e.toString());
+      return [];
+    }
+  }
 }

@@ -643,6 +643,9 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                       int.parse(bayar.text),
                       total,
                       idKasir,
+                      subTotal,
+                      (ppn / 100 * subTotal).floor(),
+                      (ppl / 100 * subTotal).floor(),
                     );
 
                     Navigator.push(
@@ -891,6 +894,44 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    mtdPayment = "BELUM BAYAR";
+                  });
+                },
+                child: Container(
+                  width: 163,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (mtdPayment == "BELUM BAYAR")
+                          ? primaryColor
+                          : greyColor,
+                      width: 5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "BELUM BAYAR",
+                      style: primaryText.copyWith(
+                        fontSize: 20,
+                        color: (mtdPayment == "BELUM BAYAR")
+                            ? primaryColor
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

@@ -16,6 +16,7 @@ class CartProvider with ChangeNotifier {
 
   addCart(ProductModel product) {
     _carts.add(ItemModel(
+      barcode: product.barcode,
       id: _carts.length,
       idProduk: product.id,
       idSupplier: product.supplier!['id'],

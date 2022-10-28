@@ -5,6 +5,7 @@ import 'package:gerai_lam_app/pages/login_page.dart';
 import 'package:gerai_lam_app/pages/notification_page.dart';
 import 'package:gerai_lam_app/pages/online_transaction_page.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
+import 'package:gerai_lam_app/pages/pending_transaction_page.dart';
 import 'package:gerai_lam_app/pages/product_page.dart';
 import 'package:gerai_lam_app/pages/promo_page.dart';
 import 'package:gerai_lam_app/pages/settings_page.dart';
@@ -295,6 +296,26 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                     child: ListTile(
                       title: Text(
                         "Transaksi Online",
+                        style: primaryText.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PendingTransactionPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        "Transaksi Pending",
                         style: primaryText.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

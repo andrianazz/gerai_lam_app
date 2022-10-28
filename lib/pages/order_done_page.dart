@@ -4,7 +4,6 @@ import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/order_page.dart';
-import 'package:gerai_lam_app/pages/print_order_page.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:gerai_lam_app/widgets/btprint_dialog.dart';
 import 'package:intl/intl.dart';
@@ -598,16 +597,21 @@ class _OrderDonePageState extends State<OrderDonePage> {
                     .set({
                   'id': tProvider.transactions[0].id,
                   'tanggal': tProvider.transactions[0].date,
+                  'tgl_bayar': tProvider.transactions[0].payDate,
                   'id_customer': tProvider.transactions[0].idCostumer,
                   'address': tProvider.transactions[0].address,
                   'items': cartProvider.carts.map((e) => e.toJson()).toList(),
                   'total_produk': tProvider.transactions[0].totalProducts,
+                  'ppn': tProvider.transactions[0].ppn,
+                  'ppl': tProvider.transactions[0].ppl,
+                  'subtotal': tProvider.transactions[0].subtotal,
                   'bayar': tProvider.transactions[0].pay,
                   'total_transaksi': tProvider.transactions[0].totalTransaction,
                   'id_kasir': tProvider.transactions[0].idCashier,
                   'payment': tProvider.transactions[0].payment,
                   'ongkir': tProvider.transactions[0].ongkir,
                   'status': tProvider.transactions[0].status,
+                  'setOngkir': true,
                   'keterangan': tProvider.transactions[0].keterangan,
                 });
 

@@ -1,21 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/pages/pending_transaction_page.dart';
 import 'package:intl/intl.dart';
-
-import '../pages/online_transaction_page.dart';
 import '../theme.dart';
 
 // ignore: must_be_immutable
-class BayarDialog extends StatefulWidget {
+class BayarPendingDialog extends StatefulWidget {
   String? id;
   String? bayar;
-  BayarDialog({Key? key, this.id, this.bayar}) : super(key: key);
+  BayarPendingDialog({Key? key, this.id, this.bayar}) : super(key: key);
 
   @override
-  State<BayarDialog> createState() => _BayarDialogState();
+  State<BayarPendingDialog> createState() => _BayarPendingDialogState();
 }
 
-class _BayarDialogState extends State<BayarDialog> {
+class _BayarPendingDialogState extends State<BayarPendingDialog> {
   String? bayarController;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -419,13 +418,13 @@ class _BayarDialogState extends State<BayarDialog> {
                   onTap: () {
                     transactions.doc(widget.id).update({
                       'bayar': int.parse(bayarController.toString()),
-                      'status': "Bayar",
+                      'status': "Selesai",
                       'tgl_bayar': DateTime.now(),
                     }).whenComplete(
                       () => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => OnlineTransactionPage(),
+                          builder: (context) => PendingTransactionPage(),
                         ),
                       ),
                     );

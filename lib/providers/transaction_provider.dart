@@ -39,8 +39,27 @@ class TransactionProvider with ChangeNotifier {
     }
   }
 
+  Future<void> getTransactionPending() async {
+    try {
+      List<TransactionModel> transactions =
+          await TransactionService().getTransactionsPending();
+      _transactions = transactions;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   addTransactions(List<ItemModel> carts, String payment, int ongkir, int bayar,
-      int total, String id) async {
+      int total, String id, int subtotal, int ppn, int ppl) async {
+    String status = "Selesai";
+    DateTime? payDate;
+
+    if (payment == "BELUM BAYAR") {
+      status = 'Belum Bayar';
+    } else {
+      payDate = DateTime.now();
+    }
+
     CollectionReference ref = firestore.collection('transactions');
     ref.get().then((snap) {
       _transactions.add(
@@ -49,13 +68,17 @@ class TransactionProvider with ChangeNotifier {
           idCashier: id,
           payment: payment,
           date: DateTime.now(),
+          payDate: payDate,
           address: 'JL. Diponegoro, Pekanbaru 28127',
           idCostumer: "0",
           items: carts,
           totalProducts: carts.length,
+          ppn: ppn,
+          ppl: ppl,
+          subtotal: subtotal,
           pay: bayar,
           totalTransaction: total,
-          status: 'Selesai',
+          status: status,
           ongkir: ongkir,
           keterangan: '',
         ),
