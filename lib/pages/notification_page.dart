@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/add_notification_page.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
 
 class NotificationPage extends StatelessWidget {
-  NotificationPage({Key? key}) : super(key: key);
+  String? nameKasir;
+  NotificationPage({Key? key, this.nameKasir}) : super(key: key);
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
@@ -177,6 +179,14 @@ class NotificationPage extends StatelessWidget {
                                                       notifications
                                                           .doc(promo['code'])
                                                           .delete();
+
+                                                      LogService().addLog(
+                                                        nama: nameKasir,
+                                                        desc:
+                                                            "Menghapus Notifikasi",
+                                                        data_new: {},
+                                                        data_old: promo,
+                                                      );
 
                                                       Navigator.pop(context);
                                                     },

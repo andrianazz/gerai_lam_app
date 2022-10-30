@@ -355,7 +355,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => NotificationPage(),
+                      builder: (context) => NotificationPage(
+                        nameKasir: namaEmployee,
+                      ),
                     ),
                   );
                 },
