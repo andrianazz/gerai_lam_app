@@ -37,8 +37,8 @@ class MonthlyTransactionModel {
   });
 
   MonthlyTransactionModel.fromTrans(TransactionModel trans) {
-    this.tahun = trans.date?.year;
-    this.bulan = trans.date?.month;
+    this.tahun = trans.payDate?.year;
+    this.bulan = trans.payDate?.month;
     //this.idCostumer = trans.idCustomer;
     //this.address = trans.idCustomer;
     this.items = trans.items;

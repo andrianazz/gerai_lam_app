@@ -240,7 +240,9 @@ class FilterService {
           struk.add(FilterModel(
             column1: ' ${doc.tanggal} ' + monthString[doc.bulan!.toInt()],
             column2: angka.format(doc.items!.length),
-            column3: angka.format(doc.totalProducts),
+            column3: angka.format(doc.items
+                ?.map((e) => e.quantity)
+                .reduce((value, element) => value! + element!)),
             column4: rupiah.format(doc.totalTransaction),
             column5: doc,
           ));
@@ -351,7 +353,9 @@ class FilterService {
           struk.add(FilterModel(
             column1: monthString[doc.bulan!.toInt()] + ' ${doc.tahun}',
             column2: angka.format(doc.items!.length),
-            column3: angka.format(doc.totalProducts),
+            column3: angka.format(doc.items
+                ?.map((e) => e.quantity)
+                .reduce((value, element) => value! + element!)),
             column4: rupiah.format(doc.totalTransaction),
             column5: DailyTransactionModel.fromMonthly(doc),
           ));
@@ -446,7 +450,9 @@ class FilterService {
           struk.add(FilterModel(
             column1: '${doc.tahun}',
             column2: angka.format(doc.items!.length),
-            column3: angka.format(doc.totalProducts),
+            column3: angka.format(doc.items
+                ?.map((e) => e.quantity)
+                .reduce((value, element) => value! + element!)),
             column4: rupiah.format(doc.totalTransaction),
             column5: DailyTransactionModel.fromAnnual(doc),
           ));
@@ -467,9 +473,9 @@ class FilterService {
     // Loops
     for (int i = 0; i < trans.length; i++) {
       // Get tahun dan bulan
-      int? tahun = trans[i].date?.year;
-      int? bulan = trans[i].date?.month;
-      int? tanggal = trans[i].date?.day;
+      int? tahun = trans[i].payDate?.year;
+      int? bulan = trans[i].payDate?.month;
+      int? tanggal = trans[i].payDate?.day;
       // print('${trans[i].id} => $tahun $bulan');
       // get index if exist
       int index = -1;
@@ -502,8 +508,8 @@ class FilterService {
     // Loops
     for (int i = 0; i < trans.length; i++) {
       // Get tahun dan bulan
-      int? tahun = trans[i].date?.year;
-      int? bulan = trans[i].date?.month;
+      int? tahun = trans[i].payDate?.year;
+      int? bulan = trans[i].payDate?.month;
       // print('${trans[i].id} => $tahun $bulan');
       // get index if exist
       int index = -1;
@@ -537,8 +543,8 @@ class FilterService {
     // Loops
     for (int i = 0; i < trans.length; i++) {
       // Get tahun dan bulan
-      int? tahun = trans[i].date?.year;
-      int? bulan = trans[i].date?.month;
+      int? tahun = trans[i].payDate?.year;
+      int? bulan = trans[i].payDate?.month;
       // print('${trans[i].id} => $tahun $bulan');
       // get index if exist
       int index = -1;

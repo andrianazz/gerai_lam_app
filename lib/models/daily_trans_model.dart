@@ -29,9 +29,9 @@ class DailyTransactionModel {
   });
 
   DailyTransactionModel.fromTrans(TransactionModel trans) {
-    this.tahun = trans.date?.year;
-    this.bulan = trans.date?.month;
-    this.tanggal = trans.date?.day;
+    this.tahun = trans.payDate?.year;
+    this.bulan = trans.payDate?.month;
+    this.tanggal = trans.payDate?.day;
     this.items = trans.items;
     this.totalProducts = trans.totalProducts;
     this.pay = trans.pay;
@@ -67,7 +67,6 @@ class DailyTransactionModel {
     tahun = json['tahun'];
     bulan = json['bulan'];
     tanggal = json['tanggal'];
-
     items = json['items']
         .map<ItemModel>((item) => ItemModel.fromJson(item))
         .toList();
