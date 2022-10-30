@@ -6,6 +6,7 @@ import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/providers/stock_in_provider.dart';
 import 'package:gerai_lam_app/providers/stock_provider.dart';
 import 'package:gerai_lam_app/providers/stock_return_provider.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:gerai_lam_app/widgets/dialog_stock_in.dart';
 import 'package:gerai_lam_app/widgets/dialog_stock_return.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
@@ -1136,6 +1137,32 @@ class _AddStockCashierPageState extends State<AddStockCashierPage> {
                                             .map((e) => e.toJson())
                                             .toList(),
                                       });
+
+                                      LogService().addLog(
+                                        nama: nameKasir,
+                                        desc: "Menambah Serah Terima Kasir",
+                                        data_old: {},
+                                        data_new: {
+                                          'noFaktur': noFaktur.text,
+                                          'cashier_in': {
+                                            'id': _dropdownEmployees!.id,
+                                            'name': _dropdownEmployees!.name,
+                                          },
+                                          'cashier_out': {
+                                            'id': idKasir,
+                                            'name': nameKasir,
+                                          },
+                                          'date_in': dateIn,
+                                          'time_in': timeIn.toString(),
+                                          'description': descController.text,
+                                          'stock_in': stockIn.stockIns
+                                              .map((e) => e.toJson())
+                                              .toList(),
+                                          'stock_return': stockOut.stockRetn
+                                              .map((e) => e.toJson())
+                                              .toList(),
+                                        },
+                                      );
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(

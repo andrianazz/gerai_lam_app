@@ -1,14 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/pages/pending_transaction_page.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 
 // ignore: must_be_immutable
 class BayarPendingDialog extends StatefulWidget {
   String? id;
   String? bayar;
-  BayarPendingDialog({Key? key, this.id, this.bayar}) : super(key: key);
+  TransactionModel? trans;
+  BayarPendingDialog({Key? key, this.id, this.bayar, this.trans})
+      : super(key: key);
 
   @override
   State<BayarPendingDialog> createState() => _BayarPendingDialogState();
@@ -16,12 +21,23 @@ class BayarPendingDialog extends StatefulWidget {
 
 class _BayarPendingDialogState extends State<BayarPendingDialog> {
   String? bayarController;
+  String nameKasir = "";
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
     bayarController = widget.bayar;
+    getPref();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
   }
 
   @override
@@ -428,6 +444,16 @@ class _BayarPendingDialogState extends State<BayarPendingDialog> {
                         ),
                       ),
                     );
+
+                    LogService().addLog(
+                        nama: nameKasir,
+                        desc: "Mengubah Bayar di Pending",
+                        data_old: widget.trans?.toJson(),
+                        data_new: {
+                          'bayar': int.parse(bayarController.toString()),
+                          'status': "Selesai",
+                          'tgl_bayar': DateTime.now(),
+                        });
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

@@ -8,9 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/product_model.dart';
 import 'package:gerai_lam_app/pages/print_page.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,6 +31,8 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   int idProduct = 0;
 
+  String namaKasir = "";
+
   // List<BluetoothDevice> devices = [];
   // BluetoothDevice? selectedDevice;
   // BlueThermalPrinter printer = BlueThermalPrinter.instance;
@@ -37,6 +41,7 @@ class _ProductPageState extends State<ProductPage> {
   void initState() {
     super.initState();
     getSuppliers();
+    getPref();
     // getDevices();
   }
 
@@ -54,6 +59,15 @@ class _ProductPageState extends State<ProductPage> {
         .then((snapshot) => snapshot.docs.forEach((doc) {
               supplier.add(SupplierModel.fromJson(doc.data()));
             }));
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      namaKasir = name;
+    });
   }
 
   bool _addProduct = false;
@@ -158,6 +172,7 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     CollectionReference products = firestore.collection('product');
+    CollectionReference tableLog = firestore.collection("logs");
 
     return Scaffold(
       drawer: const DrawerWidget(),
@@ -771,6 +786,64 @@ class _ProductPageState extends State<ProductPage> {
                                                                     .name,
                                                           },
                                                         });
+
+                                                        LogService().addLog(
+                                                            nama: namaKasir,
+                                                            desc:
+                                                                "Merubah data produk",
+                                                            data_old:
+                                                                selectedProduct
+                                                                    ?.toJson(),
+                                                            data_new: {
+                                                              'imageUrl': newImage
+                                                                      .isNotEmpty
+                                                                  ? newImage
+                                                                      .map(
+                                                                          (e) =>
+                                                                              e)
+                                                                      .toList()
+                                                                  : [oldImage],
+                                                              'nama':
+                                                                  nameController
+                                                                      .text,
+                                                              'deskripsi':
+                                                                  descController
+                                                                      .text,
+                                                              'barcode':
+                                                                  barController
+                                                                      .text,
+                                                              'harga_modal': int.parse(
+                                                                  capitalController
+                                                                      .text
+                                                                      .replaceAll(
+                                                                          RegExp(
+                                                                              '[A-Za-z]'),
+                                                                          '')
+                                                                      .replaceAll(
+                                                                          '.',
+                                                                          '')),
+                                                              'harga_jual': int.parse(
+                                                                  priceController
+                                                                      .text
+                                                                      .replaceAll(
+                                                                          RegExp(
+                                                                              '[A-Za-z]'),
+                                                                          '')
+                                                                      .replaceAll(
+                                                                          '.',
+                                                                          '')),
+                                                              'supplier': {
+                                                                'id':
+                                                                    _dropdownSupplier!
+                                                                        .id,
+                                                                'daerah':
+                                                                    _dropdownSupplier!
+                                                                        .zone,
+                                                                'nama':
+                                                                    _dropdownSupplier!
+                                                                        .name,
+                                                              }
+                                                            });
                                                       } else {
                                                         products
                                                             .doc(
@@ -823,6 +896,64 @@ class _ProductPageState extends State<ProductPage> {
                                                                     'nama'],
                                                           },
                                                         });
+
+                                                        LogService().addLog(
+                                                            nama: namaKasir,
+                                                            desc:
+                                                                "Merubah data produk",
+                                                            data_old:
+                                                                selectedProduct
+                                                                    ?.toJson(),
+                                                            data_new: {
+                                                              'imageUrl': newImage
+                                                                      .isNotEmpty
+                                                                  ? newImage
+                                                                      .map(
+                                                                          (e) =>
+                                                                              e)
+                                                                      .toList()
+                                                                  : [oldImage],
+                                                              'nama':
+                                                                  nameController
+                                                                      .text,
+                                                              'deskripsi':
+                                                                  descController
+                                                                      .text,
+                                                              'barcode':
+                                                                  barController
+                                                                      .text,
+                                                              'harga_modal': int.parse(
+                                                                  capitalController
+                                                                      .text
+                                                                      .replaceAll(
+                                                                          RegExp(
+                                                                              '[A-Za-z]'),
+                                                                          '')
+                                                                      .replaceAll(
+                                                                          '.',
+                                                                          '')),
+                                                              'harga_jual': int.parse(
+                                                                  priceController
+                                                                      .text
+                                                                      .replaceAll(
+                                                                          RegExp(
+                                                                              '[A-Za-z]'),
+                                                                          '')
+                                                                      .replaceAll(
+                                                                          '.',
+                                                                          '')),
+                                                              'supplier': {
+                                                                'id': selectedProduct!
+                                                                        .supplier![
+                                                                    'id'],
+                                                                'daerah': selectedProduct!
+                                                                        .supplier![
+                                                                    'daerah'],
+                                                                'nama': selectedProduct!
+                                                                        .supplier![
+                                                                    'nama'],
+                                                              },
+                                                            });
                                                       }
 
                                                       clear();
@@ -902,6 +1033,14 @@ class _ProductPageState extends State<ProductPage> {
                                                     products
                                                         .doc(product['kode'])
                                                         .delete();
+
+                                                    LogService().addLog(
+                                                      nama: namaKasir,
+                                                      desc: "Menghapus Produk",
+                                                      data_old: selectedProduct
+                                                          ?.toJson(),
+                                                      data_new: {},
+                                                    );
 
                                                     Navigator.pop(context);
                                                   },

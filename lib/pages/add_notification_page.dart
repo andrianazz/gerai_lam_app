@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/notification_model.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import '../theme.dart';
@@ -17,6 +19,7 @@ class AddNotificationPage extends StatefulWidget {
 
 class _AddNotificationPageState extends State<AddNotificationPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  String nameKasir = "";
 
   List<NotificationModel> suppliers = [];
   NotificationModel? _dropdownSupplier;
@@ -51,6 +54,16 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
   void initState() {
     super.initState();
     getLength();
+    getPref();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
   }
 
   getLength() {
@@ -314,6 +327,21 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                       'date': DateTime.now(),
                                       'isRead': false,
                                     });
+
+                                    LogService().addLog(
+                                      nama: nameKasir,
+                                      desc: "Menambah Notifikasi",
+                                      data_old: {},
+                                      data_new: {
+                                        'code': document,
+                                        'title': titleController.text,
+                                        'description': descController.text,
+                                        'supplier': _dropdownSupplier!.name,
+                                        'id_supplier': _dropdownSupplier!.email,
+                                        'date': DateTime.now(),
+                                        'isRead': false,
+                                      },
+                                    );
 
                                     sendNotificationMessage(
                                         titleController.text,

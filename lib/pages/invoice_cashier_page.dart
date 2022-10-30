@@ -268,26 +268,6 @@ class InvoiceCashierPage extends StatelessWidget {
                               ],
                             )
                           : SizedBox(),
-                      stockCashier!.stock_out!.length > 0
-                          ? Table(
-                              columnWidths: {
-                                0: FractionColumnWidth(0.20),
-                                1: FractionColumnWidth(0.36),
-                                2: FractionColumnWidth(0.08),
-                                3: FractionColumnWidth(0.20),
-                                4: FractionColumnWidth(0.20),
-                              },
-                              children: [
-                                buildRow([
-                                  'Keterangan',
-                                  '* ${stockCashier!.description}',
-                                  '',
-                                  'Total sub : \nDP : \nTotal Faktur : ',
-                                  "${rupiah.format(stockCashier!.stock_out!.map((expense) => expense.total).reduce((value, element) => value! + element!))} \n0 \n${rupiah.format(stockCashier!.stock_out!.map((expense) => expense.total).reduce((value, element) => value! + element!))}"
-                                ])
-                              ],
-                            )
-                          : SizedBox(),
                       SizedBox(height: 30),
                       Table(
                         columnWidths: {

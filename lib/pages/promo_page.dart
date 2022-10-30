@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/pages/add_promo_page.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme.dart';
 
@@ -14,6 +16,23 @@ class PromoPage extends StatefulWidget {
 }
 
 class _PromoPageState extends State<PromoPage> {
+  String nameKasir = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getPref();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -193,6 +212,13 @@ class _PromoPageState extends State<PromoPage> {
                                                               .doc(
                                                                   promo['code'])
                                                               .delete();
+
+                                                          LogService().addLog(
+                                                              nama: nameKasir,
+                                                              desc:
+                                                                  "Menghapus Artikel Promo",
+                                                              data_new: {},
+                                                              data_old: promo);
 
                                                           Navigator.pop(
                                                               context);

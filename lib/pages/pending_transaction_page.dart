@@ -7,12 +7,14 @@ import 'package:gerai_lam_app/widgets/bayar_pending_dialog.dart';
 import 'package:gerai_lam_app/widgets/detail_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
 import '../widgets/ongkir_dialog.dart';
 
 class PendingTransactionPage extends StatefulWidget {
-  PendingTransactionPage({Key? key}) : super(key: key);
+  TransactionModel? trans;
+  PendingTransactionPage({Key? key, this.trans}) : super(key: key);
 
   @override
   State<PendingTransactionPage> createState() => _PendingTransactionPageState();
@@ -178,6 +180,7 @@ class DTS extends DataTableSource {
                             builder: (_) => BayarPendingDialog(
                               id: id,
                               bayar: bayar,
+                              trans: transDTS![index],
                             ),
                           );
                         }

@@ -10,8 +10,10 @@ import 'package:gerai_lam_app/widgets/dialog_stock_return.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/supplier_model.dart';
+import '../services/log_service.dart';
 import '../theme.dart';
 
 class AddStockPage extends StatefulWidget {
@@ -22,6 +24,7 @@ class AddStockPage extends StatefulWidget {
 }
 
 class _AddStockPageState extends State<AddStockPage> {
+  String nameKasir = "";
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   TextEditingController descController = TextEditingController();
@@ -30,6 +33,15 @@ class _AddStockPageState extends State<AddStockPage> {
   void initState() {
     super.initState();
     getSuppliers();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
   }
 
   Future<void> getSuppliers() async {
@@ -1125,6 +1137,29 @@ class _AddStockPageState extends State<AddStockPage> {
                                             .map((e) => e.toJson())
                                             .toList(),
                                       });
+
+                                      LogService().addLog(
+                                          nama: nameKasir,
+                                          desc:
+                                              "Menambah Serah Terima Supplier",
+                                          data_old: {},
+                                          data_new: {
+                                            'noFaktur': noFaktur.text,
+                                            'supplier': {
+                                              'id': _dropdownSupplier!.id,
+                                              'nama': _dropdownSupplier!.name,
+                                              'daerah': _dropdownSupplier!.zone
+                                            },
+                                            'date_in': dateIn,
+                                            'time_in': timeIn.toString(),
+                                            'description': descController.text,
+                                            'stock_in': stockIn.stockIns
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                            'stock_return': stockOut.stockRetn
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          });
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(

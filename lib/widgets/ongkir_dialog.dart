@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/pages/online_transaction_page.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme.dart';
 
@@ -9,13 +12,15 @@ import '../theme.dart';
 class OngkirDialog extends StatefulWidget {
   String? id;
   String? ongkir;
-  OngkirDialog({Key? key, this.id, this.ongkir}) : super(key: key);
+  TransactionModel? trans;
+  OngkirDialog({Key? key, this.id, this.ongkir, this.trans}) : super(key: key);
 
   @override
   State<OngkirDialog> createState() => _OngkirDialogState();
 }
 
 class _OngkirDialogState extends State<OngkirDialog> {
+  String nameKasir = "";
   String? ongkirController;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -23,6 +28,16 @@ class _OngkirDialogState extends State<OngkirDialog> {
   void initState() {
     super.initState();
     ongkirController = widget.ongkir!;
+    getPref();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
   }
 
   @override
@@ -455,6 +470,20 @@ class _OngkirDialogState extends State<OngkirDialog> {
                           builder: (context) => OnlineTransactionPage(),
                         ),
                       ),
+                    );
+
+                    LogService().addLog(
+                      nama: nameKasir,
+                      desc: 'Mengubah Ongkir dengan ID',
+                      data_old: widget.trans?.toJson(),
+                      data_new: {
+                        'ongkir': int.parse(ongkirController.toString()),
+                        'setOngkir': true,
+                        'status': "Bayar",
+                        'total_transaksi': FieldValue.increment(
+                          num.parse(ongkirController.toString()),
+                        )
+                      },
                     );
                   },
                   child: Container(

@@ -425,7 +425,7 @@ class _DailyTransactionPageState extends State<DailyTransactionPage> {
                             ),
                           ),
                           Text(
-                            "${subTotal}",
+                            "${selectedTrans!.subtotal}",
                             style: primaryText.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.w100,
@@ -437,14 +437,14 @@ class _DailyTransactionPageState extends State<DailyTransactionPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "PPN(${ppn}%)",
+                            "PPN",
                             style: primaryText.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.w100,
                             ),
                           ),
                           Text(
-                            "${pajakPPN}",
+                            "${selectedTrans!.ppn}",
                             style: primaryText.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.w100,
@@ -456,14 +456,14 @@ class _DailyTransactionPageState extends State<DailyTransactionPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "PPL(${ppl}%)",
+                            "PPL",
                             style: primaryText.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.w100,
                             ),
                           ),
                           Text(
-                            "${pajakPPL}",
+                            "${selectedTrans!.ppl}",
                             style: primaryText.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.w100,

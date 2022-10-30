@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gerai_lam_app/services/log_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../theme.dart';
@@ -16,12 +18,23 @@ class AddPromoPage extends StatefulWidget {
 
 class _AddPromoPageState extends State<AddPromoPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  String nameKasir = "";
   int promoLength = 0;
 
   @override
   void initState() {
     super.initState();
     getLength();
+    getPref();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
   }
 
   getLength() {
@@ -332,6 +345,20 @@ class _AddPromoPageState extends State<AddPromoPage> {
                                         'publikasi': false,
                                         'date': DateTime.now(),
                                       });
+
+                                      LogService().addLog(
+                                        nama: nameKasir,
+                                        desc: "Menambahkan Artikel Promo",
+                                        data_old: {},
+                                        data_new: {
+                                          'code': document,
+                                          'imageUrl': newImage ?? oldImage,
+                                          'title': titleController.text,
+                                          'description': descController.text,
+                                          'publikasi': false,
+                                          'date': DateTime.now(),
+                                        },
+                                      );
 
                                       Navigator.pop(context);
                                     },

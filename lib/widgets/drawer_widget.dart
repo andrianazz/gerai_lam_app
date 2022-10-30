@@ -275,7 +275,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                     },
                     child: ListTile(
                       title: Text(
-                        "Rincian Transaksi",
+                        "Rekapan Transaksi",
                         style: primaryText.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

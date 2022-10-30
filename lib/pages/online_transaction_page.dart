@@ -6,6 +6,8 @@ import 'package:gerai_lam_app/widgets/bayar_dialog.dart';
 import 'package:gerai_lam_app/widgets/detail_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/log_service.dart';
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
 import '../widgets/ongkir_dialog.dart';
@@ -20,10 +22,22 @@ class OnlineTransactionPage extends StatefulWidget {
 class _OnlineTransactionPageState extends State<OnlineTransactionPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  String nameKasir = "";
+
   @override
   void initState() {
     super.initState();
     getInit();
+    getPref();
+  }
+
+  Future<void> getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String name = pref.getString("name") ?? '';
+
+    setState(() {
+      nameKasir = name;
+    });
   }
 
   Future<void> getInit() async {
@@ -40,6 +54,7 @@ class _OnlineTransactionPageState extends State<OnlineTransactionPage> {
     DTS dts = DTS(
       transDTS: trans,
       context: context,
+      namaKasir: nameKasir,
     );
 
     return Scaffold(
@@ -132,9 +147,14 @@ class _OnlineTransactionPageState extends State<OnlineTransactionPage> {
 
 class DTS extends DataTableSource {
   List<TransactionModel>? transDTS;
+  String? namaKasir;
   BuildContext context;
 
-  DTS({this.transDTS, required this.context});
+  DTS({
+    this.transDTS,
+    this.namaKasir,
+    required this.context,
+  });
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -178,6 +198,7 @@ class DTS extends DataTableSource {
                       builder: (_) => OngkirDialog(
                         id: id,
                         ongkir: ongkir,
+                        trans: transDTS![index],
                       ),
                     );
                   },
@@ -197,6 +218,7 @@ class DTS extends DataTableSource {
                             builder: (_) => BayarDialog(
                               id: id,
                               bayar: bayar,
+                              trans: transDTS![index],
                             ),
                           );
                         }
@@ -213,6 +235,13 @@ class DTS extends DataTableSource {
                           transStore
                               .doc('${transDTS![index].id.toString()}')
                               .update({'status': 'Selesai'});
+
+                          LogService().addLog(
+                            nama: namaKasir,
+                            desc: 'Mengubah Selesai',
+                            data_old: transDTS![index].toJson(),
+                            data_new: {'status': 'Selesai'},
+                          );
 
                           transDTS![index].status = "Selesai";
 
