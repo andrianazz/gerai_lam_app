@@ -2,15 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/transaction_model.dart';
 import 'package:gerai_lam_app/providers/transaction_provider.dart';
-import 'package:gerai_lam_app/widgets/bayar_dialog.dart';
 import 'package:gerai_lam_app/widgets/bayar_pending_dialog.dart';
 import 'package:gerai_lam_app/widgets/detail_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../widgets/drawer_widget.dart';
-import '../widgets/ongkir_dialog.dart';
 
 class PendingTransactionPage extends StatefulWidget {
   TransactionModel? trans;

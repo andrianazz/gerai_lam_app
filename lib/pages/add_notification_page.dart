@@ -67,13 +67,15 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
   }
 
   getLength() {
-    firestore.collection('tokenFCM').orderBy('name').get().then((snapshot) =>
-        snapshot.docs.forEach((doc) {
-          setState(() {
-            suppliers.add(
-                NotificationModel.fromJson(doc.data() as Map<String, dynamic>));
-          });
-        }));
+    firestore
+        .collection('tokenFCM')
+        .orderBy('name')
+        .get()
+        .then((snapshot) => snapshot.docs.forEach((doc) {
+              setState(() {
+                suppliers.add(NotificationModel.fromJson(doc.data()));
+              });
+            }));
   }
 
   TextEditingController titleController = TextEditingController();
@@ -261,7 +263,7 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                               children: [
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    primary: secondaryColor,
+                                    backgroundColor: secondaryColor,
                                     fixedSize: Size(145, 50),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -292,7 +294,7 @@ class _AddNotificationPageState extends State<AddNotificationPage> {
                                 SizedBox(width: 20),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    primary: primaryColor,
+                                    backgroundColor: primaryColor,
                                     fixedSize: Size(145, 50),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),

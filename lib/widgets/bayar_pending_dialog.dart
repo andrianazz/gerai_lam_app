@@ -435,6 +435,7 @@ class _BayarPendingDialogState extends State<BayarPendingDialog> {
                     transactions.doc(widget.id).update({
                       'bayar': int.parse(bayarController.toString()),
                       'status': "Selesai",
+                      'payment': "TUNAI",
                       'tgl_bayar': DateTime.now(),
                     }).whenComplete(
                       () => Navigator.pushReplacement(

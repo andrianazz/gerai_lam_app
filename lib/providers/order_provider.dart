@@ -23,7 +23,8 @@ class OrderProvider with ChangeNotifier {
 
   addTable(List<ItemModel> carts) {
     _table.add(TransactionModel(
-      id: _table.length.toString(),
+      id: Uuid().v1(),
+      date: DateTime.now(),
       totalProducts: carts.length,
     ));
     _table[_table.length - 1].items = carts;
@@ -36,8 +37,9 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  deleteTable(int index) {
-    _table.removeAt(index);
+  deleteTable(String id) {
+    _table.removeWhere((element) => element.id == id);
+    notifyListeners();
   }
 
   getTotalTable(int index) {
@@ -56,7 +58,8 @@ class OrderProvider with ChangeNotifier {
 
   addVip(List<ItemModel> carts) {
     _vip.add(TransactionModel(
-      id: _vip.length.toString(),
+      id: Uuid().v1(),
+      date: DateTime.now(),
       totalProducts: carts.length,
     ));
     _vip[_vip.length - 1].items = carts;
@@ -68,8 +71,8 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  deleteVip(int index) {
-    _vip.removeWhere((element) => index.toString() == element.id);
+  deleteVip(String id) {
+    _vip.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 
@@ -89,7 +92,8 @@ class OrderProvider with ChangeNotifier {
 
   addGojek(List<ItemModel> carts) {
     _gojek.add(TransactionModel(
-      id: _gojek.length.toString(),
+      id: Uuid().v1(),
+      date: DateTime.now(),
       totalProducts: carts.length,
     ));
     _gojek[_gojek.length - 1].items = carts;
@@ -102,8 +106,9 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  deleteGojek(int index) {
-    _gojek.removeAt(index);
+  deleteGojek(String id) {
+    _gojek.removeWhere((element) => element.id == id);
+    notifyListeners();
   }
 
   getTotalGojek(int index) {

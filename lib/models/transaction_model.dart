@@ -68,10 +68,10 @@ class TransactionModel {
     resi = json['resi'] ?? '';
   }
 
-  TransactionModel.fromJsonWithPayDate(Map<String, dynamic> json) {
+  TransactionModel.fromJsonWithoutPayDate(Map<String, dynamic> json) {
     id = json['id'];
     date = json['tanggal'].toDate();
-    payDate = json['tgl_bayar'].toDate();
+    // payDate = json['tgl_bayar'].toDate();
     idCostumer = json['id_customer'];
     address = json['address'];
     items = json['items']

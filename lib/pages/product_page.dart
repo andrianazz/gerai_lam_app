@@ -457,7 +457,7 @@ class _ProductPageState extends State<ProductPage> {
                                                         ? ElevatedButton(
                                                             style: ElevatedButton
                                                                 .styleFrom(
-                                                                    primary:
+                                                                    backgroundColor:
                                                                         redColor),
                                                             onPressed: () {
                                                               setState(() {
@@ -697,7 +697,8 @@ class _ProductPageState extends State<ProductPage> {
                                                   child: ElevatedButton(
                                                     style: ElevatedButton
                                                         .styleFrom(
-                                                      primary: primaryColor,
+                                                      backgroundColor:
+                                                          primaryColor,
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         borderRadius:
@@ -983,7 +984,7 @@ class _ProductPageState extends State<ProductPage> {
                                                   child: ElevatedButton(
                                                     style: ElevatedButton
                                                         .styleFrom(
-                                                      primary: redColor,
+                                                      backgroundColor: redColor,
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         borderRadius:
@@ -1586,60 +1587,6 @@ class _ProductPageState extends State<ProductPage> {
       ),
     );
   }
-
-  // void testPrint(BluetoothDevice device, ProductModel product) async {
-  //   String harga = NumberFormat.simpleCurrency(
-  //     decimalDigits: 0,
-  //     name: 'Rp. ',
-  //   ).format(product.harga_jual);
-  //
-  //   //SIZE
-  //   // 0- normal size text
-  //   // 1- only bold text
-  //   // 2- bold with medium text
-  //   // 3- bold with large text
-  //   //ALIGN
-  //   // 0- ESC_ALIGN_LEFT
-  //   // 1- ESC_ALIGN_CENTER
-  //   // 2- ESC_ALIGN_RIGHT
-  //
-  //   if ((await printer.isConnected)!) {
-  //     printer.printNewLine();
-  //     printer.printCustom("Galeri LAM Riau", 3, 1);
-  //     printer.printCustom("Jl. Diponegoro, Suka Mulia,", 1, 1);
-  //     printer.printCustom("Kec. Sail, Kota Pekanbaru", 1, 1);
-  //     printer.printCustom("Riau 28156", 1, 1);
-  //     printer.printCustom("www.galerilamriau.com", 1, 1);
-  //     printer.printCustom("==========================================", 0, 2);
-  //     //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
-  //     printer.printCustom("No Struk : ${trans.id}", 1, 1);
-  //     printer.printCustom("==========================================", 0, 2);
-  //     printer.printNewLine();
-  //     item.map((e) {
-  //       printer.printLeftRight("${e.name}", "", 1);
-  //       printer.print4Column(
-  //           "   ${e.price}", "x${e.quantity}", ":", "${e.total}", 1);
-  //     }).toList();
-  //     printer.printCustom("-----------------------------------------", 0, 2);
-  //     printer.printLeftRight("SubTotal", "${(widget.subTotal)}", 1);
-  //     printer.printLeftRight(
-  //         "ppn(${ppn}%)", "${(ppn / 100 * (widget.subTotal!)).toInt()}", 1);
-  //     printer.printLeftRight(
-  //         "ppl(${ppl}%)", "${(ppl / 100 * (widget.subTotal!)).toInt()}", 1);
-  //     printer.printCustom("-----------------------------------------", 0, 2);
-  //     printer.printLeftRight("Total", "${total}", 1);
-  //     printer.printLeftRight("Bayar", "${bayar}", 1);
-  //     printer.printCustom("-----------------------------------------", 0, 2);
-  //     printer.printLeftRight("Kembalian", '${kembalian}', 1);
-  //     printer.printNewLine();
-  //
-  //     printer.printCustom("Terima kasih", 1, 1);
-  //     printer.printCustom("Semoga puas dengan pelayanan kami", 0, 1);
-  //     printer.paperCut();
-  //   }
-  //
-  //   printer.connect(device);
-  // }
 
   clear() {
     newImage = [];

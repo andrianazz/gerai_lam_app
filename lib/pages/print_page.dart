@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 class PrintPage extends StatefulWidget {
   final ProductModel? product;
   final int? qty;
-  PrintPage({Key? key, this.product, this.qty}) : super(key: key);
+  PrintPage({Key? key, required this.product, this.qty}) : super(key: key);
 
   @override
   State<PrintPage> createState() => _PrintPageState();
@@ -140,8 +140,8 @@ class _PrintPageState extends State<PrintPage> {
                       children: <Widget>[
                         OutlinedButton(
                           style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black,
                             backgroundColor: primaryColor,
-                            primary: Colors.black,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 10),
                           ),

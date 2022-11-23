@@ -40,7 +40,6 @@ class StockModel {
       'supplier': supplier,
       'date_in': date_in.toString(),
       'description': description,
-      'noFaktur': noFaktur,
       'stock_in': stock_in!.map((e) => e.toJson()).toList(),
       'stock_return': stock_out!.map((e) => e.toJson()).toList(),
       'time_in': time_in,

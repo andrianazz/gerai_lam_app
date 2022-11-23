@@ -1,5 +1,4 @@
 import 'package:gerai_lam_app/models/cashier_model.dart';
-import 'package:gerai_lam_app/models/employee_model.dart';
 import 'package:gerai_lam_app/models/stock_in_model.dart';
 import 'package:gerai_lam_app/models/stock_return_model.dart';
 

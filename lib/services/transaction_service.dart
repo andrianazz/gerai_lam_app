@@ -9,8 +9,7 @@ class TransactionService {
     try {
       await firestore.collection("transactions").get().then((snapshot) {
         snapshot.docs.forEach((doc) {
-          transactions.add(
-              TransactionModel.fromJson(doc.data() as Map<String, dynamic>));
+          transactions.add(TransactionModel.fromJson(doc.data()));
         });
       });
 
@@ -30,8 +29,7 @@ class TransactionService {
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((doc) {
-          transactions.add(
-              TransactionModel.fromJson(doc.data() as Map<String, dynamic>));
+          transactions.add(TransactionModel.fromJson(doc.data()));
         });
       });
 
@@ -53,8 +51,7 @@ class TransactionService {
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((doc) {
-          transactions.add(
-              TransactionModel.fromJson(doc.data() as Map<String, dynamic>));
+          transactions.add(TransactionModel.fromJsonWithoutPayDate(doc.data()));
         });
       });
 

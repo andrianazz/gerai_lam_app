@@ -9,6 +9,7 @@ import 'package:gerai_lam_app/widgets/btprint_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../providers/cart_provider.dart';
 import '../theme.dart';
@@ -575,7 +576,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
           Flexible(
             flex: 2,
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
                 cartProvider.carts.map((e) {
                   return products
                       .where('id', isEqualTo: e.idProduk)
@@ -592,84 +593,185 @@ class _OrderDonePageState extends State<OrderDonePage> {
                   });
                 }).toList();
 
-                transactions
-                    .doc('${tProvider.transactions[0].id.toString()}')
-                    .set({
-                  'id': tProvider.transactions[0].id,
-                  'tanggal': tProvider.transactions[0].date,
-                  'tgl_bayar': tProvider.transactions[0].payDate,
-                  'id_customer': tProvider.transactions[0].idCostumer,
-                  'address': tProvider.transactions[0].address,
-                  'items': cartProvider.carts.map((e) => e.toJson()).toList(),
-                  'total_produk': tProvider.transactions[0].totalProducts,
-                  'ppn': tProvider.transactions[0].ppn,
-                  'ppl': tProvider.transactions[0].ppl,
-                  'subtotal': tProvider.transactions[0].subtotal,
-                  'bayar': tProvider.transactions[0].pay,
-                  'total_transaksi': tProvider.transactions[0].totalTransaction,
-                  'id_kasir': tProvider.transactions[0].idCashier,
-                  'payment': tProvider.transactions[0].payment,
-                  'ongkir': tProvider.transactions[0].ongkir,
-                  'status': tProvider.transactions[0].status,
-                  'setOngkir': true,
-                  'keterangan': tProvider.transactions[0].keterangan,
-                });
+                if (tProvider.transactions[0].payDate != null) {
+                  transactions
+                      .doc('${tProvider.transactions[0].id.toString()}')
+                      .set({
+                    'id': tProvider.transactions[0].id,
+                    'tanggal': tProvider.transactions[0].date,
+                    'tgl_bayar': tProvider.transactions[0].payDate,
+                    'id_customer': tProvider.transactions[0].idCostumer,
+                    'address': tProvider.transactions[0].address,
+                    'items': cartProvider.carts.map((e) => e.toJson()).toList(),
+                    'total_produk': tProvider.transactions[0].totalProducts,
+                    'ppn': tProvider.transactions[0].ppn,
+                    'ppl': tProvider.transactions[0].ppl,
+                    'subtotal': tProvider.transactions[0].subtotal,
+                    'bayar': tProvider.transactions[0].pay,
+                    'total_transaksi':
+                        tProvider.transactions[0].totalTransaction,
+                    'id_kasir': tProvider.transactions[0].idCashier,
+                    'payment': tProvider.transactions[0].payment,
+                    'ongkir': tProvider.transactions[0].ongkir,
+                    'status': tProvider.transactions[0].status,
+                    'setOngkir': true,
+                    'keterangan': tProvider.transactions[0].keterangan,
+                  });
+                } else {
+                  transactions
+                      .doc('${tProvider.transactions[0].id.toString()}')
+                      .set({
+                    'id': tProvider.transactions[0].id,
+                    'tanggal': tProvider.transactions[0].date,
+                    'id_customer': tProvider.transactions[0].idCostumer,
+                    'address': tProvider.transactions[0].address,
+                    'items': cartProvider.carts.map((e) => e.toJson()).toList(),
+                    'total_produk': tProvider.transactions[0].totalProducts,
+                    'ppn': tProvider.transactions[0].ppn,
+                    'ppl': tProvider.transactions[0].ppl,
+                    'subtotal': tProvider.transactions[0].subtotal,
+                    'bayar': tProvider.transactions[0].pay,
+                    'total_transaksi':
+                        tProvider.transactions[0].totalTransaction,
+                    'id_kasir': tProvider.transactions[0].idCashier,
+                    'payment': tProvider.transactions[0].payment,
+                    'ongkir': tProvider.transactions[0].ongkir,
+                    'status': tProvider.transactions[0].status,
+                    'setOngkir': true,
+                    'keterangan': tProvider.transactions[0].keterangan,
+                  });
+                }
 
                 if (token.isNotEmpty && api_bandara == true) {
-                  DateTime e = tProvider.transactions[0].date as DateTime;
+                  showAlertDialog(BuildContext context) {
+                    // set up the buttons
+                    Widget cancelButton = TextButton(
+                      child: Text("Cancel"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    );
+                    Widget continueButton = TextButton(
+                      child: Text("Continue"),
+                      onPressed: () async {
+                        DateTime e = tProvider.transactions[0].date as DateTime;
 
-                  String date = DateFormat("yyyy-MM-dd").format(e);
+                        String date = DateFormat("yyyy-MM-dd").format(e);
 
-                  var url =
-                      "https://api-ecsysdev.angkasapura2.co.id/api/v1/transaction/";
-                  var headers = {
-                    'Authorization': token,
-                    'Content-Type': 'application/json',
-                  };
+                        var url =
+                            "https://api-ecsysdev.angkasapura2.co.id/api/v1/transaction/";
+                        var headers = {
+                          'Authorization': token,
+                          'Content-Type': 'application/json',
+                        };
 
-                  var body = jsonEncode({
-                    {
-                      "store": [
-                        {
-                          "store_id": "{{store_id}}",
-                          "transactions": [
-                            for (var cart in cartProvider.carts)
+                        var body = jsonEncode({
+                          {
+                            "store": [
                               {
-                                {
-                                  "invoice_no":
-                                      "${tProvider.transactions[0].id}",
-                                  "trans_date": "${date}",
-                                  "trans_time":
-                                      "${tProvider.transactions[0].date}",
-                                  "sequence_unique": "${cart.id}",
-                                  "item_name": "${cart.name}",
-                                  "item_code": "${cart.idProduk}",
-                                  "item_qty": "${cart.quantity}",
-                                  "item_price_per_unit": "${cart.price}",
-                                  "item_price_amount": "${cart.price}",
-                                  "item_vat":
-                                      (num.parse(cart.price.toString()) *
-                                              ppn *
-                                              ppl)
-                                          .toString(),
-                                  "item_total_price_amount": (num.parse(
-                                              cart.price.toString()) *
-                                          num.parse(cart.quantity.toString()))
-                                      .toString(),
-                                  "item_total_vat": "0",
-                                  "transaction_amount": (num.parse(
-                                              cart.price.toString()) +
-                                          (num.parse(cart.price.toString()) *
-                                              ppn *
-                                              ppl))
-                                      .toString(),
-                                },
+                                "store_id": "{{store_id}}",
+                                "transactions": [
+                                  for (var cart in cartProvider.carts)
+                                    {
+                                      {
+                                        "invoice_no":
+                                            "${tProvider.transactions[0].id}",
+                                        "trans_date": "${date}",
+                                        "trans_time":
+                                            "${tProvider.transactions[0].date}",
+                                        "sequence_unique": "${cart.id}",
+                                        "item_name": "${cart.name}",
+                                        "item_code": "${cart.idProduk}",
+                                        "item_qty": "${cart.quantity}",
+                                        "item_price_per_unit": "${cart.price}",
+                                        "item_price_amount": "${cart.price}",
+                                        "item_vat":
+                                            (num.parse(cart.price.toString()) *
+                                                    ppn *
+                                                    ppl)
+                                                .toString(),
+                                        "item_total_price_amount": (num.parse(
+                                                    cart.price.toString()) *
+                                                num.parse(
+                                                    cart.quantity.toString()))
+                                            .toString(),
+                                        "item_total_vat": "0",
+                                        "transaction_amount": (num.parse(
+                                                    cart.price.toString()) +
+                                                (num.parse(
+                                                        cart.price.toString()) *
+                                                    ppn *
+                                                    ppl))
+                                            .toString(),
+                                      },
+                                    }
+                                ],
                               }
-                          ],
+                            ]
+                          }
+                        });
+
+                        var response = await http.post(Uri.parse(url),
+                            headers: headers, body: body);
+                        print(response.body);
+
+                        Map<String, dynamic> temp = json.decode(response.body);
+
+                        if (response.statusCode == 200) {
+                          String countSuccess =
+                              temp["success_insert"].toString();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              duration: Duration(milliseconds: 1000),
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(width: 20),
+                                  Text(
+                                    "Sedang menambahkan ${countSuccess} transaksi ke API Bandara.....",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: primaryColor,
+                            ),
+                          );
+                        } else {
+                          String messageFailed =
+                              temp["response_failed"].toString();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Gagal Menambahkan Transaksi!, ${messageFailed}",
+                                textAlign: TextAlign.center,
+                              ),
+                              backgroundColor: redColor,
+                            ),
+                          );
                         }
-                      ]
-                    }
-                  });
+                      },
+                    );
+                    // set up the AlertDialog
+                    AlertDialog alert = AlertDialog(
+                      title: Text("Push ke API Bandara"),
+                      content: Text(
+                          "Apakah anda ingin mengirimkan data transaksi ke API Bandara?"),
+                      actions: [
+                        cancelButton,
+                        continueButton,
+                      ],
+                    );
+                    // show the dialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return alert;
+                      },
+                    );
+                  }
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -681,7 +783,7 @@ class _OrderDonePageState extends State<OrderDonePage> {
                         CircularProgressIndicator(),
                         SizedBox(width: 20),
                         Text(
-                          "Menambahkan. Mohon Tunggu .....",
+                          "Menambahkan database. Mohon Tunggu .....",
                           textAlign: TextAlign.center,
                         ),
                       ],

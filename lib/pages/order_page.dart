@@ -28,7 +28,7 @@ class _OrderPageState extends State<OrderPage> {
   String selectedTag = '';
 
   bool isOrder = false;
-  int? orderIndex;
+  String? orderIndex;
   bool isSaveOrder = false;
   bool isBeranda = true;
 
@@ -656,6 +656,7 @@ class _OrderPageState extends State<OrderPage> {
   Widget listOrder() {
     OrderProvider orderProvider = Provider.of<OrderProvider>(context);
     CartProvider cartProvider = Provider.of<CartProvider>(context);
+    DateFormat f = DateFormat("dd-MMMM-yyyy HH:mm");
 
     return ListView(
       children: [
@@ -686,7 +687,7 @@ class _OrderPageState extends State<OrderPage> {
                           onTap: () {
                             setState(() {
                               cartProvider.carts = e.items!;
-                              orderIndex = int.parse(e.id.toString());
+                              orderIndex = e.id.toString();
                             });
                             print(orderIndex);
                           },
@@ -695,9 +696,9 @@ class _OrderPageState extends State<OrderPage> {
                                 context: context,
                                 builder: (_) => CupertinoAlertDialog(
                                       title: Text(
-                                          'Konfirmasi menghapus Orderan Meja${int.parse(e.id.toString()) + 1}'),
+                                          'Konfirmasi menghapus Orderan Meja${f.format(e.date!)}'),
                                       content: Text(
-                                          'Apa kamu yakin inging menghapus semua orderan Meja${int.parse(e.id.toString()) + 1}'),
+                                          'Apa kamu yakin inging menghapus semua orderan Meja${f.format(e.date!)}'),
                                       actions: [
                                         CupertinoDialogAction(
                                           child: Text('Batal'),
@@ -709,11 +710,7 @@ class _OrderPageState extends State<OrderPage> {
                                           child: Text('Hapus'),
                                           onPressed: () {
                                             setState(() {
-                                              orderProvider.deleteTable(
-                                                int.parse(
-                                                  e.id.toString(),
-                                                ),
-                                              );
+                                              orderProvider.deleteTable(e.id!);
                                             });
 
                                             Navigator.pop(context);
@@ -737,11 +734,13 @@ class _OrderPageState extends State<OrderPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Meja ${int.parse(e.id.toString()) + 1}",
+                                  "${f.format(e.date!).toString()}",
                                   style: primaryText.copyWith(
-                                    fontSize: 26,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w700,
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.fade,
                                 ),
                                 SizedBox(height: 20),
                                 Text(
@@ -777,7 +776,7 @@ class _OrderPageState extends State<OrderPage> {
                           onTap: () {
                             setState(() {
                               cartProvider.carts = e.items!;
-                              orderIndex = int.parse(e.id.toString());
+                              orderIndex = e.id.toString();
                             });
                             print(orderIndex);
                           },
@@ -786,9 +785,9 @@ class _OrderPageState extends State<OrderPage> {
                                 context: context,
                                 builder: (_) => CupertinoAlertDialog(
                                       title: Text(
-                                          'Konfirmasi menghapus Orderan VIP${int.parse(e.id.toString()) + 1}'),
+                                          'Konfirmasi menghapus Orderan VIP${f.format(e.date!)}'),
                                       content: Text(
-                                          'Apa kamu yakin inging menghapus semua orderan VIP${int.parse(e.id.toString()) + 1}'),
+                                          'Apa kamu yakin inging menghapus semua orderan VIP${f.format(e.date!)}}'),
                                       actions: [
                                         CupertinoDialogAction(
                                           child: Text('Batal'),
@@ -801,9 +800,7 @@ class _OrderPageState extends State<OrderPage> {
                                           onPressed: () {
                                             setState(() {
                                               orderProvider.deleteVip(
-                                                int.parse(
-                                                  e.id.toString(),
-                                                ),
+                                                e.id.toString(),
                                               );
                                             });
 
@@ -869,7 +866,7 @@ class _OrderPageState extends State<OrderPage> {
                           onTap: () {
                             setState(() {
                               cartProvider.carts = e.items!;
-                              orderIndex = int.parse(e.id.toString());
+                              orderIndex = e.id.toString();
                             });
                             print(orderIndex);
                           },
@@ -878,9 +875,9 @@ class _OrderPageState extends State<OrderPage> {
                                 context: context,
                                 builder: (_) => CupertinoAlertDialog(
                                       title: Text(
-                                          'Konfirmasi menghapus Orderan Gojek${int.parse(e.id.toString()) + 1}'),
+                                          'Konfirmasi menghapus Orderan Gojek${f.format(e.date!)}}'),
                                       content: Text(
-                                          'Apa kamu yakin inging menghapus semua orderan Gojek${int.parse(e.id.toString()) + 1}'),
+                                          'Apa kamu yakin inging menghapus semua orderan Gojek${f.format(e.date!)}}'),
                                       actions: [
                                         CupertinoDialogAction(
                                           child: Text('Batal'),
@@ -893,9 +890,7 @@ class _OrderPageState extends State<OrderPage> {
                                           onPressed: () {
                                             setState(() {
                                               orderProvider.deleteGojek(
-                                                int.parse(
-                                                  e.id.toString(),
-                                                ),
+                                                e.id.toString(),
                                               );
                                             });
 
@@ -964,6 +959,8 @@ class _OrderPageState extends State<OrderPage> {
   Widget saveOrder() {
     OrderProvider orderProvider = Provider.of<OrderProvider>(context);
     CartProvider cartProvider = Provider.of<CartProvider>(context);
+    DateFormat f = DateFormat("dd-MMMM-yyyy HH:mm");
+
     return ListView(
       children: [
         Column(
@@ -1029,11 +1026,13 @@ class _OrderPageState extends State<OrderPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Meja ${int.parse(e.id.toString()) + 1}",
+                                    "${f.format(e.date!)}",
                                     style: primaryText.copyWith(
-                                      fontSize: 26,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.fade,
                                   ),
                                   SizedBox(height: 20),
                                   Text(
@@ -1249,7 +1248,7 @@ class _OrderPageState extends State<OrderPage> {
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 style: ElevatedButton.styleFrom(
-                  primary: greenColor,
+                  backgroundColor: greenColor,
                 ),
                 //return false when click on "NO"
                 child: Text('Tidak'),
@@ -1257,7 +1256,7 @@ class _OrderPageState extends State<OrderPage> {
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
-                  primary: redColor,
+                  backgroundColor: redColor,
                 ),
                 //return true when click on "Yes"
                 child: Text('Keluar'),
