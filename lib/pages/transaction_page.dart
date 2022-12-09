@@ -47,8 +47,7 @@ class _TransactionPageState extends State<TransactionPage> {
         .get()
         .then((snapshot) => snapshot.docs.forEach((doc) {
               setState(() {
-                suppliers.add(
-                    SupplierModel.fromJson(doc.data() as Map<String, dynamic>));
+                suppliers.add(SupplierModel.fromJson(doc.data()));
               });
             }));
 
@@ -58,8 +57,7 @@ class _TransactionPageState extends State<TransactionPage> {
         .get()
         .then((snapshot) => snapshot.docs.forEach((doc) {
               setState(() {
-                products.add(
-                    ProductModel.fromJson(doc.data() as Map<String, dynamic>));
+                products.add(ProductModel.fromJson(doc.data()));
               });
             }));
 
@@ -69,8 +67,7 @@ class _TransactionPageState extends State<TransactionPage> {
         .get()
         .then((snapshot) => snapshot.docs.forEach((doc) {
               setState(() {
-                cashiers.add(
-                    EmployeeModel.fromJson(doc.data() as Map<String, dynamic>));
+                cashiers.add(EmployeeModel.fromJson(doc.data()));
               });
             }));
   }
@@ -112,7 +109,12 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     FilterProvider fProvider = Provider.of<FilterProvider>(context);
     List<FilterModel>? trans = fProvider.dataTable;
-    DTS dts = DTS(transDTS: trans, context: context);
+    DTS dts = DTS(
+      transDTS: trans,
+      context: context,
+      supplierName:
+          _dropdownSupplier?.name != null ? _dropdownSupplier!.name : "",
+    );
 
     List<FilterModel> reversedList = new List.from(trans.reversed);
 
@@ -462,7 +464,8 @@ Widget columnAppbarRight(context) {
 class DTS extends DataTableSource {
   List<FilterModel>? transDTS;
   BuildContext? context;
-  DTS({this.transDTS, this.context});
+  String? supplierName;
+  DTS({this.transDTS, this.supplierName, this.context});
 
   @override
   DataRow? getRow(int index) {
@@ -478,6 +481,7 @@ class DTS extends DataTableSource {
               context: context!,
               builder: (context) => DialogDetailTransaction(
                 dailyTrans: transDTS![index].column5!,
+                supplierName: supplierName,
               ),
             );
           },

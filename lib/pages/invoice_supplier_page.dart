@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gerai_lam_app/models/stock_cashier_model.dart';
 import 'package:gerai_lam_app/models/stock_model.dart';
 import 'package:intl/intl.dart';
 
@@ -11,8 +10,24 @@ class InvoiceSupplierPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> hari = [
+      "",
+      "Senin",
+      "Selasa",
+      "Rabu",
+      "Kamis",
+      "Jumat",
+      "Sabtu",
+      "Minggu"
+    ];
+
     var f = DateFormat('dd MMMM yyyy');
+    var m = DateFormat("MMMM");
+    var y = DateFormat("yyyy");
+
     var rupiah = NumberFormat.currency(name: 'Rp. ', decimalDigits: 0);
+
+    DateTime date_in = stockSupplier!.date_in!;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,17 +58,10 @@ class InvoiceSupplierPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Sentra Budaya & Ekonomi Kreatif LAM Riau",
-                      style: primaryText.copyWith(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      "Invoice",
+                      "Berita Acara Serah Terima Barang",
                       style: primaryText.copyWith(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -61,59 +69,151 @@ class InvoiceSupplierPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(height: 24),
+                Text(
+                  "         Pada hari ini ${hari[date_in.weekday]} tanggal ${date_in.day} bulan ${m.format(date_in)} tahun ${y.format(date_in)}. Kami yang bertanda tangan dibawah ini:",
+                  style: primaryText.copyWith(fontSize: 20),
+                ),
+                SizedBox(height: 10),
                 Row(
                   children: [
+                    Expanded(flex: 1, child: SizedBox()),
                     Expanded(
-                      flex: 4,
+                      flex: 3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Jl. Diponegoro No 39 - Pekanbaru",
-                            style: primaryText.copyWith(
-                              fontSize: 20,
-                            ),
+                            "Nama ",
+                            style: primaryText.copyWith(fontSize: 20),
                           ),
                           Text(
-                            "CP: 0852 1068 0008",
-                            style: primaryText.copyWith(
-                              fontSize: 20,
-                            ),
+                            "Badan UMKM ",
+                            style: primaryText.copyWith(fontSize: 20),
                           ),
                           Text(
-                            "Email: galerilamr@gmail.com",
-                            style: primaryText.copyWith(
-                              fontSize: 20,
-                            ),
+                            "Alamat ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            "No Telepon ",
+                            style: primaryText.copyWith(fontSize: 20),
                           ),
                         ],
                       ),
                     ),
                     Expanded(
-                      flex: 2,
+                      flex: 12,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Kepada Yth ${stockSupplier!.supplier}",
-                            style: primaryText.copyWith(
-                              fontSize: 20,
-                            ),
+                            ": ${stockSupplier!.supplier!}",
+                            style: primaryText.copyWith(fontSize: 20),
                           ),
                           Text(
-                            "Pekanbaru",
-                            style: primaryText.copyWith(
-                              fontSize: 20,
-                            ),
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Text.rich(
+                  TextSpan(
+                    text: "Selanjutnya disebut ",
+                    style: primaryText.copyWith(fontSize: 20),
+                    children: [
+                      TextSpan(
+                        text: "PIHAK PERTAMA.",
+                        style:
+                            primaryText.copyWith(fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(flex: 1, child: SizedBox()),
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Nama ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            "Jabatan ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            "Alamat ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            "No Telepon ",
+                            style: primaryText.copyWith(fontSize: 20),
                           ),
                         ],
                       ),
                     ),
                     Expanded(
-                      flex: 1,
-                      child: Container(),
+                      flex: 12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                          Text(
+                            ": ",
+                            style: primaryText.copyWith(fontSize: 20),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
+                ),
+                SizedBox(height: 10),
+                Text.rich(
+                  TextSpan(
+                    text: "Selanjutnya disebut ",
+                    style: primaryText.copyWith(fontSize: 20),
+                    children: [
+                      TextSpan(
+                        text: "PIHAK KEDUA.",
+                        style:
+                            primaryText.copyWith(fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24),
+                Text(
+                  "         PIHAK PERTAMA menyerahkan barang kepada PIHAK KEDUA, dan PIHAK KEDUA menyatakan telah menerima barang dari PIHAK PERTAMA sesuai dengan daftar terlampir.",
+                  style: primaryText.copyWith(fontSize: 20),
                 ),
                 SizedBox(height: 30),
                 Container(
@@ -121,47 +221,6 @@ class InvoiceSupplierPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "No Faktur :",
-                              style: primaryText.copyWith(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                              flex: 6,
-                              child: Text(
-                                ": ${stockSupplier!.noFaktur}",
-                                style: primaryText.copyWith(
-                                  fontSize: 20,
-                                ),
-                              )),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Tgl Faktur",
-                              style: primaryText.copyWith(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                              flex: 6,
-                              child: Text(
-                                ': ${f.format(stockSupplier!.date_in!)}',
-                                style: primaryText.copyWith(
-                                  fontSize: 20,
-                                ),
-                              )),
-                        ],
-                      ),
-                      SizedBox(height: 20),
                       stockSupplier!.stock_in!.length > 0
                           ? Text(
                               "STOK MASUK",
@@ -290,29 +349,32 @@ class InvoiceSupplierPage extends StatelessWidget {
                             )
                           : SizedBox(),
                       SizedBox(height: 30),
+                      Text(
+                        "         Demikianlah berita acara serah terima barang ini dibuat oleh kedua belah pihak. Adapun barang yang diserahkan telah diterima dalam kondisi baik dan cukup, sehingga sejak penanda tanganan berita acara ini merupakan tanggung jawab PIHAK KEDUA untuk memelihara / merawat barang yang diterima dengan baik.",
+                        style: primaryText.copyWith(fontSize: 20),
+                      ),
+                      SizedBox(height: 50),
                       Table(
                         columnWidths: {
-                          0: FractionColumnWidth(0.40),
-                          1: FractionColumnWidth(0.30),
-                          2: FractionColumnWidth(0.30),
+                          0: FractionColumnWidth(0.50),
+                          1: FractionColumnWidth(0.50),
                         },
                         children: [
-                          buildRow(['', 'Diberikan oleh', 'Diterima oleh'],
-                              isCenter: true),
-                          buildRow(['', '', '']),
                           buildRow([
-                            '',
-                            'WAN IRZAWATI \nManager Operasional',
-                            '${stockSupplier!.supplier}'
+                            'Yang Menerima\nPIHAK KEDUA',
+                            'Yang Menyerahkan\nPIHAK PERTAMA'
                           ], isCenter: true),
+                          buildRow(['', '']),
+                          buildRow(['', '${stockSupplier!.supplier}'],
+                              isCenter: true),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 )
               ],
             ),
-          )
+          ),
         ],
       ),
     );

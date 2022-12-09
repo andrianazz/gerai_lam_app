@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/daily_trans_model.dart';
+import 'package:gerai_lam_app/pages/invoice_transaction_page.dart';
 import 'package:intl/intl.dart';
 
 import '../theme.dart';
 
 class DialogDetailTransaction extends StatelessWidget {
   DailyTransactionModel? dailyTrans;
-  DialogDetailTransaction({Key? key, this.dailyTrans}) : super(key: key);
+  String? supplierName;
+  DialogDetailTransaction({Key? key, this.dailyTrans, this.supplierName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -338,6 +341,48 @@ class DialogDetailTransaction extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: redColor,
+                  ),
+                  child: Text(
+                    "Batal",
+                    style: primaryText.copyWith(fontSize: 24),
+                  ),
+                ),
+                supplierName != "" ? SizedBox(width: 20) : SizedBox(),
+                supplierName != ""
+                    ? ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InvoiceTransactionPage(
+                                dailyTrans: dailyTrans,
+                                supplierName: supplierName,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: greenColor,
+                        ),
+                        child: Text(
+                          "Print Invoice",
+                          style: primaryText.copyWith(fontSize: 24),
+                        ),
+                      )
+                    : SizedBox(),
+              ],
+            ),
+            SizedBox(height: 10),
           ],
         ),
       ),
