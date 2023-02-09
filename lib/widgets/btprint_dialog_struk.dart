@@ -2,11 +2,8 @@ import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/item_model.dart';
 import 'package:gerai_lam_app/models/transaction_model.dart';
-import 'package:gerai_lam_app/providers/cart_provider.dart';
-import 'package:gerai_lam_app/providers/transaction_provider.dart';
 import 'package:gerai_lam_app/theme.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class BTPrintDialogStruk extends StatefulWidget {
   final TransactionModel? trans;
@@ -104,6 +101,10 @@ class _BTPrintDialogStrukState extends State<BTPrintDialogStruk> {
       name: 'Rp. ',
     ).format(trans.pay! - trans.totalTransaction!);
 
+    String tanggalBayar = trans.payDate != null
+        ? DateFormat("dd MMMM yyyy").format(trans.payDate!)
+        : DateFormat("dd MMMM yyyy").format(trans.date!);
+
     // String ongkir = NumberFormat.simpleCurrency(
     //   decimalDigits: 0,
     //   name: 'Rp. ',
@@ -128,6 +129,7 @@ class _BTPrintDialogStrukState extends State<BTPrintDialogStruk> {
       printer.printCustom("==========================================", 0, 2);
       //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
       printer.printCustom("No Struk : ${trans.id}", 1, 1);
+      printer.printCustom("Tanggal : ${tanggalBayar}", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       printer.printNewLine();
       item.map((e) {

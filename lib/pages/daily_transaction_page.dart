@@ -307,6 +307,8 @@ class _DailyTransactionPageState extends State<DailyTransactionPage> {
     int? pajakPPN = (ppn / 100 * (subTotal)).toInt();
     int? pajakPPL = (ppl / 100 * (subTotal)).toInt();
 
+    DateFormat tanggal = DateFormat("dd MMMM yyyy");
+
     return Container(
       color: const Color(0xffF6F6F6),
       child: Column(
@@ -353,6 +355,13 @@ class _DailyTransactionPageState extends State<DailyTransactionPage> {
                       Divider(),
                       Text(
                         "No Struk : ${selectedTrans!.id}",
+                        style: primaryText.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w100,
+                        ),
+                      ),
+                      Text(
+                        "Tanggal : ${tanggal.format(selectedTrans!.payDate!)}",
                         style: primaryText.copyWith(
                           fontSize: 20,
                           fontWeight: FontWeight.w100,

@@ -108,6 +108,8 @@ class _BTPrintDialogState extends State<BTPrintDialog> {
       name: 'Rp. ',
     ).format(trans.pay! - trans.totalTransaction!);
 
+    String tanggalStruk = DateFormat("dd MMMM yyyy").format(trans.date!);
+
     // String ongkir = NumberFormat.simpleCurrency(
     //   decimalDigits: 0,
     //   name: 'Rp. ',
@@ -132,6 +134,7 @@ class _BTPrintDialogState extends State<BTPrintDialog> {
       printer.printCustom("==========================================", 0, 2);
       //bluetooth.printImageBytes(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
       printer.printCustom("No Struk : ${trans.id}", 1, 1);
+      printer.printCustom("Tanggal : ${tanggalStruk}", 1, 1);
       printer.printCustom("==========================================", 0, 2);
       printer.printNewLine();
       item.map((e) {
