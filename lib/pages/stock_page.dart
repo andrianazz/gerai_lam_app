@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_model.dart';
 import 'package:gerai_lam_app/pages/add_stock_page.dart';
@@ -6,7 +7,6 @@ import 'package:gerai_lam_app/pages/invoice_supplier_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 
-import '../models/stock_cashier_model.dart';
 import '../theme.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -121,7 +121,7 @@ class _StockPageState extends State<StockPage> {
                       height: 60,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: primaryColor,
+                          backgroundColor: primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -195,12 +195,15 @@ class _StockPageState extends State<StockPage> {
                                           maxLines: 1,
                                         ),
                                       ),
-                                      Text(
-                                        stock['supplier']['nama'],
-                                        style: primaryText.copyWith(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w700,
-                                          color: textGreyColor,
+                                      Container(
+                                        width: 200,
+                                        child: Text(
+                                          stock['supplier']['nama'],
+                                          style: primaryText.copyWith(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            color: textGreyColor,
+                                          ),
                                         ),
                                       ),
                                       Text(
@@ -219,17 +222,67 @@ class _StockPageState extends State<StockPage> {
                                           color: textGreyColor,
                                         ),
                                       ),
-                                      Chip(
-                                        backgroundColor: greenColor,
-                                        label: Text(
-                                          'Selesai',
-                                          style: primaryText.copyWith(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                                      Row(
+                                        children: [
+                                          Chip(
+                                            backgroundColor: greenColor,
+                                            label: Text(
+                                              'Selesai',
+                                              style: primaryText.copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                          SizedBox(width: 50),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (_) =>
+                                                      CupertinoAlertDialog(
+                                                        title: Text(
+                                                            'Konfirmasi menghapus Serah Terima'),
+                                                        content: Text(
+                                                            "Apa kamu yakin inging menghapus ${stock['supplier']['nama']}?"),
+                                                        actions: [
+                                                          CupertinoDialogAction(
+                                                            child:
+                                                                Text('Batal'),
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                          CupertinoDialogAction(
+                                                            child:
+                                                                Text('Hapus'),
+                                                            onPressed: () {
+                                                              stocks
+                                                                  .doc(stock[
+                                                                      'noFaktur'])
+                                                                  .delete();
+
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ));
+                                              setState(() {});
+                                            },
+                                            child: Text(
+                                              "Hapus",
+                                              style: primaryText.copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ),

@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerai_lam_app/models/stock_cashier_model.dart';
 import 'package:gerai_lam_app/pages/add_stock_cashier_page.dart';
-import 'package:gerai_lam_app/pages/add_stock_page.dart';
 import 'package:gerai_lam_app/pages/invoice_cashier_page.dart';
-import 'package:gerai_lam_app/pages/invoice_supplier_page.dart';
 import 'package:gerai_lam_app/widgets/drawer_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -220,17 +219,67 @@ class _StockCashierPageState extends State<StockCashierPage> {
                                           color: textGreyColor,
                                         ),
                                       ),
-                                      Chip(
-                                        backgroundColor: greenColor,
-                                        label: Text(
-                                          'Selesai',
-                                          style: primaryText.copyWith(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                                      Row(
+                                        children: [
+                                          Chip(
+                                            backgroundColor: greenColor,
+                                            label: Text(
+                                              'Selesai',
+                                              style: primaryText.copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                          SizedBox(width: 50),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (_) =>
+                                                      CupertinoAlertDialog(
+                                                        title: Text(
+                                                            'Konfirmasi menghapus Serah Terima'),
+                                                        content: Text(
+                                                            "Apa kamu yakin inging menghapus ${stock['cashier_in']['name']}?"),
+                                                        actions: [
+                                                          CupertinoDialogAction(
+                                                            child:
+                                                                Text('Batal'),
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                          CupertinoDialogAction(
+                                                            child:
+                                                                Text('Hapus'),
+                                                            onPressed: () {
+                                                              stockCashiers
+                                                                  .doc(stock[
+                                                                      'noFaktur'])
+                                                                  .delete();
+
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ));
+                                              setState(() {});
+                                            },
+                                            child: Text(
+                                              "Hapus",
+                                              style: primaryText.copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ),
