@@ -14,7 +14,8 @@ class StockInProvider with ChangeNotifier {
 
   addStockIn(ProductModel product, int qty) {
     _stockIns.add(StockInModel(
-      id: _stockIns.length,
+      indexId: _stockIns.length,
+      id: product.id,
       harga: product.harga_modal,
       hargaJual: product.harga_jual,
       kode: product.kode,
@@ -31,23 +32,24 @@ class StockInProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  addQuantity(int id, int qty) {
-    _stockIns[id].stok = (_stockIns[id].stok! + qty);
-    _stockIns[id].total = (_stockIns[id].harga! * _stockIns[id].stok!);
+  addQuantity(int index, int qty) {
+    _stockIns[index].stok = (_stockIns[index].stok! + qty);
+    _stockIns[index].total = (_stockIns[index].harga! * _stockIns[index].stok!);
     notifyListeners();
   }
 
-  removeQuantity(int id, int qty) {
-    if (_stockIns[id].stok != 1) {
-      _stockIns[id].stok = (_stockIns[id].stok! - qty);
-      _stockIns[id].total = _stockIns[id].total! - _stockIns[id].harga!;
+  removeQuantity(int index, int qty) {
+    if (_stockIns[index].stok != 1) {
+      _stockIns[index].stok = (_stockIns[index].stok! - qty);
+      _stockIns[index].total =
+          _stockIns[index].total! - _stockIns[index].harga!;
     }
     notifyListeners();
   }
 
-  resetQuantity(int id) {
-    _stockIns[id].stok = 1;
-    _stockIns[id].total = _stockIns[id].harga;
+  resetQuantity(int index) {
+    _stockIns[index].stok = 1;
+    _stockIns[index].total = _stockIns[index].harga;
     notifyListeners();
   }
 }

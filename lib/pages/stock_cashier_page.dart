@@ -122,7 +122,7 @@ class _StockCashierPageState extends State<StockCashierPage> {
                       height: 60,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: primaryColor,
+                          backgroundColor: primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

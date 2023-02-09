@@ -5,7 +5,7 @@ class StockModel {
   String? noFaktur;
   String? supplier;
   DateTime? date_in;
-  String? time_in;
+  DateTime? time_in;
   List<StockInModel>? stock_in;
   List<StockReturnModel>? stock_out;
   String? description;
@@ -31,7 +31,7 @@ class StockModel {
     stock_out = json['stock_return']
         .map<StockReturnModel>((item) => StockReturnModel.fromJson(item))
         .toList();
-    time_in = json['time'];
+    time_in = json['time_in'].toDate();
   }
 
   Map<String, dynamic> toJson() {

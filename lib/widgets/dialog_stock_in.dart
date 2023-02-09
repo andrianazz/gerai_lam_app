@@ -51,7 +51,8 @@ class _DialogStockInState extends State<DialogStockIn> {
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        _stockProvider.removeQuantity(widget.stock!.id!, 1);
+                        _stockProvider.removeQuantity(
+                            widget.stock!.indexId!, 1);
                       });
                     },
                     child: Container(
@@ -101,7 +102,7 @@ class _DialogStockInState extends State<DialogStockIn> {
                             onTap: () {
                               setState(() {
                                 _stockProvider.addQuantity(
-                                    widget.stock!.id!, 1);
+                                    widget.stock!.indexId!, 1);
                               });
                             },
                             child: Container(
@@ -127,7 +128,7 @@ class _DialogStockInState extends State<DialogStockIn> {
                             onTap: () {
                               setState(() {
                                 _stockProvider.addQuantity(
-                                    widget.stock!.id!, 5);
+                                    widget.stock!.indexId!, 5);
                               });
                             },
                             child: Container(
@@ -157,7 +158,7 @@ class _DialogStockInState extends State<DialogStockIn> {
                             onTap: () {
                               setState(() {
                                 _stockProvider.addQuantity(
-                                    widget.stock!.id!, 10);
+                                    widget.stock!.indexId!, 10);
                               });
                             },
                             child: Container(
@@ -183,7 +184,7 @@ class _DialogStockInState extends State<DialogStockIn> {
                             onTap: () {
                               setState(() {
                                 _stockProvider.addQuantity(
-                                    widget.stock!.id!, 50);
+                                    widget.stock!.indexId!, 50);
                               });
                             },
                             child: Container(
@@ -210,7 +211,8 @@ class _DialogStockInState extends State<DialogStockIn> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            _stockProvider.addQuantity(widget.stock!.id!, 100);
+                            _stockProvider.addQuantity(
+                                widget.stock!.indexId!, 100);
                           });
                         },
                         child: Container(
@@ -291,7 +293,7 @@ class _DialogStockInState extends State<DialogStockIn> {
                               .replaceAll('.', ''));
 
                           _stockProvider
-                              .resetQuantity(widget.stock!.id!.toInt());
+                              .resetQuantity(widget.stock!.indexId!.toInt());
                         });
                       },
                       child: Text("Set Harga"))
@@ -305,11 +307,11 @@ class _DialogStockInState extends State<DialogStockIn> {
                     width: 200,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: redColor,
+                        backgroundColor: redColor,
                       ),
                       onPressed: () {
                         setState(() {
-                          _stockProvider.resetQuantity(widget.stock!.id!);
+                          _stockProvider.resetQuantity(widget.stock!.indexId!);
                         });
                       },
                       child: Text(
@@ -327,7 +329,7 @@ class _DialogStockInState extends State<DialogStockIn> {
                     width: 200,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: primaryColor,
+                        backgroundColor: primaryColor,
                       ),
                       onPressed: () {
                         Navigator.pop(context);

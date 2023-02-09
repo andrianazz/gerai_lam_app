@@ -29,11 +29,13 @@ class TransactionService {
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((doc) {
-          transactions.add(TransactionModel.fromJson(doc.data()));
+          transactions.add(TransactionModel.fromJsonWithoutPayDate(doc.data()));
         });
       });
 
       transactions.sort((a, b) => b.date!.compareTo(a.date!));
+
+      print(transactions);
 
       return transactions;
     } catch (e) {

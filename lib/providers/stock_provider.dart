@@ -29,7 +29,7 @@ class StockProvider with ChangeNotifier {
     String faktur,
     String deskripsi,
     DateTime dateIn,
-    String timeIn,
+    DateTime timeIn,
     String supplier,
   ) async {
     _stocks.add(

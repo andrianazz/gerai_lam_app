@@ -10,7 +10,7 @@ class StockCashierModel {
   String? noFaktur;
   List<StockInModel>? stock_in;
   List<StockReturnModel>? stock_out;
-  String? time_in;
+  DateTime? time_in;
 
   StockCashierModel({
     this.cashier_in,
@@ -35,7 +35,7 @@ class StockCashierModel {
     stock_out = json['stock_return']
         .map<StockReturnModel>((item) => StockReturnModel.fromJson(item))
         .toList();
-    time_in = json['time'];
+    time_in = json['time_in'].toDate();
   }
 
   Map<String, dynamic> toJson() {
@@ -47,7 +47,7 @@ class StockCashierModel {
       'noFaktur': noFaktur,
       'stock_in': stock_in!.map((e) => e.toJson()).toList(),
       'stock_return': stock_out!.map((e) => e.toJson()).toList(),
-      'time_in': time_in,
+      'time_in': time_in.toString(),
     };
   }
 }

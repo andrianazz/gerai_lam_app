@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme.dart';
-import '../widgets/btprint_dialog.dart';
 import '../widgets/drawer_widget.dart';
 
 class DailyTransactionPage extends StatefulWidget {
@@ -140,7 +139,7 @@ class _DailyTransactionPageState extends State<DailyTransactionPage> {
                               Map<String, dynamic> trans =
                                   e.data() as Map<String, dynamic>;
                               TransactionModel transModel =
-                                  TransactionModel.fromJson(
+                                  TransactionModel.fromJsonWithoutPayDate(
                                       e.data() as Map<String, dynamic>);
                               final f = new DateFormat('dd MMMM yyyy, hh:mm');
 

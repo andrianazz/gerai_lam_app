@@ -383,7 +383,7 @@ class _AddStockPageState extends State<AddStockPage> {
                               height: 40,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.white,
+                                  backgroundColor: Colors.white,
                                 ),
                                 onPressed: () {
                                   _dropdownSupplier == null
@@ -594,7 +594,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                                     child: Text('Hapus'),
                                                     onPressed: () {
                                                       stockIn.removeStockIn(
-                                                          stock.id!);
+                                                          stock.indexId!);
 
                                                       Navigator.pop(context);
                                                     },
@@ -732,7 +732,7 @@ class _AddStockPageState extends State<AddStockPage> {
                               height: 40,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.white,
+                                  backgroundColor: Colors.white,
                                 ),
                                 onPressed: () {
                                   _dropdownSupplier == null
@@ -945,7 +945,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                                     child: Text('Hapus'),
                                                     onPressed: () {
                                                       stockOut.removeStockRetn(
-                                                          stock.id!);
+                                                          stock.indexId!);
 
                                                       Navigator.pop(context);
                                                     },
@@ -1063,7 +1063,7 @@ class _AddStockPageState extends State<AddStockPage> {
                               children: [
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    primary: secondaryColor,
+                                    backgroundColor: secondaryColor,
                                     fixedSize: Size(145, 50),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -1094,7 +1094,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                 SizedBox(width: 20),
                                 ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: primaryColor,
+                                      backgroundColor: primaryColor,
                                       fixedSize: Size(145, 50),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -1128,7 +1128,7 @@ class _AddStockPageState extends State<AddStockPage> {
                                           'daerah': _dropdownSupplier!.zone
                                         },
                                         'date_in': dateIn,
-                                        'time_in': timeIn.toString(),
+                                        'time_in': dateIn,
                                         'description': descController.text,
                                         'stock_in': stockIn.stockIns
                                             .map((e) => e.toJson())

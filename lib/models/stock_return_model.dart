@@ -1,5 +1,6 @@
 class StockReturnModel {
-  int? id;
+  String? id;
+  int? indexId;
   int? harga;
   int? hargaJual;
   String? kode;
@@ -9,6 +10,7 @@ class StockReturnModel {
 
   StockReturnModel({
     this.id,
+    this.indexId,
     this.harga,
     this.hargaJual,
     this.kode,
@@ -19,12 +21,12 @@ class StockReturnModel {
 
   StockReturnModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    harga = json['harga'];
-    hargaJual = json['harga_jual'];
+    harga = int.parse(json['harga'].toString());
+    hargaJual = int.parse(json['harga_jual'].toString());
     kode = json['kode'];
     nama = json['nama'];
-    stok = json['stok'];
-    total = json['total'];
+    stok = int.parse(json['stok'].toString());
+    total = int.parse(json['total'].toString());
   }
 
   Map<String, dynamic> toJson() {
