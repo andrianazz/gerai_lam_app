@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'item_model.dart';
 
 class TransactionModel {
@@ -12,7 +14,6 @@ class TransactionModel {
   int? ppl;
   int? subtotal;
   int? pay;
-
   int? totalTransaction;
   String? idCashier;
   String? payment;
@@ -46,10 +47,14 @@ class TransactionModel {
 
   TransactionModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    date = json['tanggal'].toDate();
-    payDate = json['tgl_bayar'].toDate();
+    // date = json['tanggal'].toDate();
+    // payDate = json['tgl_bayar'].toDate();
+    date = (json['tanggal'] as Timestamp).toDate();
+    payDate = json["tgl_bayar"] == null
+        ? (json['tanggal'] as Timestamp).toDate()
+        : (json['tgl_bayar'] as Timestamp).toDate();
     idCostumer = json['id_customer'];
-    address = json['address'];
+    address = json['address'] ?? "";
     items = json['items']
         .map<ItemModel>((item) => ItemModel.fromJson(item))
         .toList();
@@ -73,7 +78,7 @@ class TransactionModel {
     date = json['tanggal'].toDate();
     // payDate = json['tgl_bayar'].toDate();
     idCostumer = json['id_customer'];
-    address = json['address'];
+    address = json['address'] ?? "";
     items = json['items']
         .map<ItemModel>((item) => ItemModel.fromJson(item))
         .toList();

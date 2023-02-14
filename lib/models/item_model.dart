@@ -32,14 +32,14 @@ class ItemModel {
     idProduk = json['id_produk'];
     barcode = json['barcode'];
     name = json['nama_produk'];
-    imageUrl = json['imageUrl'] ?? '';
+    imageUrl = json['imageUrl'][0] ?? json['imageUrl'];
     capital = json['harga_modal'];
     nett = json['nett'];
     price = json['harga_jual'];
     quantity = json['jumlah'];
     total = json['total'];
     idSupplier = json['id_supplier'];
-    zone = json['daerah'];
+    zone = json['daerah'] ?? "";
   }
 
   Map<String, dynamic> toJson() {

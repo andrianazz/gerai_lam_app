@@ -29,7 +29,7 @@ class FilterService {
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((doc) {
-          Map<String, dynamic> e = doc.data() as Map<String, dynamic>;
+          Map<String, dynamic> e = doc.data();
           if (e['status'].toString().contains('Selesai')) {
             // struk.add(FilterModel(
             //     column1: e['tanggal'].toDate().toString(),
@@ -67,9 +67,8 @@ class FilterService {
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((doc) async {
-          DayRecapModel recap1 =
-              DayRecapModel.fromJson(doc.data() as Map<String, dynamic>);
-          Map<String, dynamic> recap = doc.data() as Map<String, dynamic>;
+          DayRecapModel recap1 = DayRecapModel.fromJson(doc.data());
+          Map<String, dynamic> recap = doc.data();
 
           struk.add(FilterModel(
             column1: tFormat.format(recap1.tanggal!),
@@ -92,7 +91,7 @@ class FilterService {
                 .get()
                 .then((snapshot2) {
               snapshot2.docs.forEach((doc2) {
-                Map<String, dynamic> temp = doc2.data() as Map<String, dynamic>;
+                Map<String, dynamic> temp = doc2.data();
                 print(temp);
               });
 
@@ -251,7 +250,7 @@ class FilterService {
 
       return struk;
     } catch (e) {
-      print(e.toString());
+      print(e.toString() + " Masalahnya di get Daily");
       return [];
     }
   }
@@ -576,9 +575,8 @@ class FilterService {
         .get();
 
     return snapshot.docs.map((docSnashot) {
-      TransactionModel trans =
-          TransactionModel.fromJson(docSnashot.data() as Map<String, dynamic>);
-
+      TransactionModel trans = TransactionModel.fromJson(docSnashot.data());
+      print(trans.id);
       return trans;
     }).toList();
   }

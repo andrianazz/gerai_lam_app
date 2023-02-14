@@ -83,25 +83,29 @@ class _TransactionPageState extends State<TransactionPage> {
     setState(() {});
   }
 
-  Future<void> getMonthly(
-      {ProductModel? product,
-      SupplierModel? supplier,
-      EmployeeModel? cashier}) async {
+  Future<void> getMonthly({
+    ProductModel? product,
+    SupplierModel? supplier,
+    EmployeeModel? cashier,
+  }) async {
     await Provider.of<FilterProvider>(context, listen: false).getMonthly(
-        filterProduct: product,
-        filterSupplier: supplier,
-        filterCashier: cashier);
+      filterProduct: product,
+      filterSupplier: supplier,
+      filterCashier: cashier,
+    );
     setState(() {});
   }
 
-  Future<void> getAnnual(
-      {ProductModel? product,
-      SupplierModel? supplier,
-      EmployeeModel? cashier}) async {
+  Future<void> getAnnual({
+    ProductModel? product,
+    SupplierModel? supplier,
+    EmployeeModel? cashier,
+  }) async {
     await Provider.of<FilterProvider>(context, listen: false).getAnnual(
-        filterProduct: product,
-        filterSupplier: supplier,
-        filterCashier: cashier);
+      filterProduct: product,
+      filterSupplier: supplier,
+      filterCashier: cashier,
+    );
     setState(() {});
   }
 
